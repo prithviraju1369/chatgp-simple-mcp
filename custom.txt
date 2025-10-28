@@ -1,0 +1,1611 @@
+Build a custom UX
+document.addEventListener("astro:before-swap",e=>[...e.newDocument.head.querySelectorAll('link[as="font"]')].forEach(o=>o.remove()));
+html{scroll-behavior:smooth}article.prose h2{scroll-margin-top:110px}
+Resources
+Codex
+ChatGPT
+Blog
+Search
+⌘K
+Search the docs
+⌘
+K
+/
+Ctrl
+K
+Close
+Primary navigation
+ChatGPT
+Resources
+Codex
+ChatGPT
+Blog
+ChatGPT
+>
+Apps SDK
+Home
+Categories
+Code
+Cookbooks
+Guides
+Videos
+Topics
+Agents
+Audio & Voice
+Image generation
+Video generation
+Tools
+Computer use
+Fine-tuning
+Scaling
+Home
+Quickstart
+Concepts
+Pricing
+Changelog
+Codex CLI
+Overview
+CLI Reference
+Configuration
+Codex IDE Extension
+Set up your IDE
+Configuration
+IDE → Cloud tasks
+Codex Cloud
+Delegate to Codex
+Environments
+Code Review
+Internet Access
+Codex SDK
+Overview
+TypeScript
+GitHub Action
+Guides
+Agents SDK
+Prompting Codex
+Model Context Protocol (MCP)
+Autofix CI
+Enterprise Admin
+Security Admin
+Codex on Windows
+Integrations
+Slack
+Resources
+AGENTS.md
+Codex on GitHub
+Home
+Core Concepts
+MCP Server
+User interaction
+Design guidelines
+Plan
+Research use cases
+Define tools
+Design components
+Build
+Set up your server
+Build a custom UX
+Authenticate users
+Persist state
+Examples
+Deploy
+Deploy your app
+Connect from ChatGPT
+Test your integration
+Guides
+Optimize Metadata
+Security & Privacy
+Troubleshooting
+Resources
+Reference
+App developer guidelines
+All posts
+Recent
+How Codex ran OpenAI DevDay 2025
+Why we built the Responses API
+Developer notes on the Realtime API
+Hello, world!
+function initializeMobileNavigation() {
+    const drawer = document.getElementById("drawer");
+    const drawerButton = document.getElementById("header-drawer-button");
+
+    if (
+      !drawer ||
+      !drawerButton ||
+      drawer.dataset.mobileNavInitialized === "true"
+    ) {
+      return;
+    }
+
+    const navTrigger = drawer.querySelector("[data-mobile-nav-trigger]");
+    const navLabel = drawer.querySelector("[data-mobile-nav-label]");
+    const navChevron = drawer.querySelector("[data-mobile-nav-chevron]");
+    const navDropdown = drawer.querySelector("[data-mobile-nav-dropdown]");
+    const navOptionElements = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-option]")
+    );
+    const navLinkElements = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-link]")
+    );
+    const tabPanels = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-content]")
+    );
+
+    let dropdownOpen = false;
+    let activeTabId =
+      drawer.dataset.defaultTabId ||
+      navOptionElements.find((option) => option.dataset.selected === "true")
+        ?.dataset.tabId ||
+      tabPanels[0]?.getAttribute("data-tab-id") ||
+      navOptionElements[0]?.dataset.tabId ||
+      null;
+
+    const updateSelectedOption = (tabId) => {
+      let selectedLabel = "";
+
+      navOptionElements.forEach((option) => {
+        const isSelected = option.dataset.tabId === tabId;
+        option.dataset.selected = isSelected ? "true" : "false";
+        option.setAttribute("aria-selected", isSelected ? "true" : "false");
+
+        const indicator = option.querySelector(
+          "[data-mobile-nav-option-indicator]"
+        );
+        if (indicator instanceof HTMLElement) {
+          indicator.dataset.selected = isSelected ? "true" : "false";
+        }
+
+        if (isSelected && !selectedLabel) {
+          selectedLabel =
+            option.dataset.label || option.textContent?.trim() || "";
+        }
+      });
+
+      if (!selectedLabel && navOptionElements[0]) {
+        selectedLabel =
+          navOptionElements[0].dataset.label ||
+          navOptionElements[0].textContent?.trim() ||
+          "";
+      }
+
+      if (selectedLabel) {
+        if (navLabel instanceof HTMLElement) {
+          navLabel.textContent = selectedLabel;
+        }
+        if (navTrigger instanceof HTMLElement) {
+          navTrigger.setAttribute("title", selectedLabel);
+        }
+      }
+    };
+
+    const setDropdownState = (open) => {
+      dropdownOpen = open;
+
+      if (navTrigger instanceof HTMLButtonElement) {
+        navTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+        navTrigger.dataset.open = open ? "true" : "false";
+      }
+
+      if (navChevron instanceof HTMLElement) {
+        navChevron.dataset.open = open ? "true" : "false";
+      }
+
+      if (navDropdown instanceof HTMLElement) {
+        navDropdown.dataset.open = open ? "true" : "false";
+        navDropdown.setAttribute("aria-hidden", open ? "false" : "true");
+
+        if (open) {
+          navDropdown.removeAttribute("hidden");
+        } else {
+          navDropdown.setAttribute("hidden", "true");
+        }
+      }
+    };
+
+    const closeDropdown = () => {
+      if (dropdownOpen) {
+        setDropdownState(false);
+      }
+    };
+
+    const focusSelectedOption = () => {
+      const selectedOption =
+        navOptionElements.find(
+          (option) => option.dataset.selected === "true"
+        ) || navOptionElements[0];
+
+      selectedOption?.focus();
+    };
+
+    const activateTab = (tabId) => {
+      if (!tabId) return;
+      activeTabId = tabId;
+      updateSelectedOption(tabId);
+
+      tabPanels.forEach((panel) => {
+        const isActive = panel.getAttribute("data-tab-id") === tabId;
+        if (isActive) {
+          panel.removeAttribute("hidden");
+        } else {
+          panel.setAttribute("hidden", "true");
+        }
+      });
+    };
+
+    const closeDrawer = () => {
+      closeDropdown();
+      drawer.classList.remove("open");
+      drawerButton.classList.remove("open");
+      drawerButton.setAttribute("aria-expanded", "false");
+    };
+
+    const openDrawer = () => {
+      drawer.classList.add("open");
+      drawerButton.classList.add("open");
+      drawerButton.setAttribute("aria-expanded", "true");
+      closeDropdown();
+      if (activeTabId) {
+        activateTab(activeTabId);
+      }
+    };
+
+    const toggleDrawer = () => {
+      if (drawer.classList.contains("open")) {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    };
+
+    const handleOptionSelection = (option) => {
+      const hasNav = option.dataset.hasNav === "true";
+      const href = option.dataset.href;
+      const tabId = option.dataset.tabId;
+
+      if (!tabId) {
+        closeDropdown();
+        return;
+      }
+
+      if (!hasNav && href) {
+        updateSelectedOption(tabId);
+        closeDropdown();
+        closeDrawer();
+        window.location.href = href;
+        return;
+      }
+
+      activateTab(tabId);
+      closeDropdown();
+      if (navTrigger instanceof HTMLButtonElement) {
+        navTrigger.focus();
+      }
+    };
+
+    const handleDocumentClick = (event) => {
+      if (!dropdownOpen) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+
+      if (
+        navDropdown instanceof HTMLElement &&
+        navTrigger instanceof HTMLElement
+      ) {
+        if (!navDropdown.contains(target) && !navTrigger.contains(target)) {
+          closeDropdown();
+        }
+      } else if (!drawer.contains(target)) {
+        closeDropdown();
+      }
+    };
+
+    drawerButton.addEventListener("click", toggleDrawer);
+
+    if (navTrigger instanceof HTMLButtonElement) {
+      navTrigger.addEventListener("click", () => {
+        const willOpen = !dropdownOpen;
+        setDropdownState(willOpen);
+        if (willOpen) {
+          window.requestAnimationFrame(() => {
+            focusSelectedOption();
+          });
+        }
+      });
+
+      navTrigger.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          if (!dropdownOpen) {
+            setDropdownState(true);
+          }
+          window.requestAnimationFrame(() => {
+            focusSelectedOption();
+          });
+        } else if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "Space" ||
+          event.key === "Spacebar"
+        ) {
+          event.preventDefault();
+          const willOpen = !dropdownOpen;
+          setDropdownState(willOpen);
+          if (willOpen) {
+            window.requestAnimationFrame(() => {
+              focusSelectedOption();
+            });
+          }
+        } else if (event.key === "Escape" && dropdownOpen) {
+          event.preventDefault();
+          closeDropdown();
+        }
+      });
+    }
+
+    navOptionElements.forEach((option) => {
+      option.addEventListener("click", () => {
+        handleOptionSelection(option);
+      });
+
+      option.addEventListener("keydown", (event) => {
+        if (!navOptionElements.length) return;
+
+        const currentIndex = navOptionElements.indexOf(option);
+
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          const nextIndex = (currentIndex + 1) % navOptionElements.length;
+          navOptionElements[nextIndex]?.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          const prevIndex =
+            (currentIndex - 1 + navOptionElements.length) %
+            navOptionElements.length;
+          navOptionElements[prevIndex]?.focus();
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          navOptionElements[0]?.focus();
+        } else if (event.key === "End") {
+          event.preventDefault();
+          navOptionElements[navOptionElements.length - 1]?.focus();
+        } else if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "Space" ||
+          event.key === "Spacebar"
+        ) {
+          event.preventDefault();
+          handleOptionSelection(option);
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          closeDropdown();
+          if (navTrigger instanceof HTMLButtonElement) {
+            navTrigger.focus();
+          }
+        } else if (event.key === "Tab") {
+          closeDropdown();
+        }
+      });
+    });
+
+    document.addEventListener("click", handleDocumentClick);
+
+    navLinkElements.forEach((link) => {
+      link.addEventListener("click", () => {
+        closeDrawer();
+      });
+    });
+
+    const mobileSearch = drawer.querySelector("[data-mobile-search]");
+    mobileSearch?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof Element) {
+        const anchor = target.closest("a[href]");
+        if (anchor) {
+          closeDrawer();
+        }
+      }
+    });
+
+    mobileSearch?.addEventListener("focusin", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "text") {
+        return;
+      }
+      closeDrawer();
+      window.requestAnimationFrame(() => {
+        if (document.activeElement === target) {
+          target.blur();
+        }
+        document.dispatchEvent(
+          new CustomEvent("header:open-search", {
+            detail: {
+              trigger: target,
+              variant: "mobile",
+            },
+          })
+        );
+      });
+    });
+
+    drawer.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        if (dropdownOpen) {
+          event.stopPropagation();
+          closeDropdown();
+          if (navTrigger instanceof HTMLButtonElement) {
+            navTrigger.focus();
+          }
+          return;
+        }
+
+        closeDrawer();
+        drawerButton.focus();
+      }
+    });
+
+    drawer.dataset.mobileNavInitialized = "true";
+    if (activeTabId) {
+      activateTab(activeTabId);
+    } else if (navOptionElements[0]?.dataset.tabId) {
+      updateSelectedOption(navOptionElements[0].dataset.tabId);
+    }
+  }
+
+  function initializeHeaderSearch() {
+    const overlay = document.getElementById("header-search-overlay");
+    const searchButtons = Array.from(
+      document.querySelectorAll("[data-header-search-button]")
+    );
+
+    if (!overlay || overlay.dataset.searchInitialized === "true") {
+      return;
+    }
+
+    const closeButtons = overlay.querySelectorAll("[data-header-search-close]");
+    const dismissTarget = overlay.querySelector("[data-header-search-dismiss]");
+    const panel = overlay.querySelector("[data-header-search-panel]");
+    const overlayMobileClass = "header-search-overlay--mobile";
+    const panelMobileClass = "header-search-panel--mobile";
+    let lastTrigger = null;
+    let lastVariant = null;
+
+    const setExpandedState = (isOpen) => {
+      const expanded = isOpen ? "true" : "false";
+      searchButtons.forEach((button) => {
+        button.setAttribute("aria-expanded", expanded);
+        button.setAttribute("data-active", expanded);
+      });
+      overlay.dataset.open = expanded;
+      overlay.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    };
+
+    const focusSearchInput = () => {
+      window.requestAnimationFrame(() => {
+        const input = overlay.querySelector(
+          '[data-pagefind-ui] input[type="text"]'
+        );
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
+    };
+
+    const openOverlay = (trigger, options = {}) => {
+      lastTrigger = trigger ?? document.activeElement;
+      const variant = options.variant ?? null;
+      lastVariant = typeof variant === "string" ? variant : null;
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+      const isMobileVariant = lastVariant === "mobile";
+      if (isMobileVariant) {
+        overlay.dataset.variant = "mobile";
+      } else {
+        delete overlay.dataset.variant;
+      }
+      overlay.classList.toggle(overlayMobileClass, isMobileVariant);
+      panel?.classList.toggle(panelMobileClass, isMobileVariant);
+      document.documentElement.classList.add("has-header-search-open");
+      setExpandedState(true);
+      focusSearchInput();
+    };
+
+    const closeOverlay = () => {
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+      document.documentElement.classList.remove("has-header-search-open");
+      overlay.classList.remove(overlayMobileClass);
+      panel?.classList.remove(panelMobileClass);
+      delete overlay.dataset.variant;
+      setExpandedState(false);
+      if (lastTrigger instanceof HTMLElement) {
+        if (
+          lastVariant === "mobile" &&
+          typeof lastTrigger.blur === "function"
+        ) {
+          lastTrigger.blur();
+        } else if (lastVariant !== "mobile") {
+          lastTrigger.focus();
+        }
+      }
+      lastTrigger = null;
+      lastVariant = null;
+    };
+
+    searchButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        openOverlay(button);
+      });
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        closeOverlay();
+      });
+    });
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        closeOverlay();
+      }
+    });
+
+    dismissTarget?.addEventListener("click", closeOverlay);
+
+    const handleKeydown = (event) => {
+      const key = "key" in event ? event.key : undefined;
+      const isShortcut =
+        !!key && key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
+
+      if (isShortcut) {
+        event.preventDefault();
+        openOverlay(searchButtons[0] ?? null);
+        return;
+      }
+
+      if (key === "Escape" && overlay.dataset.open === "true") {
+        event.preventDefault();
+        closeOverlay();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+
+    document.addEventListener("header:open-search", (event) => {
+      const detail =
+        event instanceof CustomEvent && typeof event.detail === "object"
+          ? event.detail
+          : {};
+      const trigger =
+        detail && detail.trigger instanceof HTMLElement ? detail.trigger : null;
+      openOverlay(trigger, detail);
+    });
+
+    document.addEventListener("astro:before-swap", () => {
+      if (overlay.dataset.open === "true") {
+        closeOverlay();
+      }
+    });
+
+    overlay.dataset.searchInitialized = "true";
+  }
+
+  const handleAfterSwap = () => {
+    initializeMobileNavigation();
+    initializeHeaderSearch();
+  };
+
+  document.addEventListener("astro:after-swap", handleAfterSwap);
+  handleAfterSwap();
+ChatGPT
+>
+Apps SDK
+Home
+Core Concepts
+MCP Server
+User interaction
+Design guidelines
+Plan
+Research use cases
+Define tools
+Design components
+Build
+Set up your server
+Build a custom UX
+Authenticate users
+Persist state
+Examples
+Deploy
+Deploy your app
+Connect from ChatGPT
+Test your integration
+Guides
+Optimize Metadata
+Security & Privacy
+Troubleshooting
+Resources
+Reference
+App developer guidelines
+const NAV_SELECTOR = "nav[data-left-nav]";
+  const STORAGE_PREFIX = "left-nav-scroll:";
+  const INITIALIZED_ATTRIBUTE = "data-left-nav-scroll-initialized";
+
+  const isStorageAvailable = (() => {
+    try {
+      const storageKey = `${STORAGE_PREFIX}__test__`;
+      sessionStorage.setItem(storageKey, "1");
+      sessionStorage.removeItem(storageKey);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  })();
+
+  const getNav = () => document.querySelector(NAV_SELECTOR);
+
+  const getStorageKey = (nav) =>
+    `${STORAGE_PREFIX}${nav.dataset.leftNavId ?? "default"}`;
+
+  const restoreScrollPosition = (nav) => {
+    if (!isStorageAvailable) return;
+    const storedValue = sessionStorage.getItem(getStorageKey(nav));
+    if (storedValue !== null) {
+      nav.scrollTop = Number(storedValue);
+    }
+  };
+
+  const saveScrollPosition = (nav) => {
+    if (!isStorageAvailable) return;
+    sessionStorage.setItem(getStorageKey(nav), String(nav.scrollTop));
+  };
+
+  const setupNav = () => {
+    const nav = getNav();
+    if (!nav || nav.getAttribute(INITIALIZED_ATTRIBUTE) === "true") return;
+
+    restoreScrollPosition(nav);
+
+    nav.addEventListener(
+      "scroll",
+      () => {
+        saveScrollPosition(nav);
+      },
+      { passive: true }
+    );
+
+    nav.setAttribute(INITIALIZED_ATTRIBUTE, "true");
+  };
+
+  const persistScrollPosition = () => {
+    const nav = getNav();
+    if (!nav) return;
+    saveScrollPosition(nav);
+  };
+
+  const initialize = () => {
+    setupNav();
+    const nav = getNav();
+    if (!nav) return;
+    restoreScrollPosition(nav);
+  };
+
+  window.addEventListener("pageshow", initialize);
+  document.addEventListener("astro:page-load", initialize);
+  document.addEventListener("astro:after-swap", initialize);
+
+  document.addEventListener("astro:before-swap", persistScrollPosition);
+  window.addEventListener("beforeunload", persistScrollPosition);
+
+  initialize();
+astro-island,astro-slot,astro-static-slot{display:contents}
+(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();
+(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();
+window._$HY||(e=>{let t=e=>e&&e.hasAttribute&&(e.hasAttribute("data-hk")?e:t(e.host&&e.host.nodeType?e.host:e.parentNode));["click", "input"].forEach((o=>document.addEventListener(o,(o=>{if(!e.events)return;let s=t(o.composedPath&&o.composedPath()[0]||o.target);s&&!e.completed.has(s)&&e.events.push([s,o])}))))})(_$HY={events:[],completed:new WeakSet,r:{},fe(){}});
+Build a custom UX
+Build custom UI components & app page.
+Overview
+UI components turn structured tool results into a human-friendly UI. Apps SDK components are typically React components that run inside an iframe, talk to the host via the
+window.openai
+API, and render inline with the conversation. This guide describes how to structure your component project, bundle it, and wire it up to your MCP server.
+You can also check out the
+examples repository on GitHub
+.
+Understand the
+window.openai
+API
+window.openai
+is the bridge between your frontend and ChatGPT. Use this quick reference to first understand how to wire up data, state, and layout concerns before you dive into component scaffolding.
+declare
+global {
+interface
+Window
+{
+openai
+:
+API
+&
+OpenAiGlobals
+;
+}
+interface
+WindowEventMap
+{
+[
+SET_GLOBALS_EVENT_TYPE
+]
+:
+SetGlobalsEvent
+;
+}
+}
+type
+OpenAiGlobals
+<
+ToolInput
+extends
+UnknownObject
+=
+UnknownObject
+,
+ToolOutput
+extends
+UnknownObject
+=
+UnknownObject
+,
+ToolResponseMetadata
+extends
+UnknownObject
+=
+UnknownObject
+,
+WidgetState
+extends
+UnknownObject
+=
+UnknownObject
+>
+=
+{
+theme
+:
+Theme
+;
+userAgent
+:
+UserAgent
+;
+locale
+:
+string
+;
+// layout
+maxHeight
+:
+number
+;
+displayMode
+:
+DisplayMode
+;
+safeArea
+:
+SafeArea
+;
+// state
+toolInput
+:
+ToolInput
+;
+toolOutput
+:
+ToolOutput
+|
+null
+;
+toolResponseMetadata
+:
+ToolResponseMetadata
+|
+null
+;
+widgetState
+:
+WidgetState
+|
+null
+;
+};
+type
+API
+<
+WidgetState
+extends
+UnknownObject
+>
+=
+{
+/** Calls a tool on your MCP. Returns the full response. */
+callTool
+:
+(
+name
+:
+string
+,
+args
+:
+Record
+<
+string
+,
+unknown
+>
+)
+=>
+Promise
+<
+CallToolResponse
+>;
+/** Triggers a followup turn in the ChatGPT conversation */
+sendFollowUpMessage
+:
+(
+args
+:
+{
+prompt
+:
+string
+})
+=>
+Promise
+<
+void
+>;
+/** Opens an external link, redirects web page or mobile app */
+openExternal
+(
+payload
+:
+{
+href
+:
+string
+})
+:
+void
+;
+/** For transitioning an app from inline to fullscreen or pip */
+requestDisplayMode
+:
+(
+args
+:
+{
+mode
+:
+DisplayMode
+})
+=>
+Promise
+<{
+/**
+* The granted display mode. The host may reject the request.
+* For mobile, PiP is always coerced to fullscreen.
+*/
+mode
+:
+DisplayMode
+;
+}>;
+setWidgetState
+:
+(
+state
+:
+WidgetState
+)
+=>
+Promise
+<
+void
+>;
+};
+// Dispatched when any global changes in the host page
+export
+const
+SET_GLOBALS_EVENT_TYPE
+=
+"openai:set_globals"
+;
+export
+class
+SetGlobalsEvent
+extends
+CustomEvent
+<{
+globals
+:
+Partial
+<
+OpenAiGlobals
+>;
+}> {
+readonly
+type
+=
+SET_GLOBALS_EVENT_TYPE
+;
+}
+export
+type
+CallTool
+=
+(
+name
+:
+string
+,
+args
+:
+Record
+<
+string
+,
+unknown
+>
+)
+=>
+Promise
+<
+CallToolResponse
+>;
+export
+type
+DisplayMode
+=
+"pip"
+|
+"inline"
+|
+"fullscreen"
+;
+export
+type
+Theme
+=
+"light"
+|
+"dark"
+;
+export
+type
+SafeAreaInsets
+=
+{
+top
+:
+number
+;
+bottom
+:
+number
+;
+left
+:
+number
+;
+right
+:
+number
+;
+};
+export
+type
+SafeArea
+=
+{
+insets
+:
+SafeAreaInsets
+;
+};
+export
+type
+DeviceType
+=
+"mobile"
+|
+"tablet"
+|
+"desktop"
+|
+"unknown"
+;
+export
+type
+UserAgent
+=
+{
+device
+:
+{
+type
+:
+DeviceType
+};
+capabilities
+:
+{
+hover
+:
+boolean
+;
+touch
+:
+boolean
+;
+};
+};
+useOpenAiGlobal
+Many Apps SDK projects wrap
+window.openai
+access in small hooks so views remain testable. This example hook listens for host
+openai:set_globals
+events and lets React components subscribe to a single global value:
+export
+function
+useOpenAiGlobal
+<
+K
+extends
+keyof
+OpenAiGlobals
+>(
+key
+:
+K
+)
+:
+OpenAiGlobals
+[
+K
+] {
+return
+useSyncExternalStore
+(
+(
+onChange
+)
+=>
+{
+const
+handleSetGlobal
+=
+(
+event
+:
+SetGlobalsEvent
+)
+=>
+{
+const
+value
+=
+event.detail.globals[key];
+if
+(value
+===
+undefined
+) {
+return
+;
+}
+onChange
+();
+};
+window.
+addEventListener
+(
+SET_GLOBALS_EVENT_TYPE
+, handleSetGlobal, {
+passive:
+true
+,
+});
+return
+()
+=>
+{
+window.
+removeEventListener
+(
+SET_GLOBALS_EVENT_TYPE
+, handleSetGlobal);
+};
+},
+()
+=>
+window.openai[key]
+);
+}
+useOpenAiGlobal
+is an important primitive to make your app reactive to changes in display mode, theme, and “props” via subsequent tool calls.
+For example, read the tool input, output, and metadata:
+export
+function
+useToolInput
+() {
+return
+useOpenAiGlobal
+(
+"toolInput"
+);
+}
+export
+function
+useToolOutput
+() {
+return
+useOpenAiGlobal
+(
+"toolOutput"
+);
+}
+export
+function
+useToolResponseMetadata
+() {
+return
+useOpenAiGlobal
+(
+"toolResponseMetadata"
+);
+}
+Persist component state, expose context to ChatGPT
+Widget state can be used for persisting data across user sessions, and exposing data to ChatGPT. Anything you pass to
+setWidgetState
+will be shown to the model, and hydrated into
+window.openai.widgetState
+.
+Note that currently everything passed to
+setWidgetState
+is shown to the model. For the best performance, it’s advisable to keep this payload small, and to not exceed more than 4k
+tokens
+.
+Trigger server actions
+window.openai.callTool
+lets the component directly make MCP tool calls. Use this for direct manipulations (refresh data, fetch nearby restaurants). Design tools to be idempotent where possible and return updated structured content that the model can reason over in subsequent turns.
+Please note that your tool needs to be marked as
+able to be initiated by the component
+.
+async
+function
+refreshPlaces
+(
+city
+:
+string
+) {
+await
+window.openai?.
+callTool
+(
+"refresh_pizza_list"
+, { city });
+}
+Send conversational follow-ups
+Use
+window.openai.sendFollowUpMessage
+to insert a message into the conversation as if the user asked it.
+await
+window.openai?.
+sendFollowUpMessage
+({
+prompt:
+"Draft a tasting itinerary for the pizzerias I favorited."
+,
+});
+Request alternate layouts
+If the UI needs more space—like maps, tables, or embedded editors—ask the host to change the container.
+window.openai.requestDisplayMode
+negotiates inline, PiP, or fullscreen presentations.
+await
+window.openai?.
+requestDisplayMode
+({ mode:
+"fullscreen"
+});
+// Note: on mobile, PiP may be coerced to fullscreen
+Use host-backed navigation
+Skybridge (the sandbox runtime) mirrors the iframe’s history into ChatGPT’s UI. Use standard routing APIs—such as React Router—and the host will keep navigation controls in sync with your component.
+Router setup (React Router’s
+BrowserRouter
+):
+export
+default
+function
+PizzaListRouter
+() {
+return
+(
+<
+BrowserRouter
+>
+<
+Routes
+>
+<
+Route path
+=
+"/"
+element
+=
+{<PizzaListApp />}
+>
+<
+Route path
+=
+"place/:placeId"
+element
+=
+{<PizzaListApp />}
+/>
+</
+Route
+>
+</
+Routes
+>
+</
+BrowserRouter
+>
+);
+}
+Programmatic navigation:
+const
+navigate
+=
+useNavigate
+();
+function
+openDetails
+(
+placeId
+:
+string
+) {
+navigate
+(
+`place/${
+placeId
+}`
+, { replace:
+false
+});
+}
+function
+closeDetails
+() {
+navigate
+(
+".."
+, { replace:
+true
+});
+}
+Scaffold the component project
+Now that you understand the
+window.openai
+API, it’s time to scaffold your component project.
+As best practice, keep the component code separate from your server logic. A common layout is:
+app/
+server/            # MCP server (Python or Node)
+web/               # Component bundle source
+package.json
+tsconfig.json
+src/component.tsx
+dist/component.js   # Build output
+Create the project and install dependencies (Node 18+ recommended):
+cd
+app/web
+npm
+init
+-y
+npm
+install
+react@^18
+react-dom@^18
+npm
+install
+-D
+typescript
+esbuild
+If your component requires drag-and-drop, charts, or other libraries, add them now. Keep the dependency set lean to reduce bundle size.
+Author the React component
+Your entry file should mount a component into a
+root
+element and read initial data from
+window.openai.toolOutput
+or persisted state.
+We have provided some example apps under the
+examples page
+, for example, for a “Pizza list” app, which is a list of pizza restaurants.
+Explore the Pizzaz component gallery
+We provide a number of example components in the
+Apps SDK examples
+. Treat them as blueprints when shaping your own UI:
+Pizzaz List
+– ranked card list with favorites and call-to-action buttons.
+Pizzaz Carousel
+– embla-powered horizontal scroller that demonstrates media-heavy layouts.
+Pizzaz Map
+– Mapbox integration with fullscreen inspector and host state sync.
+Pizzaz Album
+– stacked gallery view built for deep dives on a single place.
+Pizzaz Video
+– scripted player with overlays and fullscreen controls.
+Each example shows how to bundle assets, wire host APIs, and structure state for real conversations. Copy the one closest to your use case and adapt the data layer for your tool responses.
+React helper hooks
+Using
+useOpenAiGlobal
+in a
+useWidgetState
+hook to keep host-persisted widget state aligned with your local React state:
+export
+function
+useWidgetState
+<
+T
+extends
+WidgetState
+>(
+defaultState
+:
+T
+|
+(()
+=>
+T
+)
+)
+:
+readonly
+[
+T
+, (
+state
+:
+SetStateAction
+<
+T
+>)
+=>
+void
+];
+export
+function
+useWidgetState
+<
+T
+extends
+WidgetState
+>(
+defaultState
+?:
+T
+|
+(()
+=>
+T
+|
+null
+)
+|
+null
+)
+:
+readonly
+[
+T
+|
+null
+, (
+state
+:
+SetStateAction
+<
+T
+|
+null
+>)
+=>
+void
+];
+export
+function
+useWidgetState
+<
+T
+extends
+WidgetState
+>(
+defaultState
+?:
+T
+|
+(()
+=>
+T
+|
+null
+)
+|
+null
+)
+:
+readonly
+[
+T
+|
+null
+, (
+state
+:
+SetStateAction
+<
+T
+|
+null
+>)
+=>
+void
+] {
+const
+widgetStateFromWindow
+=
+useWebplusGlobal
+(
+"widgetState"
+)
+as
+T
+;
+const
+[
+widgetState
+,
+_setWidgetState
+]
+=
+useState
+<
+T
+|
+null
+>(()
+=>
+{
+if
+(widgetStateFromWindow
+!=
+null
+) {
+return
+widgetStateFromWindow;
+}
+return
+typeof
+defaultState
+===
+"function"
+?
+defaultState
+()
+:
+defaultState
+??
+null
+;
+});
+useEffect
+(()
+=>
+{
+_setWidgetState
+(widgetStateFromWindow);
+}, [widgetStateFromWindow]);
+const
+setWidgetState
+=
+useCallback
+(
+(
+state
+:
+SetStateAction
+<
+T
+|
+null
+>)
+=>
+{
+_setWidgetState
+((
+prevState
+)
+=>
+{
+const
+newState
+=
+typeof
+state
+===
+"function"
+?
+state
+(prevState)
+:
+state;
+if
+(newState
+!=
+null
+) {
+window.openai.
+setWidgetState
+(newState);
+}
+return
+newState;
+});
+},
+[window.openai.setWidgetState]
+);
+return
+[widgetState, setWidgetState]
+as
+const
+;
+}
+The hooks above make it easy to read the latest tool output, layout globals, or widget state directly from React components while still delegating persistence back to ChatGPT.
+Bundle for the iframe
+Once you are done writing your React component, you can build it into a single JavaScript module that the server can inline:
+// package.json
+{
+"scripts"
+: {
+"build"
+:
+"esbuild src/component.tsx --bundle --format=esm --outfile=dist/component.js"
+}
+}
+Run
+npm run build
+to produce
+dist/component.js
+. If esbuild complains about missing dependencies, confirm you ran
+npm install
+in the
+web/
+directory and that your imports match installed package names (e.g.,
+@react-dnd/html5-backend
+vs
+react-dnd-html5-backend
+).
+Embed the component in the server response
+See the
+Set up your server docs
+for how to embed the component in your MCP server response.
+Component UI templates are the recommended path for production.
+During development you can rebuild the component bundle whenever your React code changes and hot-reload the server.
+Previous
+Set up your server
+Next
+Authenticate users
+(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();

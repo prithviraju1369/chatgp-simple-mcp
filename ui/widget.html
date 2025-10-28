@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top Market Movers</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --border-soft: rgba(148, 163, 184, 0.25);
+        --surface-muted: rgba(148, 163, 184, 0.08);
+        --surface-strong: rgba(148, 163, 184, 0.14);
+        --row-alt: rgba(148, 163, 184, 0.06);
+        --text-muted: rgba(148, 163, 184, 0.7);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .widget {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+
+      .header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .header h1 {
+        font-size: 1.25rem;
+        margin: 0;
+      }
+
+      .controls {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+
+      .controls select {
+        border-radius: 0.5rem;
+        padding: 0.4rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        background: var(--surface-muted);
+        color: inherit;
+      }
+
+      .controls button {
+        border-radius: 0.5rem;
+        padding: 0.45rem 0.95rem;
+        border: 1px solid var(--border-soft);
+        background: var(--surface-strong);
+        color: inherit;
+        cursor: pointer;
+        transition: transform 150ms ease;
+      }
+
+      .controls button:disabled {
+        opacity: 0.6;
+        cursor: progress;
+        transform: none;
+      }
+
+      .controls button:not(:disabled):hover {
+        transform: translateY(-1px);
+      }
+
+      .status {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .tables {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .table-card {
+        background: var(--surface-muted);
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+        border: 1px solid var(--border-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .table-card h2 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      thead {
+        background: var(--surface-strong);
+      }
+
+      th,
+      td {
+        text-align: right;
+        padding: 0.45rem 0.35rem;
+        white-space: nowrap;
+      }
+
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+
+      tbody tr:nth-child(even) {
+        background: var(--row-alt);
+      }
+
+      .positive {
+        color: #16a34a;
+      }
+
+      .negative {
+        color: #dc2626;
+      }
+
+      .error {
+        color: #dc2626;
+        font-size: 0.9rem;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 640px) {
+        .widget {
+          padding: 1rem;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .controls {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="widget">
+      <div class="header">
+        <div>
+          <h1>Market Top Movers</h1>
+          <div class="status" data-status></div>
+        </div>
+        <div class="controls">
+          <label for="limit-select">Rows</label>
+          <select id="limit-select" data-limit>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+          <button type="button" data-refresh>Refresh</button>
+        </div>
+      </div>
+      <div class="error hidden" data-error></div>
+      <div class="tables" data-output>
+        <div class="table-card">
+          <h2>Top Gainers</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Price</th>
+                  <th>Δ $</th>
+                  <th>Δ %</th>
+                  <th>Volume</th>
+                </tr>
+              </thead>
+              <tbody data-gainers></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="table-card">
+          <h2>Top Losers</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Price</th>
+                  <th>Δ $</th>
+                  <th>Δ %</th>
+                  <th>Volume</th>
+                </tr>
+              </thead>
+              <tbody data-losers></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      const SET_GLOBALS_EVENT = 'openai:set_globals';
+      const DEFAULT_LIMIT = 5;
+
+      const limitSelect = document.querySelector('[data-limit]');
+      const refreshButton = document.querySelector('[data-refresh]');
+      const statusEl = document.querySelector('[data-status]');
+      const errorEl = document.querySelector('[data-error]');
+      const gainersBody = document.querySelector('[data-gainers]');
+      const losersBody = document.querySelector('[data-losers]');
+
+      const state = {
+        limit: DEFAULT_LIMIT,
+        loading: false,
+      };
+
+      const formatters = {
+        currency: new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 2,
+        }),
+        number: new Intl.NumberFormat(undefined, {
+          notation: 'compact',
+          maximumFractionDigits: 1,
+        }),
+        percent: new Intl.NumberFormat(undefined, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+        }),
+      };
+
+      function formatCurrency(value) {
+        if (value === null || Number.isNaN(value)) return '—';
+        return formatters.currency.format(value);
+      }
+
+      function formatDelta(value) {
+        if (value === null || Number.isNaN(value)) return '—';
+        const amount = Math.abs(value);
+        const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+        return `${sign}${formatters.currency.format(amount)}`;
+      }
+
+      function formatPercent(value) {
+        if (value === null || Number.isNaN(value)) return '—';
+        const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+        const magnitude = Math.abs(value);
+        return `${sign}${magnitude.toFixed(2)}%`;
+      }
+
+      function formatVolume(value) {
+        if (value === null || Number.isNaN(value)) return '—';
+        return formatters.number.format(value);
+      }
+
+      function setStatus(message) {
+        if (!statusEl) return;
+        statusEl.textContent = message ?? '';
+      }
+
+      function setError(message) {
+        if (!errorEl) return;
+        if (message) {
+          errorEl.textContent = message;
+          errorEl.classList.remove('hidden');
+        } else {
+          errorEl.textContent = '';
+          errorEl.classList.add('hidden');
+        }
+      }
+
+      function setLoading(isLoading) {
+        state.loading = isLoading;
+        if (refreshButton) {
+          refreshButton.disabled = isLoading;
+        }
+      }
+
+      function renderRows(target, rows = []) {
+        if (!target) return;
+        if (!rows.length) {
+          target.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+          return;
+        }
+
+        const html = rows
+          .map((row) => {
+            const percentClass = row.changePercent && row.changePercent !== 0 ? (row.changePercent > 0 ? 'positive' : 'negative') : '';
+            const amountClass = row.changeAmount && row.changeAmount !== 0 ? (row.changeAmount > 0 ? 'positive' : 'negative') : '';
+
+            return `
+              <tr>
+                <td>${row.symbol}</td>
+                <td>${formatCurrency(row.price)}</td>
+                <td class="${amountClass}">${formatDelta(row.changeAmount)}</td>
+                <td class="${percentClass}">${formatPercent(row.changePercent)}</td>
+                <td>${formatVolume(row.volume)}</td>
+              </tr>
+            `;
+          })
+          .join('');
+
+        target.innerHTML = html;
+      }
+
+      function renderOutput(output) {
+        if (!output) {
+          setStatus('No data yet. Use refresh to load movers.');
+          renderRows(gainersBody, []);
+          renderRows(losersBody, []);
+          return;
+        }
+
+        const { gainers = [], losers = [], lastUpdated } = output;
+
+        renderRows(gainersBody, gainers);
+        renderRows(losersBody, losers);
+
+        const timestamp = lastUpdated ? new Date(lastUpdated) : null;
+        const formatted = timestamp && !Number.isNaN(timestamp.getTime())
+          ? `Last updated ${timestamp.toLocaleString()}`
+          : 'Showing latest available snapshot';
+        setStatus(formatted);
+      }
+
+      async function fetchTopMovers() {
+        if (state.loading) {
+          return;
+        }
+
+        if (!window.openai?.callTool) {
+          setError('Tool calling is unavailable in this context.');
+          return;
+        }
+
+        try {
+          setError('');
+          setLoading(true);
+          setStatus('Fetching top movers…');
+          await window.openai.callTool('topMovers', { limit: state.limit });
+        } catch (err) {
+          console.error(err);
+          setError('Failed to fetch top movers. Try again in a moment.');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function handleGlobals(event) {
+        const globals = event?.detail?.globals;
+        if (!globals) {
+          return;
+        }
+
+        if (Object.prototype.hasOwnProperty.call(globals, 'toolOutput')) {
+          renderOutput(globals.toolOutput);
+        }
+      }
+
+      limitSelect?.addEventListener('change', () => {
+        const nextLimit = Number.parseInt(limitSelect.value, 10);
+        if (Number.isFinite(nextLimit)) {
+          state.limit = nextLimit;
+          fetchTopMovers();
+        }
+      });
+
+      refreshButton?.addEventListener('click', () => {
+        fetchTopMovers();
+      });
+
+      window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });
+
+      if (limitSelect) {
+        limitSelect.value = `${state.limit}`;
+      }
+
+      setLoading(false);
+
+      const initialOutput = window.openai?.toolOutput;
+      if (initialOutput) {
+        renderOutput(initialOutput);
+      } else {
+        setStatus('Loading top movers…');
+      }
+
+      fetchTopMovers();
+    </script>
+  </body>
+</html>

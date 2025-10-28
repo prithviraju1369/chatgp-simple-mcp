@@ -1,0 +1,1491 @@
+Set up your server
+document.addEventListener("astro:before-swap",e=>[...e.newDocument.head.querySelectorAll('link[as="font"]')].forEach(o=>o.remove()));
+html{scroll-behavior:smooth}article.prose h2{scroll-margin-top:110px}
+Resources
+Codex
+ChatGPT
+Blog
+Search
+⌘K
+Search the docs
+⌘
+K
+/
+Ctrl
+K
+Close
+Primary navigation
+ChatGPT
+Resources
+Codex
+ChatGPT
+Blog
+ChatGPT
+>
+Apps SDK
+Home
+Categories
+Code
+Cookbooks
+Guides
+Videos
+Topics
+Agents
+Audio & Voice
+Image generation
+Video generation
+Tools
+Computer use
+Fine-tuning
+Scaling
+Home
+Quickstart
+Concepts
+Pricing
+Changelog
+Codex CLI
+Overview
+CLI Reference
+Configuration
+Codex IDE Extension
+Set up your IDE
+Configuration
+IDE → Cloud tasks
+Codex Cloud
+Delegate to Codex
+Environments
+Code Review
+Internet Access
+Codex SDK
+Overview
+TypeScript
+GitHub Action
+Guides
+Agents SDK
+Prompting Codex
+Model Context Protocol (MCP)
+Autofix CI
+Enterprise Admin
+Security Admin
+Codex on Windows
+Integrations
+Slack
+Resources
+AGENTS.md
+Codex on GitHub
+Home
+Core Concepts
+MCP Server
+User interaction
+Design guidelines
+Plan
+Research use cases
+Define tools
+Design components
+Build
+Set up your server
+Build a custom UX
+Authenticate users
+Persist state
+Examples
+Deploy
+Deploy your app
+Connect from ChatGPT
+Test your integration
+Guides
+Optimize Metadata
+Security & Privacy
+Troubleshooting
+Resources
+Reference
+App developer guidelines
+All posts
+Recent
+How Codex ran OpenAI DevDay 2025
+Why we built the Responses API
+Developer notes on the Realtime API
+Hello, world!
+function initializeMobileNavigation() {
+    const drawer = document.getElementById("drawer");
+    const drawerButton = document.getElementById("header-drawer-button");
+
+    if (
+      !drawer ||
+      !drawerButton ||
+      drawer.dataset.mobileNavInitialized === "true"
+    ) {
+      return;
+    }
+
+    const navTrigger = drawer.querySelector("[data-mobile-nav-trigger]");
+    const navLabel = drawer.querySelector("[data-mobile-nav-label]");
+    const navChevron = drawer.querySelector("[data-mobile-nav-chevron]");
+    const navDropdown = drawer.querySelector("[data-mobile-nav-dropdown]");
+    const navOptionElements = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-option]")
+    );
+    const navLinkElements = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-link]")
+    );
+    const tabPanels = Array.from(
+      drawer.querySelectorAll("[data-mobile-nav-content]")
+    );
+
+    let dropdownOpen = false;
+    let activeTabId =
+      drawer.dataset.defaultTabId ||
+      navOptionElements.find((option) => option.dataset.selected === "true")
+        ?.dataset.tabId ||
+      tabPanels[0]?.getAttribute("data-tab-id") ||
+      navOptionElements[0]?.dataset.tabId ||
+      null;
+
+    const updateSelectedOption = (tabId) => {
+      let selectedLabel = "";
+
+      navOptionElements.forEach((option) => {
+        const isSelected = option.dataset.tabId === tabId;
+        option.dataset.selected = isSelected ? "true" : "false";
+        option.setAttribute("aria-selected", isSelected ? "true" : "false");
+
+        const indicator = option.querySelector(
+          "[data-mobile-nav-option-indicator]"
+        );
+        if (indicator instanceof HTMLElement) {
+          indicator.dataset.selected = isSelected ? "true" : "false";
+        }
+
+        if (isSelected && !selectedLabel) {
+          selectedLabel =
+            option.dataset.label || option.textContent?.trim() || "";
+        }
+      });
+
+      if (!selectedLabel && navOptionElements[0]) {
+        selectedLabel =
+          navOptionElements[0].dataset.label ||
+          navOptionElements[0].textContent?.trim() ||
+          "";
+      }
+
+      if (selectedLabel) {
+        if (navLabel instanceof HTMLElement) {
+          navLabel.textContent = selectedLabel;
+        }
+        if (navTrigger instanceof HTMLElement) {
+          navTrigger.setAttribute("title", selectedLabel);
+        }
+      }
+    };
+
+    const setDropdownState = (open) => {
+      dropdownOpen = open;
+
+      if (navTrigger instanceof HTMLButtonElement) {
+        navTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+        navTrigger.dataset.open = open ? "true" : "false";
+      }
+
+      if (navChevron instanceof HTMLElement) {
+        navChevron.dataset.open = open ? "true" : "false";
+      }
+
+      if (navDropdown instanceof HTMLElement) {
+        navDropdown.dataset.open = open ? "true" : "false";
+        navDropdown.setAttribute("aria-hidden", open ? "false" : "true");
+
+        if (open) {
+          navDropdown.removeAttribute("hidden");
+        } else {
+          navDropdown.setAttribute("hidden", "true");
+        }
+      }
+    };
+
+    const closeDropdown = () => {
+      if (dropdownOpen) {
+        setDropdownState(false);
+      }
+    };
+
+    const focusSelectedOption = () => {
+      const selectedOption =
+        navOptionElements.find(
+          (option) => option.dataset.selected === "true"
+        ) || navOptionElements[0];
+
+      selectedOption?.focus();
+    };
+
+    const activateTab = (tabId) => {
+      if (!tabId) return;
+      activeTabId = tabId;
+      updateSelectedOption(tabId);
+
+      tabPanels.forEach((panel) => {
+        const isActive = panel.getAttribute("data-tab-id") === tabId;
+        if (isActive) {
+          panel.removeAttribute("hidden");
+        } else {
+          panel.setAttribute("hidden", "true");
+        }
+      });
+    };
+
+    const closeDrawer = () => {
+      closeDropdown();
+      drawer.classList.remove("open");
+      drawerButton.classList.remove("open");
+      drawerButton.setAttribute("aria-expanded", "false");
+    };
+
+    const openDrawer = () => {
+      drawer.classList.add("open");
+      drawerButton.classList.add("open");
+      drawerButton.setAttribute("aria-expanded", "true");
+      closeDropdown();
+      if (activeTabId) {
+        activateTab(activeTabId);
+      }
+    };
+
+    const toggleDrawer = () => {
+      if (drawer.classList.contains("open")) {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    };
+
+    const handleOptionSelection = (option) => {
+      const hasNav = option.dataset.hasNav === "true";
+      const href = option.dataset.href;
+      const tabId = option.dataset.tabId;
+
+      if (!tabId) {
+        closeDropdown();
+        return;
+      }
+
+      if (!hasNav && href) {
+        updateSelectedOption(tabId);
+        closeDropdown();
+        closeDrawer();
+        window.location.href = href;
+        return;
+      }
+
+      activateTab(tabId);
+      closeDropdown();
+      if (navTrigger instanceof HTMLButtonElement) {
+        navTrigger.focus();
+      }
+    };
+
+    const handleDocumentClick = (event) => {
+      if (!dropdownOpen) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+
+      if (
+        navDropdown instanceof HTMLElement &&
+        navTrigger instanceof HTMLElement
+      ) {
+        if (!navDropdown.contains(target) && !navTrigger.contains(target)) {
+          closeDropdown();
+        }
+      } else if (!drawer.contains(target)) {
+        closeDropdown();
+      }
+    };
+
+    drawerButton.addEventListener("click", toggleDrawer);
+
+    if (navTrigger instanceof HTMLButtonElement) {
+      navTrigger.addEventListener("click", () => {
+        const willOpen = !dropdownOpen;
+        setDropdownState(willOpen);
+        if (willOpen) {
+          window.requestAnimationFrame(() => {
+            focusSelectedOption();
+          });
+        }
+      });
+
+      navTrigger.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          if (!dropdownOpen) {
+            setDropdownState(true);
+          }
+          window.requestAnimationFrame(() => {
+            focusSelectedOption();
+          });
+        } else if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "Space" ||
+          event.key === "Spacebar"
+        ) {
+          event.preventDefault();
+          const willOpen = !dropdownOpen;
+          setDropdownState(willOpen);
+          if (willOpen) {
+            window.requestAnimationFrame(() => {
+              focusSelectedOption();
+            });
+          }
+        } else if (event.key === "Escape" && dropdownOpen) {
+          event.preventDefault();
+          closeDropdown();
+        }
+      });
+    }
+
+    navOptionElements.forEach((option) => {
+      option.addEventListener("click", () => {
+        handleOptionSelection(option);
+      });
+
+      option.addEventListener("keydown", (event) => {
+        if (!navOptionElements.length) return;
+
+        const currentIndex = navOptionElements.indexOf(option);
+
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          const nextIndex = (currentIndex + 1) % navOptionElements.length;
+          navOptionElements[nextIndex]?.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          const prevIndex =
+            (currentIndex - 1 + navOptionElements.length) %
+            navOptionElements.length;
+          navOptionElements[prevIndex]?.focus();
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          navOptionElements[0]?.focus();
+        } else if (event.key === "End") {
+          event.preventDefault();
+          navOptionElements[navOptionElements.length - 1]?.focus();
+        } else if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "Space" ||
+          event.key === "Spacebar"
+        ) {
+          event.preventDefault();
+          handleOptionSelection(option);
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          closeDropdown();
+          if (navTrigger instanceof HTMLButtonElement) {
+            navTrigger.focus();
+          }
+        } else if (event.key === "Tab") {
+          closeDropdown();
+        }
+      });
+    });
+
+    document.addEventListener("click", handleDocumentClick);
+
+    navLinkElements.forEach((link) => {
+      link.addEventListener("click", () => {
+        closeDrawer();
+      });
+    });
+
+    const mobileSearch = drawer.querySelector("[data-mobile-search]");
+    mobileSearch?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof Element) {
+        const anchor = target.closest("a[href]");
+        if (anchor) {
+          closeDrawer();
+        }
+      }
+    });
+
+    mobileSearch?.addEventListener("focusin", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "text") {
+        return;
+      }
+      closeDrawer();
+      window.requestAnimationFrame(() => {
+        if (document.activeElement === target) {
+          target.blur();
+        }
+        document.dispatchEvent(
+          new CustomEvent("header:open-search", {
+            detail: {
+              trigger: target,
+              variant: "mobile",
+            },
+          })
+        );
+      });
+    });
+
+    drawer.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        if (dropdownOpen) {
+          event.stopPropagation();
+          closeDropdown();
+          if (navTrigger instanceof HTMLButtonElement) {
+            navTrigger.focus();
+          }
+          return;
+        }
+
+        closeDrawer();
+        drawerButton.focus();
+      }
+    });
+
+    drawer.dataset.mobileNavInitialized = "true";
+    if (activeTabId) {
+      activateTab(activeTabId);
+    } else if (navOptionElements[0]?.dataset.tabId) {
+      updateSelectedOption(navOptionElements[0].dataset.tabId);
+    }
+  }
+
+  function initializeHeaderSearch() {
+    const overlay = document.getElementById("header-search-overlay");
+    const searchButtons = Array.from(
+      document.querySelectorAll("[data-header-search-button]")
+    );
+
+    if (!overlay || overlay.dataset.searchInitialized === "true") {
+      return;
+    }
+
+    const closeButtons = overlay.querySelectorAll("[data-header-search-close]");
+    const dismissTarget = overlay.querySelector("[data-header-search-dismiss]");
+    const panel = overlay.querySelector("[data-header-search-panel]");
+    const overlayMobileClass = "header-search-overlay--mobile";
+    const panelMobileClass = "header-search-panel--mobile";
+    let lastTrigger = null;
+    let lastVariant = null;
+
+    const setExpandedState = (isOpen) => {
+      const expanded = isOpen ? "true" : "false";
+      searchButtons.forEach((button) => {
+        button.setAttribute("aria-expanded", expanded);
+        button.setAttribute("data-active", expanded);
+      });
+      overlay.dataset.open = expanded;
+      overlay.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    };
+
+    const focusSearchInput = () => {
+      window.requestAnimationFrame(() => {
+        const input = overlay.querySelector(
+          '[data-pagefind-ui] input[type="text"]'
+        );
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      });
+    };
+
+    const openOverlay = (trigger, options = {}) => {
+      lastTrigger = trigger ?? document.activeElement;
+      const variant = options.variant ?? null;
+      lastVariant = typeof variant === "string" ? variant : null;
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+      const isMobileVariant = lastVariant === "mobile";
+      if (isMobileVariant) {
+        overlay.dataset.variant = "mobile";
+      } else {
+        delete overlay.dataset.variant;
+      }
+      overlay.classList.toggle(overlayMobileClass, isMobileVariant);
+      panel?.classList.toggle(panelMobileClass, isMobileVariant);
+      document.documentElement.classList.add("has-header-search-open");
+      setExpandedState(true);
+      focusSearchInput();
+    };
+
+    const closeOverlay = () => {
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+      document.documentElement.classList.remove("has-header-search-open");
+      overlay.classList.remove(overlayMobileClass);
+      panel?.classList.remove(panelMobileClass);
+      delete overlay.dataset.variant;
+      setExpandedState(false);
+      if (lastTrigger instanceof HTMLElement) {
+        if (
+          lastVariant === "mobile" &&
+          typeof lastTrigger.blur === "function"
+        ) {
+          lastTrigger.blur();
+        } else if (lastVariant !== "mobile") {
+          lastTrigger.focus();
+        }
+      }
+      lastTrigger = null;
+      lastVariant = null;
+    };
+
+    searchButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        openOverlay(button);
+      });
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        closeOverlay();
+      });
+    });
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        closeOverlay();
+      }
+    });
+
+    dismissTarget?.addEventListener("click", closeOverlay);
+
+    const handleKeydown = (event) => {
+      const key = "key" in event ? event.key : undefined;
+      const isShortcut =
+        !!key && key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey);
+
+      if (isShortcut) {
+        event.preventDefault();
+        openOverlay(searchButtons[0] ?? null);
+        return;
+      }
+
+      if (key === "Escape" && overlay.dataset.open === "true") {
+        event.preventDefault();
+        closeOverlay();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+
+    document.addEventListener("header:open-search", (event) => {
+      const detail =
+        event instanceof CustomEvent && typeof event.detail === "object"
+          ? event.detail
+          : {};
+      const trigger =
+        detail && detail.trigger instanceof HTMLElement ? detail.trigger : null;
+      openOverlay(trigger, detail);
+    });
+
+    document.addEventListener("astro:before-swap", () => {
+      if (overlay.dataset.open === "true") {
+        closeOverlay();
+      }
+    });
+
+    overlay.dataset.searchInitialized = "true";
+  }
+
+  const handleAfterSwap = () => {
+    initializeMobileNavigation();
+    initializeHeaderSearch();
+  };
+
+  document.addEventListener("astro:after-swap", handleAfterSwap);
+  handleAfterSwap();
+ChatGPT
+>
+Apps SDK
+Home
+Core Concepts
+MCP Server
+User interaction
+Design guidelines
+Plan
+Research use cases
+Define tools
+Design components
+Build
+Set up your server
+Build a custom UX
+Authenticate users
+Persist state
+Examples
+Deploy
+Deploy your app
+Connect from ChatGPT
+Test your integration
+Guides
+Optimize Metadata
+Security & Privacy
+Troubleshooting
+Resources
+Reference
+App developer guidelines
+const NAV_SELECTOR = "nav[data-left-nav]";
+  const STORAGE_PREFIX = "left-nav-scroll:";
+  const INITIALIZED_ATTRIBUTE = "data-left-nav-scroll-initialized";
+
+  const isStorageAvailable = (() => {
+    try {
+      const storageKey = `${STORAGE_PREFIX}__test__`;
+      sessionStorage.setItem(storageKey, "1");
+      sessionStorage.removeItem(storageKey);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  })();
+
+  const getNav = () => document.querySelector(NAV_SELECTOR);
+
+  const getStorageKey = (nav) =>
+    `${STORAGE_PREFIX}${nav.dataset.leftNavId ?? "default"}`;
+
+  const restoreScrollPosition = (nav) => {
+    if (!isStorageAvailable) return;
+    const storedValue = sessionStorage.getItem(getStorageKey(nav));
+    if (storedValue !== null) {
+      nav.scrollTop = Number(storedValue);
+    }
+  };
+
+  const saveScrollPosition = (nav) => {
+    if (!isStorageAvailable) return;
+    sessionStorage.setItem(getStorageKey(nav), String(nav.scrollTop));
+  };
+
+  const setupNav = () => {
+    const nav = getNav();
+    if (!nav || nav.getAttribute(INITIALIZED_ATTRIBUTE) === "true") return;
+
+    restoreScrollPosition(nav);
+
+    nav.addEventListener(
+      "scroll",
+      () => {
+        saveScrollPosition(nav);
+      },
+      { passive: true }
+    );
+
+    nav.setAttribute(INITIALIZED_ATTRIBUTE, "true");
+  };
+
+  const persistScrollPosition = () => {
+    const nav = getNav();
+    if (!nav) return;
+    saveScrollPosition(nav);
+  };
+
+  const initialize = () => {
+    setupNav();
+    const nav = getNav();
+    if (!nav) return;
+    restoreScrollPosition(nav);
+  };
+
+  window.addEventListener("pageshow", initialize);
+  document.addEventListener("astro:page-load", initialize);
+  document.addEventListener("astro:after-swap", initialize);
+
+  document.addEventListener("astro:before-swap", persistScrollPosition);
+  window.addEventListener("beforeunload", persistScrollPosition);
+
+  initialize();
+astro-island,astro-slot,astro-static-slot{display:contents}
+(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();
+(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();
+window._$HY||(e=>{let t=e=>e&&e.hasAttribute&&(e.hasAttribute("data-hk")?e:t(e.host&&e.host.nodeType?e.host:e.parentNode));["click", "input"].forEach((o=>document.addEventListener(o,(o=>{if(!e.events)return;let s=t(o.composedPath&&o.composedPath()[0]||o.target);s&&!e.completed.has(s)&&e.events.push([s,o])}))))})(_$HY={events:[],completed:new WeakSet,r:{},fe(){}});
+Set up your server
+Create and configure an MCP server.
+Overview
+Your MCP server is the foundation of every Apps SDK integration. It exposes tools that the model can call, enforces authentication, and packages the structured data plus component HTML that the ChatGPT client renders inline. This guide walks through the core building blocks with examples in Python and TypeScript.
+Choose an SDK
+Apps SDK supports any server that implements the MCP specification, but the official SDKs are the fastest way to get started:
+Python SDK (official)
+– great for rapid prototyping, including the official FastMCP module. See the repo at
+modelcontextprotocol/python-sdk
+. This is distinct from community “FastMCP” projects.
+TypeScript SDK (official)
+– ideal if your stack is already Node/React. Use
+@modelcontextprotocol/sdk
+. Docs:
+modelcontextprotocol.io
+.
+Install the SDK and any web framework you prefer (FastAPI or Express are common choices).
+Describe your tools
+Tools are the contract between ChatGPT and your backend. Define a clear machine name, human-friendly title, and JSON schema so the model knows when—and how—to call each tool. This is also where you wire up per-tool metadata, including auth hints, status strings, and component configuration.
+Point to a component template
+In addition to returning structured data, each tool on your MCP server should also reference an HTML UI template in its descriptor. This HTML template will be rendered in an iframe by ChatGPT.
+Register the template
+– expose a resource whose
+mimeType
+is
+text/html+skybridge
+and whose body loads your compiled JS/CSS bundle. The resource URI (for example
+ui://widget/kanban-board.html
+) becomes the canonical ID for your component.
+Link the tool to the template
+– inside the tool descriptor, set
+_meta["openai/outputTemplate"]
+to the same URI. Optional
+_meta
+fields let you declare whether the component can initiate tool calls or display custom status copy.
+Version carefully
+– when you ship breaking component changes, register a new resource URI and update the tool metadata in lockstep. ChatGPT caches templates aggressively, so unique URIs (or cache-busted filenames) prevent stale assets from loading.
+With the template and metadata in place, ChatGPT hydrates the iframe using the
+structuredContent
+payload from each tool response.
+Full examples can be viewed on the
+examples repository on GitHub
+. Below is a minimal implementation using the node SDK:
+import
+{ McpServer }
+from
+"@modelcontextprotocol/sdk/server/mcp.js"
+;
+import
+{ z }
+from
+"zod"
+;
+import
+{ readFileSync }
+from
+"node:fs"
+;
+// Create an MCP server
+const
+server
+=
+new
+McpServer
+({
+name:
+"kanban-server"
+,
+version:
+"1.0.0"
+});
+// Load locally built assets (produced by your component build)
+const
+KANBAN_JS
+=
+readFileSync
+(
+"web/dist/kanban.js"
+,
+"utf8"
+);
+const
+KANBAN_CSS
+=
+(()
+=>
+{
+try
+{
+return
+readFileSync
+(
+"web/dist/kanban.css"
+,
+"utf8"
+);
+}
+catch
+{
+return
+""
+;
+// CSS optional
+}
+})();
+// UI resource (no inline data assignment; host will inject data)
+server.
+registerResource
+(
+"kanban-widget"
+,
+"ui://widget/kanban-board.html"
+,
+{},
+async
+()
+=>
+({
+contents: [
+{
+uri:
+"ui://widget/kanban-board.html"
+,
+mimeType:
+"text/html+skybridge"
+,
+text:
+`
+<div id="kanban-root"></div>
+${
+KANBAN_CSS
+?
+`<style>${
+KANBAN_CSS
+}</style>`
+:
+""}
+<script type="module">${
+KANBAN_JS
+}</script>
+`
+.
+trim
+(),
+_meta: {
+/*
+Renders the widget within a rounded border and shadow.
+Otherwise, the HTML is rendered full-bleed in the conversation
+*/
+"openai/widgetPrefersBorder"
+:
+true
+,
+/*
+Assigns a subdomain for the HTML.
+When set, the HTML is rendered within `chatgpt-com.web-sandbox.oaiusercontent.com`
+It's also used to configure the base url for external links.
+*/
+"openai/widgetDomain"
+:
+'https://chatgpt.com'
+,
+/*
+Required to make external network requests from the HTML code.
+Also used to validate `openai.openExternal()` requests.
+*/
+'openai/widgetCSP'
+: {
+// Maps to `connect-src` rule in the iframe CSP
+connect_domains: [
+'https://chatgpt.com'
+],
+// Maps to style-src, style-src-elem, img-src, font-src, media-src etc. in the iframe CSP
+resource_domains: [
+'https://*.oaistatic.com'
+],
+}
+}
+},
+],
+})
+);
+server.
+registerTool
+(
+"kanban-board"
+,
+{
+title:
+"Show Kanban Board"
+,
+_meta: {
+// associate this tool with the HTML template
+"openai/outputTemplate"
+:
+"ui://widget/kanban-board.html"
+,
+// labels to display in ChatGPT when the tool is called
+"openai/toolInvocation/invoking"
+:
+"Displaying the board"
+,
+"openai/toolInvocation/invoked"
+:
+"Displayed the board"
+},
+inputSchema: { tasks: z.
+string
+() }
+},
+async
+()
+=>
+{
+return
+{
+content: [{ type:
+"text"
+, text:
+"Displayed the kanban board!"
+}],
+structuredContent: {}
+};
+}
+);
+Structure the data your tool returns
+Each tool result in the tool response can include three sibling fields that shape how ChatGPT and your component consume the payload:
+structuredContent
+– structured data that is used to hydrate your component, e.g. the tracks for a playlist, the homes for a realtor app, the tasks for a kanban app. ChatGPT injects this object into your iframe as
+window.openai.toolOutput
+, so keep it scoped to the data your UI needs. The model reads these values and may narrate or summarize them.
+content
+– Optional free-form text (Markdown or plain strings) that the model receives verbatim.
+_meta
+– Arbitrary JSON passed only to the component. Use it for data that should not influence the model’s reasoning, like the full set of locations that backs a dropdown.
+_meta
+is never shown to the model.
+Your component receives all three fields, but only
+structuredContent
+and
+content
+are visible to the model. If you are looking to control the text underneath the component, please use
+widgetDescription
+.
+Continuing the Kanban example, fetch board data and return the trio of fields so the component hydrates without exposing extra context to the model:
+async
+function
+loadKanbanBoard
+() {
+const
+tasks
+=
+[
+{ id:
+"task-1"
+, title:
+"Design empty states"
+, assignee:
+"Ada"
+, status:
+"todo"
+},
+{ id:
+"task-2"
+, title:
+"Wireframe admin panel"
+, assignee:
+"Grace"
+, status:
+"in-progress"
+},
+{ id:
+"task-3"
+, title:
+"QA onboarding flow"
+, assignee:
+"Lin"
+, status:
+"done"
+}
+];
+return
+{
+columns: [
+{ id:
+"todo"
+, title:
+"To do"
+, tasks: tasks.
+filter
+((
+task
+)
+=>
+task.status
+===
+"todo"
+) },
+{ id:
+"in-progress"
+, title:
+"In progress"
+, tasks: tasks.
+filter
+((
+task
+)
+=>
+task.status
+===
+"in-progress"
+) },
+{ id:
+"done"
+, title:
+"Done"
+, tasks: tasks.
+filter
+((
+task
+)
+=>
+task.status
+===
+"done"
+) }
+],
+tasksById: Object.
+fromEntries
+(tasks.
+map
+((
+task
+)
+=>
+[task.id, task])),
+lastSyncedAt:
+new
+Date
+().
+toISOString
+()
+};
+}
+server.
+registerTool
+(
+"kanban-board"
+,
+{
+title:
+"Show Kanban Board"
+,
+_meta: {
+"openai/outputTemplate"
+:
+"ui://widget/kanban-board.html"
+,
+"openai/toolInvocation/invoking"
+:
+"Displaying the board"
+,
+"openai/toolInvocation/invoked"
+:
+"Displayed the board"
+},
+inputSchema: { tasks: z.
+string
+() }
+},
+async
+()
+=>
+{
+const
+board
+=
+await
+loadKanbanBoard
+();
+return
+{
+structuredContent: {
+columns: board.columns.
+map
+((
+column
+)
+=>
+({
+id: column.id,
+title: column.title,
+tasks: column.tasks.
+slice
+(
+0
+,
+5
+)
+// keep payload concise for the model
+}))
+},
+content: [{ type:
+"text"
+, text:
+"Here's your latest board. Drag cards in the component to update status."
+}],
+_meta: {
+tasksById: board.tasksById,
+// full task map for the component only
+lastSyncedAt: board.lastSyncedAt
+}
+};
+}
+);
+Build your component
+Now that you have the MCP server scaffold set up, follow the instructions on the
+Build a custom UX page
+to build your component experience.
+Run locally
+Build your component bundle (See instructions on the
+Build a custom UX page
+page).
+Start the MCP server.
+Point
+MCP Inspector
+to
+http://localhost:<port>/mcp
+, list tools, and call them.
+Inspector validates that your response includes both structured content and component metadata and renders the component inline.
+Expose a public endpoint
+ChatGPT requires HTTPS. During development, you can use a tunnelling service such as
+ngrok
+.
+In a separate terminal window, run:
+ngrok
+http
+<
+por
+t
+>
+# Forwarding: https://<subdomain>.ngrok.app -> http://127.0.0.1:<port>
+Use the resulting URL when creating a connector in developer mode. For production, deploy to an HTTPS endpoint with low cold-start latency (see
+Deploy your app
+).
+Layer in authentication and storage
+Once the server handles anonymous traffic, decide whether you need user identity or persistence. The
+Authentication
+and
+Storage
+guides show how to add OAuth 2.1 flows, token verification, and user state management.
+With these pieces in place you have a functioning MCP server ready to pair with a component bundle.
+Advanced
+Allow component-initiated tool access
+To allow component‑initiated tool access, you should mark tools with
+_meta.openai/widgetAccessible: true
+:
+"_meta"
+: {
+"openai/outputTemplate"
+:
+"ui://widget/kanban-board.html"
+,
+"openai/widgetAccessible"
+:
+true
+}
+Define component content security policies
+Widgets are required to have a strict content security policy (CSP) prior to broad distribution within ChatGPT. As part of the MCP review process, a snapshotted CSP will be inspected.
+To declare a CSP, your component resource should include the
+openai/widgetCSP
+meta property.
+server.
+registerResource
+(
+"html"
+,
+"ui://widget/widget.html"
+,
+{},
+async
+(
+req
+)
+=>
+({
+contents: [
+{
+uri:
+"ui://widget/widget.html"
+,
+mimeType:
+"text/html"
+,
+text:
+`
+<div id="kitchen-sink-root"></div>
+<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/kitchen-sink-2d2b.css">
+<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/kitchen-sink-2d2b.js"></script>
+`
+.
+trim
+(),
+_meta: {
+"openai/widgetCSP"
+: {
+connect_domains: [],
+resource_domains: [
+"https://persistent.oaistatic.com"
+],
+}
+},
+},
+],
+})
+);
+The CSP should define two arrays of URLs:
+connect_domains
+and
+resource_domains
+. These URLs ultimately map to the following CSP definition:
+`script-src 'self' ${
+resources
+}`
+,
+`img-src 'self' data: ${
+resources
+}`
+,
+`font-src 'self' ${
+resources
+}`
+,
+`connect-src 'self' ${
+connects
+}`
+,
+Configure component subdomains
+Components also support a configurable subdomain. If you have public API keys (for example Google Maps) and need to restrict access to specific origins or referrers, you can set a subdomain to render the component under.
+By default, all components are rendered on
+https://web-sandbox.oaiusercontent.com
+.
+"openai/widgetDomain"
+:
+"https://chatgpt.com"
+Since we can’t support dynamic dual-level subdomains, we convert the origin
+chatgpt.com
+to
+chatgpt-com
+so the final component domain is
+https://chatgpt-com.web-sandbox.oaiusercontent.com
+.
+We can promise that these domains will be unique to each partner.
+Note that we still will not permit the storage or access to browser cookies, even with dedicated subdomains.
+Configuring a component domain also enables the ChatGPT punchout button in the desktop fullscreen view.
+Configure status strings on tool calls
+You can also provide short, localized status strings during and after invocation for better UX:
+"_meta"
+: {
+"openai/outputTemplate"
+:
+"ui://widget/kanban-board.html"
+,
+"openai/toolInvocation/invoking"
+:
+"Organizing tasks…"
+,
+"openai/toolInvocation/invoked"
+:
+"Board refreshed."
+}
+Serve localized content
+ChatGPT surfaces your connector to a global audience, and the client will advertise the user’s preferred locale during the
+MCP initialize handshake
+. Locale tags follow
+IETF BCP 47
+(for example
+en-US
+,
+fr-FR
+,
+es-419
+). When a server does not echo a supported locale, ChatGPT still renders the connector but informs the user that localization is unavailable. Newer clients set
+_meta["openai/locale"]
+; older builds may still send
+_meta["webplus/i18n"]
+for backward compatibility.
+During
+initialize
+the client includes the requested locale in
+_meta["openai/locale"]
+:
+{
+"jsonrpc"
+:
+"2.0"
+,
+"id"
+:
+1
+,
+"method"
+:
+"initialize"
+,
+"params"
+: {
+"protocolVersion"
+:
+"2024-11-05"
+,
+"capabilities"
+: {
+"roots"
+: {
+"listChanged"
+:
+true
+},
+"sampling"
+: {},
+"elicitation"
+: {}
+},
+"_meta"
+: {
+"openai/locale"
+:
+"en-GB"
+},
+"clientInfo"
+: {
+"name"
+:
+"ChatGPT"
+,
+"title"
+:
+"ChatGPT"
+,
+"version"
+:
+"1.0.0"
+}
+}
+}
+Servers that support localization should negotiate the closest match using
+RFC 4647
+lookup rules and respond with the locale they will serve. Echo
+_meta["openai/locale"]
+with the resolved tag so the client can display accurate UI messaging:
+"_meta"
+: {
+"openai/outputTemplate"
+:
+"ui://widget/kanban-board.html"
+,
+"openai/locale"
+:
+"en"
+}
+Every subsequent MCP request from ChatGPT repeats the requested locale in
+_meta["openai/locale"]
+(or
+_meta["webplus/i18n"]
+on older builds). Include the same metadata key on your responses so the client knows which translation the user received. If a locale is unsupported, fall back to the nearest match (for example respond with
+es
+when the request is
+es-419
+) and translate only the strings you manage on the server side. Cached structured data, component props, and prompt templates should all respect the resolved locale.
+Inside your handlers, persist the resolved locale along with the session or request context. Use it when formatting numbers, dates, currency, and any natural-language responses returned in
+structuredContent
+or component props. Testing with MCP Inspector plus varied
+_meta
+values helps verify that your locale-switching logic runs end to end.
+Inspect client context hints
+Operation-phase requests can include extra hints under
+_meta.openai/*
+so servers can fine-tune responses without new protocol fields. ChatGPT currently forwards:
+_meta["openai/userAgent"]
+– string identifying the client (for example
+ChatGPT/1.2025.012
+)
+_meta["openai/userLocation"]
+– coarse location object hinting at country, region, city, timezone, and approximate coordinates
+Treat these values as advisory only; never rely on them for authorization. They are primarily useful for tailoring formatting, regional content, or analytics. When logged, store them alongside the resolved locale and sanitize before sharing outside the service perimeter. Clients may omit either field at any time.
+Add component descriptions
+Component descriptions will be displayed to the model when a client renders a tool’s component. It will help the model understand what is being displayed to help avoid the model from returning redundant content in its response. Developers should avoid trying to steer the model’s response in the tool payload directly because not all clients of an MCP render tool components. This metadata lets rich-UI clients steer just those experiences while remaining backward compatible elsewhere.
+To use this field, set
+openai/widgetDescription
+on the resource template inside of your MCP server. Examples below:
+Note:
+You must refresh actions on your MCP in dev mode for your description to take effect. It can only be reloaded this way.
+server.
+registerResource
+(
+"html"
+,
+"ui://widget/widget.html"
+, {},
+async
+()
+=>
+({
+contents: [
+{
+uri:
+"ui://widget/widget.html"
+,
+mimeType:
+"text/html"
+,
+text: componentHtml,
+_meta: {
+"openai/widgetDescription"
+:
+"Renders an interactive UI showcasing the zoo animals returned by get_zoo_animals."
+,
+},
+},
+],
+}));
+server.
+registerTool
+(
+"get_zoo_animals"
+,
+{
+title:
+"get_zoo_animals"
+,
+description:
+"Lists zoo animals and facts about them"
+,
+inputSchema: { count: z.
+number
+().
+int
+().
+min
+(
+1
+).
+max
+(
+20
+).
+optional
+() },
+annotations: {
+readOnlyHint:
+true
+,
+},
+_meta: {
+"openai/outputTemplate"
+:
+"ui://widget/widget.html"
+,
+},
+},
+async
+({
+count
+=
+10
+},
+_extra
+)
+=>
+{
+const
+animals
+=
+generateZooAnimals
+(count);
+return
+{
+content: [],
+structuredContent: { animals },
+};
+}
+);
+Next
+Build a custom UX
+(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();

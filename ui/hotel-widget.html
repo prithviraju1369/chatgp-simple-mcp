@@ -5,19 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Marriott Hotel Search Results</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     :root {
       color-scheme: light dark;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --border: rgba(148, 163, 184, 0.25);
-      --bg-card: rgba(148, 163, 184, 0.08);
-      --text-muted: rgba(148, 163, 184, 0.7);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     body {
       margin: 0;
       padding: 0;
       background: transparent;
-      color: inherit;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        color: rgb(226 232 240);
+      }
     }
 
     .widget {
@@ -25,140 +32,332 @@
     }
 
     .header {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .header {
+        border-bottom-color: rgba(51, 65, 85, 0.25);
+      }
     }
 
     .header h1 {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       margin: 0 0 0.5rem 0;
       font-weight: 600;
     }
 
     .meta {
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: rgb(100 116 139);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .meta {
+        color: rgb(148 163 184);
+      }
     }
 
     .hotels {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.5rem;
     }
 
+    /* Hotel Card - Horizontal Layout */
     .hotel-card {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      background: var(--bg-card);
-      transition: transform 0.2s;
+      display: flex;
+      overflow: hidden;
+      border-radius: 1rem;
+      border: 1px solid rgb(226 232 240);
+      background: white;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
     }
 
     .hotel-card:hover {
-      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     }
 
-    .hotel-header {
+    @media (prefers-color-scheme: dark) {
+      .hotel-card {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+      }
+    }
+
+    /* Hotel Image - Left Side */
+    .hotel-image {
+      position: relative;
+      width: 320px;
+      flex-shrink: 0;
+      overflow: hidden;
+      min-height: 240px;
+    }
+
+    .hotel-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .hotel-card:hover .hotel-image img {
+      transform: scale(1.05);
+    }
+
+    .hotel-image-placeholder {
       display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: rgb(241 245 249);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .hotel-image-placeholder {
+        background: rgb(51 65 85);
+      }
+    }
+
+    .hotel-image-placeholder svg {
+      width: 4rem;
+      height: 4rem;
+      color: rgb(203 213 225);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .hotel-image-placeholder svg {
+        color: rgb(71 85 105);
+      }
+    }
+
+    /* Brand Badge on Image */
+    .brand-badge {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      padding: 0.375rem 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .brand-badge span {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgb(15 23 42);
+    }
+
+    /* Hotel Details - Right Side */
+    .hotel-content {
+      display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      align-items: start;
-      margin-bottom: 0.75rem;
+      flex: 1;
+      padding: 1.5rem;
+    }
+
+    .hotel-top {
+      flex: 1;
     }
 
     .hotel-name {
+      font-size: 1.5rem;
       font-weight: 600;
-      font-size: 1.1rem;
-      margin: 0 0 0.25rem 0;
+      margin: 0 0 0.75rem 0;
+      line-height: 1.3;
+      color: rgb(15 23 42);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .hotel-brand {
+    @media (prefers-color-scheme: dark) {
+      .hotel-name {
+        color: rgb(241 245 249);
+      }
+    }
+
+    /* Rating and Distance Row */
+    .hotel-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: rgb(100 116 139);
     }
 
-    .hotel-price {
-      text-align: right;
-      font-weight: 600;
-      color: #10b981;
+    @media (prefers-color-scheme: dark) {
+      .hotel-info {
+        color: rgb(148 163 184);
+      }
+    }
+
+    .rating-box {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .star-icon {
+      width: 1rem;
+      height: 1rem;
+      color: rgb(234 179 8);
+      fill: currentColor;
+    }
+
+    .rating-value {
+      font-weight: 500;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .rating-value {
+        color: rgb(241 245 249);
+      }
+    }
+
+    .review-count {
+      color: rgb(100 116 139);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .review-count {
+        color: rgb(148 163 184);
+      }
+    }
+
+    .divider {
+      color: rgb(203 213 225);
+    }
+
+    .distance-box {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .location-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* View Details Link */
+    .view-details-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgb(37 99 235);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .view-details-link:hover {
+      color: rgb(29 78 216);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .view-details-link {
+        color: rgb(96 165 250);
+      }
+      .view-details-link:hover {
+        color: rgb(147 197 253);
+      }
+    }
+
+    .arrow-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Bottom Section - Price and Button */
+    .hotel-bottom {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    .price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
     }
 
     .price-amount {
-      font-size: 1.25rem;
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: rgb(15 23 42);
     }
 
-    .price-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    @media (prefers-color-scheme: dark) {
+      .price-amount {
+        color: rgb(241 245 249);
+      }
     }
 
-    .hotel-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    .detail {
+    .price-currency {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      flex-direction: column;
+      font-size: 0.875rem;
+      color: rgb(100 116 139);
     }
 
-    .detail-label {
-      color: var(--text-muted);
+    @media (prefers-color-scheme: dark) {
+      .price-currency {
+        color: rgb(148 163 184);
+      }
     }
 
-    .hotel-link {
+    .price-currency-code {
+      font-weight: 500;
+    }
+
+    /* View Rates Button */
+    .view-rates-btn {
       display: inline-block;
-      margin-top: 0.75rem;
-      padding: 0.5rem 1rem;
-      background: #3b82f6;
+      border-radius: 9999px;
+      background: rgb(15 23 42);
+      padding: 0.625rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
       color: white;
       text-decoration: none;
-      border-radius: 6px;
-      font-size: 0.875rem;
       transition: background 0.2s;
     }
 
-    .hotel-link:hover {
-      background: #2563eb;
+    .view-rates-btn:hover {
+      background: rgb(30 41 59);
     }
 
-    .platform-badge {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .badge-marriott {
-      background: #8b1538;
-      color: white;
-    }
-
-    .badge-airbnb {
-      background: #ff5a5f;
-      color: white;
+    @media (prefers-color-scheme: dark) {
+      .view-rates-btn {
+        background: rgb(51 65 85);
+      }
+      .view-rates-btn:hover {
+        background: rgb(71 85 105);
+      }
     }
 
     .empty {
+      padding: 3rem 2rem;
       text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
+      color: rgb(100 116 139);
     }
 
-    .rating {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .star {
-      color: #fbbf24;
+    @media (prefers-color-scheme: dark) {
+      .empty {
+        color: rgb(148 163 184);
+      }
     }
   </style>
 </head>
@@ -166,7 +365,7 @@
   <div class="widget">
     <div class="header">
       <h1>🏨 Marriott Hotels</h1>
-      <div class="meta" id="meta">Loading results...</div>
+      <div class="meta" id="meta">Searching...</div>
     </div>
     
     <div class="hotels" id="hotels">
@@ -192,93 +391,227 @@
       
       meta.textContent = `${total || hotels.length} hotels found${location ? ` in ${location}` : ''}${dates ? ` • ${dates}` : ''}`;
 
-      container.innerHTML = hotels.map((hotel, i) => {
-        const badge = hotel.brand ? 
-          `<span class="platform-badge badge-marriott">${hotel.brand}</span>` :
-          '<span class="platform-badge badge-marriott">Marriott</span>';
-        
-        const rating = hotel.rating ? 
-          `<div class="rating">
-            <span class="star">⭐</span>
-            <span>${hotel.rating}</span>
-            ${hotel.reviews ? `<span class="detail-label">(${hotel.reviews} reviews)</span>` : ''}
-          </div>` : '';
+      container.innerHTML = hotels.map((hotel) => {
+        // Extract price value (remove $ and convert to number for display)
+        let priceAmount = null;
+        if (hotel.price) {
+          const priceStr = hotel.price.replace('$', '').replace(',', '');
+          priceAmount = Math.round(parseFloat(priceStr));
+        }
 
         return `
           <div class="hotel-card">
-            ${badge}
-            <div class="hotel-header">
-              <div>
-                <h2 class="hotel-name">${hotel.name}</h2>
-                ${hotel.brand ? `<div class="hotel-brand">${hotel.brand}</div>` : ''}
-                ${rating}
+            <!-- Hotel Image -->
+            <div class="hotel-image">
+              <div class="hotel-image-placeholder">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
               </div>
-              ${hotel.price ? `
-                <div class="hotel-price">
-                  <div class="price-amount">${hotel.price}</div>
-                  <div class="price-label">per night</div>
+              ${hotel.brand ? `
+                <div class="brand-badge">
+                  <span>${hotel.brand}</span>
                 </div>
               ` : ''}
             </div>
             
-            <div class="hotel-details">
-              ${hotel.distance ? `
-                <div class="detail">
-                  <span>📍</span>
-                  <span>${hotel.distance}</span>
+            <!-- Hotel Details -->
+            <div class="hotel-content">
+              <div class="hotel-top">
+                <h3 class="hotel-name">${hotel.name}</h3>
+                
+                <div class="hotel-info">
+                  ${hotel.rating ? `
+                    <div class="rating-box">
+                      <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span class="rating-value">${hotel.rating}</span>
+                      ${hotel.reviews ? `
+                        <span class="review-count">(${hotel.reviews.toLocaleString()} reviews)</span>
+                      ` : ''}
+                    </div>
+                  ` : ''}
+                  
+                  ${hotel.rating && hotel.distance ? '<span class="divider">|</span>' : ''}
+                  
+                  ${hotel.distance ? `
+                    <div class="distance-box">
+                      <svg class="location-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>${hotel.distance} from destination</span>
+                    </div>
+                  ` : ''}
                 </div>
-              ` : ''}
-              ${hotel.amenities ? `
-                <div class="detail">
-                  <span>✨</span>
-                  <span>${hotel.amenities}</span>
-                </div>
-              ` : ''}
-              ${hotel.bookable !== undefined ? `
-                <div class="detail">
-                  <span>${hotel.bookable ? '✅' : '⚠️'}</span>
-                  <span>${hotel.bookable ? 'Available' : 'Check availability'}</span>
-                </div>
-              ` : ''}
+                
+                ${hotel.url ? `
+                  <a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="view-details-link">
+                    View Details
+                    <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                ` : ''}
+              </div>
+              
+              <div class="hotel-bottom">
+                ${priceAmount ? `
+                  <div class="price-box">
+                    <span class="price-amount">${priceAmount}</span>
+                    <div class="price-currency">
+                      <span class="price-currency-code">USD</span>
+                      <span>/ Night</span>
+                    </div>
+                  </div>
+                ` : '<div></div>'}
+                
+                ${hotel.url ? `
+                  <a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="view-rates-btn">
+                    View Rates
+                  </a>
+                ` : ''}
+              </div>
             </div>
-
-            ${hotel.url ? `
-              <a href="${hotel.url}" target="_blank" class="hotel-link">
-                View Details →
-              </a>
-            ` : ''}
           </div>
         `;
       }).join('');
     }
 
+    // Track if data has been rendered to avoid duplicates
+    let dataRendered = false;
+    let pollInterval = null;
+    
     function handleGlobals(event) {
+      if (dataRendered) return; // Already rendered
+      
+      console.log('📨 Received SET_GLOBALS_EVENT:', event);
       const globals = event?.detail?.globals;
-      if (!globals) return;
+      console.log('📦 Globals:', globals);
+      
+      if (!globals) {
+        console.warn('⚠️ No globals in event');
+        return;
+      }
 
-      if (Object.prototype.hasOwnProperty.call(globals, 'hotelResults')) {
+      // Check for toolOutput (where structuredContent is injected)
+      if (globals.toolOutput) {
+        console.log('✅ Found toolOutput in event:', globals.toolOutput);
+        if (globals.toolOutput.hotels && Array.isArray(globals.toolOutput.hotels)) {
+          console.log('✅ Rendering hotels from event...');
+          renderHotels(globals.toolOutput);
+          dataRendered = true;
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            console.log('🛑 Stopped polling - data received via event');
+          }
+        } else {
+          console.warn('⚠️ toolOutput exists but no hotels array:', globals.toolOutput);
+        }
+      }
+      // Legacy fallback
+      else if (Object.prototype.hasOwnProperty.call(globals, 'hotelResults')) {
+        console.log('✅ Found hotelResults in event (legacy path)');
         renderHotels(globals.hotelResults);
+        dataRendered = true;
+        if (pollInterval) clearInterval(pollInterval);
       } else if (Object.prototype.hasOwnProperty.call(globals, 'structuredContent')) {
+        console.log('✅ Found structuredContent in event (legacy path)');
         renderHotels(globals.structuredContent);
+        dataRendered = true;
+        if (pollInterval) clearInterval(pollInterval);
+      } else {
+        console.warn('⚠️ Event received but no recognized data keys:', Object.keys(globals));
       }
     }
 
     window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });
+    console.log('✅ Event listener registered for:', SET_GLOBALS_EVENT);
 
-    // Handle initial data - try multiple possible locations
-    const initialData = window.openai?.hotelResults || 
-                       window.openai?.structuredContent ||
-                       window.openai?.toolResult?.structuredContent;
+    // According to Apps SDK docs, structuredContent is injected as window.openai.toolOutput
+    console.log('Widget initialized. Checking for data...');
+    console.log('window.openai:', window.openai);
+    console.log('window.openai.toolOutput:', window.openai?.toolOutput);
+    console.log('window.openai.widget:', window.openai?.widget);
     
-    console.log('Widget initialized. Looking for data in:', window.openai);
+    // Function to check and render data
+    function checkAndRender() {
+      if (dataRendered) return true; // Already rendered
+      
+      if (window.openai?.toolOutput) {
+        const data = window.openai.toolOutput;
+        console.log('✅ Found toolOutput:', data);
+        
+        // Check if data has the expected structure
+        if (data.hotels && Array.isArray(data.hotels) && data.hotels.length > 0) {
+          console.log('✅ toolOutput has hotels array with', data.hotels.length, 'hotels - rendering...');
+          renderHotels(data);
+          dataRendered = true;
+          return true; // Success
+        } else if (data.hotels && Array.isArray(data.hotels) && data.hotels.length === 0) {
+          console.warn('⚠️ toolOutput has empty hotels array');
+          const container = document.getElementById('hotels');
+          container.innerHTML = `<div class="empty">No hotels found. The search returned zero results.</div>`;
+          dataRendered = true;
+          return true;
+        } else {
+          console.warn('⚠️ toolOutput does not contain hotels array:', data);
+          console.warn('⚠️ toolOutput keys:', Object.keys(data));
+          console.warn('⚠️ toolOutput.hotels type:', typeof data.hotels);
+          // Don't mark as rendered yet - data structure might be incomplete
+          return false;
+        }
+      }
+      return false; // No data yet
+    }
     
-    if (initialData) {
-      console.log('Found initial data:', initialData);
-      renderHotels(initialData);
+    // Try immediately
+    if (!checkAndRender()) {
+      console.log('⚠️ No window.openai.toolOutput found initially. Starting aggressive polling...');
+      console.log('Available keys on window.openai:', Object.keys(window.openai || {}));
+      
+      // More aggressive polling: every 50ms for first 2 seconds, then every 200ms for 8 more seconds
+      let attempts = 0;
+      let pollDelay = 50;
+      
+      function poll() {
+        attempts++;
+        const elapsed = attempts * pollDelay / 1000;
+        console.log(`🔄 Polling attempt ${attempts} (${elapsed.toFixed(1)}s)...`);
+        
+        if (checkAndRender()) {
+          console.log('✅ Data found and rendered via polling!');
+          return;
+        }
+        
+        // Switch to slower polling after 2 seconds
+        if (attempts === 40) {
+          pollDelay = 200;
+          console.log('⏰ Switching to slower polling (200ms)');
+        }
+        
+        // Give up after 10 seconds total
+        if (elapsed >= 10) {
+          console.error('❌ Timeout: No data received after 10 seconds');
+          const container = document.getElementById('hotels');
+          container.innerHTML = `
+            <div class="empty">
+              <p>⏱️ Widget loaded but no data received</p>
+              <p>The server may still be processing your request.</p>
+              <p>Try refreshing or making a new search.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        pollInterval = setTimeout(poll, pollDelay);
+      }
+      
+      poll();
     } else {
-      console.log('No initial data found. Waiting for event...');
+      console.log('✅ Data was immediately available!');
     }
   </script>
 </body>
 </html>
-

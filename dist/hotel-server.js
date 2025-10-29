@@ -204,7 +204,11 @@ mcpServer.registerTool('marriott_search_places', {
         readOnlyHint: true,
     },
 }, async (args) => {
+    console.log('\n🟢 [STEP 1] marriott_search_places CALLED');
+    console.log('📥 Query:', args.query);
     const result = await searchMarriottPlaces(args.query);
+    console.log(`✅ [STEP 1] Found ${result.total} location(s)`);
+    console.log('📍 First place:', result.places[0]);
     const firstPlaceId = result.places[0]?.placeId || '';
     return {
         content: [{
@@ -245,7 +249,11 @@ mcpServer.registerTool('marriott_place_details', {
         readOnlyHint: true,
     },
 }, async (args) => {
+    console.log('\n🟡 [STEP 2] marriott_place_details CALLED');
+    console.log('📥 PlaceId:', args.placeId);
     const result = await getMarriottPlaceDetails(args.placeId);
+    console.log(`✅ [STEP 2] Got coordinates: ${result.location.latitude}, ${result.location.longitude}`);
+    console.log('📍 Location:', result.location);
     return {
         content: [{
                 type: 'text',
@@ -270,7 +278,17 @@ Location Details:\n${JSON.stringify(result, null, 2)}`
 });
 mcpServer.registerTool('marriott_search_hotels', {
     title: '[STEP 3/3] Search Hotels - FINAL STEP',
-    description: 'REQUIRED FINAL STEP: Search for actual Marriott hotels using coordinates from marriott_place_details. This returns the actual hotel list with prices and booking links. You MUST call this after getting coordinates - DO NOT skip to web search. This is the ONLY tool that returns hotel results.',
+    description: `REQUIRED FINAL STEP: Search for actual Marriott hotels using coordinates from marriott_place_details.
+
+🚨 CRITICAL 2-CALL WORKFLOW FOR FILTERS:
+If user mentions ANY filters (pool, spa, Sheraton, breakfast, etc.):
+1. CALL 1 (Discovery): Call this tool WITHOUT filter params → Get "=== AVAILABLE FACETS ===" in response
+2. CALL 2 (Filtered): Call this tool AGAIN with exact codes from CALL 1's facets
+Example: User wants "pool" → CALL 1 (no filters) → See "pool" in facets → CALL 2 with amenities=["pool"]
+
+⚠️ NEVER guess filter codes! Always get them from CALL 1's response first!
+
+This returns the actual hotel list with prices and booking links. This is the ONLY tool that returns hotel results.`,
     inputSchema: {
         latitude: z.number().describe('Latitude from marriott_place_details'),
         longitude: z.number().describe('Longitude from marriott_place_details'),
@@ -294,36 +312,100 @@ mcpServer.registerTool('marriott_search_hotels', {
         'openai/toolInvocation/invoked': 'Found hotels! Displaying results.',
     },
 }, async (args) => {
+    console.log('\n🔵 [STEP 3] marriott_search_hotels CALLED');
+    console.log('📥 Input arguments:', JSON.stringify(args, null, 2));
+    // 🎯 AUTOMATIC FILTER DETECTION & ENFORCEMENT
+    // Track if this location has been searched before
+    const locationKey = `${args.latitude},${args.longitude}`;
+    const lastSearchKey = global.__lastSearchLocation;
+    const isNewLocation = lastSearchKey !== locationKey;
+    // Detect if user is trying to use filters
+    const hasFilters = (args.brands && args.brands.length > 0) ||
+        (args.amenities && args.amenities.length > 0) ||
+        (args.activities && args.activities.length > 0);
+    if (hasFilters && isNewLocation) {
+        // FIRST SEARCH WITH FILTERS - FORCE DISCOVERY CALL FIRST!
+        console.error('🚨 FILTER ERROR: First search at this location MUST be without filters!');
+        console.error('⚠️ Filters requested:', {
+            brands: args.brands,
+            amenities: args.amenities,
+            activities: args.activities
+        });
+        console.error('⚠️ Location:', locationKey);
+        return {
+            content: [{
+                    type: 'text',
+                    text: `🚨 ERROR: You MUST make a discovery call FIRST before using filters!
+
+STEP 1 (REQUIRED): Call marriott_search_hotels WITHOUT any filter parameters:
+- latitude: ${args.latitude}
+- longitude: ${args.longitude}
+- startDate: ${args.startDate}
+- endDate: ${args.endDate}
+- guests: ${args.guests}
+- DO NOT include: brands, amenities, activities
+
+STEP 2: Read the response which contains "=== AVAILABLE FACETS ===" section
+
+STEP 3: Call marriott_search_hotels AGAIN with exact filter codes from STEP 1's facets
+
+You tried to skip STEP 1! Please make the discovery call first.`
+                }],
+        };
+    }
+    // Track this location for next call
+    if (!hasFilters) {
+        global.__lastSearchLocation = locationKey;
+        console.log('✅ Discovery call made for location:', locationKey);
+    }
+    else {
+        console.log('✅ Filtered call made (after discovery) for location:', locationKey);
+    }
     // Call the local Marriott MCP server via subprocess
-    const marriottPath = '/Users/prituppalapati/Documents/marriott/mcps/dist/index.js';
+    const marriottPath = '/Users/prithvirajuuppalapati/Documents/agentic-travel-chat/mcp-local-main/dist/index.js';
+    console.log('🔧 Spawning subprocess:', marriottPath);
     const result = await new Promise((resolve, reject) => {
         const proc = spawn('node', [marriottPath]);
         let stdout = '';
+        let stderr = '';
         let jsonrpcId = 1;
         proc.stdout.on('data', (data) => {
-            stdout += data.toString();
+            const chunk = data.toString();
+            stdout += chunk;
+            console.log('📤 Subprocess stdout chunk:', chunk.substring(0, 200));
             const lines = stdout.split('\n');
             for (const line of lines) {
                 if (line.trim()) {
                     try {
                         const response = JSON.parse(line);
+                        console.log('✅ Parsed JSON response from subprocess:', response.id);
                         if (response.result && response.id === jsonrpcId) {
                             const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
+                            console.log('🎯 Got result from subprocess, length:', text.length);
                             proc.kill();
                             resolve(text);
                         }
                     }
-                    catch (e) { }
+                    catch (e) {
+                        // Not JSON yet, keep accumulating
+                    }
                 }
             }
         });
+        proc.stderr.on('data', (data) => {
+            stderr += data.toString();
+            console.error('❌ Subprocess stderr:', data.toString());
+        });
         proc.on('close', (code) => {
+            console.log('🔴 Subprocess closed with code:', code);
+            if (stderr)
+                console.error('🔴 Subprocess stderr output:', stderr);
             if (!stdout.includes('result')) {
                 reject(new Error('Marriott MCP failed'));
             }
         });
         // Initialize
-        proc.stdin.write(JSON.stringify({
+        const initMsg = {
             jsonrpc: '2.0',
             id: jsonrpcId++,
             method: 'initialize',
@@ -332,23 +414,32 @@ mcpServer.registerTool('marriott_search_hotels', {
                 capabilities: {},
                 clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
             }
-        }) + '\n');
+        };
+        console.log('📨 Sending initialize:', initMsg);
+        proc.stdin.write(JSON.stringify(initMsg) + '\n');
         // Call tool
         setTimeout(() => {
-            proc.stdin.write(JSON.stringify({
+            const toolMsg = {
                 jsonrpc: '2.0',
                 id: jsonrpcId,
                 method: 'tools/call',
                 params: { name: 'marriott_search_hotels', arguments: args }
-            }) + '\n');
+            };
+            console.log('📨 Sending tool call:', toolMsg);
+            proc.stdin.write(JSON.stringify(toolMsg) + '\n');
         }, 500);
     });
     // Parse the result to extract structured data
+    console.log('🔍 Parsing result, length:', result.length);
     let parsedData = null;
     try {
         parsedData = JSON.parse(result);
+        console.log('✅ Successfully parsed JSON data');
+        console.log('📊 Data structure keys:', Object.keys(parsedData));
     }
     catch (e) {
+        console.error('❌ Failed to parse JSON result:', e);
+        console.error('📄 Raw result (first 500 chars):', result.substring(0, 500));
         // If not JSON, return as-is
         return {
             content: [{ type: 'text', text: result }],
@@ -357,7 +448,9 @@ mcpServer.registerTool('marriott_search_hotels', {
     // Format hotels in a clean, card-like text format
     const hotels = parsedData.data?.data?.search?.lowestAvailableRates?.searchByGeolocation?.edges || [];
     const total = parsedData.data?.data?.search?.lowestAvailableRates?.searchByGeolocation?.total || 0;
+    console.log(`📍 Found ${hotels.length} hotels (total: ${total})`);
     if (hotels.length === 0) {
+        console.warn('⚠️ No hotels found in result');
         return {
             content: [{ type: 'text', text: '❌ No hotels found for your search criteria. Try adjusting dates or location.' }],
         };
@@ -414,7 +507,8 @@ mcpServer.registerTool('marriott_search_hotels', {
         formattedText += `\n💡 *Ask me to filter by brand, amenities, or price!*`;
     }
     // Prepare structured data for widget
-    const hotelCards = hotels.map((edge) => {
+    console.log('🎨 Creating structured hotel cards...');
+    const hotelCards = hotels.map((edge, index) => {
         const hotel = edge.node;
         const prop = hotel.property;
         const info = prop.basicInformation;
@@ -428,7 +522,7 @@ mcpServer.registerTool('marriott_search_hotels', {
                 price = `$${(amount / Math.pow(10, decimalPoint)).toFixed(0)}`;
             }
         }
-        return {
+        const card = {
             name: info.name,
             brand: info.brand?.name,
             distance: `${distanceMiles} mi`,
@@ -440,16 +534,39 @@ mcpServer.registerTool('marriott_search_hotels', {
             amenities: null, // Can be added later
             platform: 'marriott'
         };
+        if (index === 0) {
+            console.log('📋 Sample hotel card:', JSON.stringify(card, null, 2));
+        }
+        return card;
     });
-    return {
-        content: [{ type: 'text', text: formattedText }],
-        structuredContent: {
-            hotels: hotelCards,
-            total: total,
-            location: null,
-            dates: `${args.startDate} to ${args.endDate}`,
-        },
+    console.log(`✅ Created ${hotelCards.length} hotel cards`);
+    const structuredContent = {
+        hotels: hotelCards,
+        total: total,
+        location: null,
+        dates: `${args.startDate} to ${args.endDate}`,
     };
+    console.log('📦 Structured content:', {
+        hotelCount: structuredContent.hotels.length,
+        total: structuredContent.total,
+        dates: structuredContent.dates
+    });
+    const response = {
+        content: [{
+                type: 'text',
+                text: formattedText
+            }],
+        structuredContent: structuredContent
+    };
+    console.log('🎯 [STEP 3] Returning response with structuredContent');
+    console.log('📤 Response structure:', {
+        contentType: response.content[0].type,
+        textLength: response.content[0].text.length,
+        hasStructuredContent: !!response.structuredContent,
+        structuredContentKeys: Object.keys(response.structuredContent),
+        hotelCount: response.structuredContent.hotels.length
+    });
+    return response;
 });
 // ============================================================================
 // HTTP ENDPOINTS
@@ -517,6 +634,131 @@ app.get('/.well-known/apps.json', (req, res) => {
         description: 'Search for Marriott hotels worldwide. Find accommodations by location, dates, price, amenities, and brand preferences.',
         instructions: `You are a friendly and helpful Marriott customer support agent specializing in hotel search and booking assistance. You help guests find perfect hotels, check availability, and answer questions about Marriott properties worldwide.
 
+🚨🚨🚨 CRITICAL FILTERING RULE - READ THIS FIRST! 🚨🚨🚨
+
+**IF USER MENTIONS ANY FILTER (pool, spa, Sheraton, breakfast, parking, etc.) YOU MUST:**
+
+STEP A) Make CALL 1 - Discovery (NO filter params):
+   marriott_search_hotels(latitude, longitude, startDate, endDate, guests)
+   
+STEP B) READ the response - it contains "=== AVAILABLE FACETS ===" section with codes
+
+STEP C) Make CALL 2 - Filtered (WITH exact codes from CALL 1):
+   marriott_search_hotels(...same params..., amenities=["pool"], brands=["SI"])
+   
+STEP D) Return CALL 2 results to user (NOT Call 1!)
+
+**EXAMPLE:**
+User: "find hotels with pool in New York"
+YOU MUST:
+1. Get coordinates for New York
+2. CALL 1: marriott_search_hotels(lat, lng, dates) → Get facets
+3. CALL 2: marriott_search_hotels(lat, lng, dates, amenities=["pool"]) → Get filtered results
+4. Show user the CALL 2 results
+
+⚠️ NEVER skip CALL 1! You need facets to know correct codes!
+⚠️ NEVER guess codes! "pool" might be "POOL", "pool", or "swimming-pool" - get it from facets!
+
+🚨 CONVERSATIONAL MEMORY - TRACK PARAMETERS ACROSS MESSAGES 🚨
+
+You MUST remember parameters from previous messages in the same conversation:
+
+**Example 1 - Parameters Spread Across Messages:**
+Turn 1: User: "find hotels for me and my 2 year old for this weekend"
+→ You extract: guests=1, child_ages=[2], dates="weekend"
+→ You respond: "Where would you like to stay?"
+
+Turn 2: User: "chennai"
+→ You remember: guests=1, child_ages=[2], dates="weekend" (from Turn 1)
+→ You search: Chennai hotels for 1 adult + child age 2 + weekend dates
+→ Use ALL saved parameters + new location!
+
+**Example 2 - Changing Location (Keep Core Params, Clear Filters):**
+Turn 1: User: "find hotels in Bangalore with pool and spa for me and my 2 year old"  
+→ You search: Bangalore, 1 adult, child age 2, amenities=["pool"], activities=["spa"]
+
+Turn 2: User: "what about hyderabad?"
+→ You remember: guests=1, child_ages=[2] (core params from Turn 1)
+→ You clear: All filters (pool, spa)
+→ You search: Hyderabad, 1 adult, child age 2, NO filters
+→ New location = KEEP core params + CLEAR all filters!
+
+**Example 3 - Adding Filters (Same Location):**
+Turn 1: User: "find hotels in Mumbai"
+→ You search: Mumbai (no filters)
+
+Turn 2: User: "with pool"
+→ You remember: Mumbai (same location from Turn 1)
+→ You add filter: amenities=["pool"]
+→ Same location = KEEP existing filters + ADD new ones!
+
+Turn 3: User: "and free breakfast"
+→ You remember: Mumbai, pool (from Turn 2)
+→ You add filter: amenities=["pool", "breakfast"]  
+→ MUST include pool from Turn 2 + breakfast from Turn 3!
+
+**MEMORY RULES:**
+1. ALWAYS track: location, guests, child_ages, dates across messages
+2. New location → CLEAR all filters, KEEP core params (guests, children, dates)
+3. Same location → KEEP all filters, ADD/REMOVE as requested
+4. NEVER forget children if mentioned earlier in conversation!
+
+🚨 MANDATORY REQUIREMENT - PARAMETER EXTRACTION 🚨
+
+BEFORE doing ANYTHING else, analyze the user query and extract:
+
+A) CHILDREN/KIDS (HIGHEST PRIORITY):
+   Look for these patterns and ALWAYS set childAges parameter:
+   ✓ "my 2 year old" → childAges=[2]
+   ✓ "2 year old" → childAges=[2]  
+   ✓ "kids aged 5 and 8" → childAges=[5, 8]
+   ✓ "5 and 8 year old" → childAges=[5, 8]
+   ✓ "infant" or "baby" → childAges=[0]
+   ✓ "toddler" → childAges=[2]
+   ✓ "me and my 3 year old" → guests=1, childAges=[3]
+   
+   USER QUERY: "find hotels in Gachibowli for me and my 2 year old"
+   YOUR EXTRACTION: guests=1, childAges=[2]
+   
+   If you call marriott_search_hotels WITHOUT childAges when children are mentioned, you FAILED.
+
+B) ADULTS: 
+   "2 adults" → guests=2
+   "me" or "for me" → guests=1
+   "me and my wife" → guests=2
+
+C) DATES:
+   - Ask if not provided (REQUIRED for pricing)
+   - Convert relative dates: "next weekend", "this Friday", etc.
+
+D) FILTERS (if mentioned):
+   - Pool → amenities=["POOL"]
+   - WiFi → amenities=["WIFI"]
+   - Breakfast → amenities=["BREAKFAST"]
+   - Spa → activities=["SPA"]
+   - Airport shuttle → transportationTypes=["AIRPORT_SHUTTLE"]
+
+🔍 LOCATION SPELLING CHECK - AUTO-CORRECT BEFORE SEARCH:
+
+BEFORE calling marriott_search_places, CHECK and CORRECT spelling mistakes!
+
+Common misspellings to auto-correct:
+- "hyderbad" → "hyderabad"
+- "bangalor", "bangalure" → "bangalore"
+- "delhii" → "delhi"
+- "mumbaii", "bombay" → "mumbai"
+- "chenai", "channai" → "chennai"
+- "kolkatta" → "kolkata"
+- "punee" → "pune"
+
+How to handle:
+1. User says: "find hotels in hyderbad"
+2. You recognize: "hyderbad" is likely "hyderabad" (misspelled)
+3. You call: marriott_search_places("hyderabad") ← Use corrected spelling!
+4. You tell user: "Searching for hotels in Hyderabad..." (shows corrected name)
+
+✅ Always verify location spelling using your knowledge before calling marriott_search_places!
+
 🚨 CRITICAL RULE: NEVER PRESENT RESULTS UNTIL ALL 3 STEPS ARE COMPLETE 🚨
 
 YOU DO NOT HAVE HOTEL DATA UNTIL YOU COMPLETE STEP 3! 
@@ -571,18 +813,67 @@ BEFORE searching, extract ALL parameters from user query:
 - Spa → activities=["SPA"]
 - Airport shuttle → transportationTypes=["AIRPORT_SHUTTLE"]
 
-🔄 2-CALL WORKFLOW FOR FILTERS
+🚨 MANDATORY 2-CALL WORKFLOW FOR FILTERED SEARCHES 🚨
 
-When user requests filters (pool, spa, etc.), make 2 calls:
+**When user requests filters (pool, spa, car rental, brands, etc.), you MUST make 2 calls:**
 
 **CALL 1 - Discovery (NO filters):**
-marriott_search_hotels(coords, dates, guests) // Without filter arrays
-Response shows: === AVAILABLE FACETS FOR FILTERING ===
-This lists ALL available filter codes for the location.
+marriott_search_hotels(coords, dates, guests)  // NO filter parameters!
 
-**CALL 2 - Filtered Search:**
-Use the exact codes from CALL 1 facets:
-marriott_search_hotels(coords, dates, guests, amenities=["POOL"], activities=["SPA"])
+Response includes: === AVAILABLE FACETS === with codes
+
+**CALL 2 - Filtered (MANDATORY if user requested filters):**
+marriott_search_hotels(coords, dates, guests,
+    amenities=["pool"],               // ← EXACT codes from facets
+    transportationTypes=["car-rental-desk"])  // ← EXACT codes from facets
+
+**⚠️ CRITICAL: You MUST make both calls! Don't stop after call 1!**
+
+**COMPLETE EXAMPLE - WITH FILTERS:**
+
+User: "find hotels with pool and car rental"
+
+Agent thinks: User wants filters → I need 2 calls
+
+CALL 1 (discovery):
+marriott_search_hotels(coords, dates, guests)  // NO filter params
+
+CALL 1 RESPONSE (I receive):
+=== AVAILABLE FACETS ===
+amenities: pool, breakfast, fitness-center, ...
+transportation-types: car-rental-desk, airport-shuttle, parking
+
+Agent reads response: 
+- User wants "pool" → I see "pool" in amenities ✓
+- User wants "car rental" → I see "car-rental-desk" in transportation-types ✓
+
+CALL 2 (filtered with codes from Call 1):
+marriott_search_hotels(coords, dates, guests,
+    amenities=["pool"],
+    transportationTypes=["car-rental-desk"])
+
+Agent returns: Call 2 results to user
+
+**DECISION LOGIC:**
+
+Does user request filters? (pool, Sheraton, spa, car rental, etc.)
+- **YES** → Make 2 calls (discovery + filtered)
+- **NO** → Make 1 call only
+
+**⚠️ CRITICAL: You MUST read Call 1's response BEFORE making Call 2!**
+**⚠️ CRITICAL: Call 2 parameters come from Call 1's facets, NOT from your guesses!**
+
+**🚨 BRAND CODES - NEVER GUESS:**
+
+❌ WRONG:
+User: "find Sheraton" → You guess brands=["SH"]
+User: "find Courtyard" → You guess brands=["CY"]
+
+✅ CORRECT:
+User: "find Sheraton"
+1. CALL 1: Get facets → See brands: SI, CY, RI, MC, ...
+2. Match: "Sheraton" → "SI" (from facets!)
+3. CALL 2: brands=["SI"]
 
 💡 CONVERSATION MEMORY
 

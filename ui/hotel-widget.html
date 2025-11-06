@@ -43,19 +43,39 @@
       }
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
     .header h1 {
       font-size: 1.5rem;
-      margin: 0 0 0.5rem 0;
+      margin: 0;
       font-weight: 600;
     }
 
-    .meta {
+    .dates {
       font-size: 0.875rem;
-      color: rgb(100 116 139);
+      color: rgb(71 85 105);
+      font-weight: 500;
     }
 
     @media (prefers-color-scheme: dark) {
-      .meta {
+      .dates {
+        color: rgb(148 163 184);
+      }
+    }
+
+    .results-count {
+      font-size: 0.875rem;
+      color: rgb(100 116 139);
+      font-weight: 500;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .results-count {
         color: rgb(148 163 184);
       }
     }
@@ -214,6 +234,7 @@
     }
 
     .rating-value {
+      font-size: small;
       font-weight: 500;
       color: rgb(15 23 42);
     }
@@ -257,6 +278,10 @@
       font-size: 0.875rem;
       font-weight: 500;
       color: rgb(37 99 235);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -307,7 +332,7 @@
 
     .price-currency {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       font-size: 0.875rem;
       color: rgb(100 116 139);
     }
@@ -333,6 +358,9 @@
       color: white;
       text-decoration: none;
       transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
     }
 
     .view-rates-btn:hover {
@@ -359,37 +387,1601 @@
         color: rgb(148 163 184);
       }
     }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .pagination {
+        border-top-color: rgba(51, 65, 85, 0.25);
+      }
+    }
+
+    .pagination-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgb(226 232 240);
+      background: white;
+      color: rgb(51 65 85);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: rgb(241 245 249);
+      border-color: rgb(203 213 225);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-btn.active {
+      background: rgb(15 23 42);
+      color: white;
+      border-color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .pagination-btn {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+        color: rgb(226 232 240);
+      }
+      .pagination-btn:hover:not(:disabled) {
+        background: rgb(51 65 85);
+        border-color: rgb(71 85 105);
+      }
+      .pagination-btn.active {
+        background: rgb(51 65 85);
+        border-color: rgb(71 85 105);
+      }
+    }
+
+    .pagination-info {
+      font-size: 0.875rem;
+      color: rgb(100 116 139);
+      margin: 0 0.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .pagination-info {
+        color: rgb(148 163 184);
+      }
+    }
+
+    /* Loading State */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-height: 100px;
+    }
+
+    .loading-card {
+      display: flex;
+      overflow: hidden;
+      border-radius: 1rem;
+      border: 1px solid rgb(226 232 240);
+      background: white;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .loading-card {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .loading-image {
+      width: 320px;
+      flex-shrink: 0;
+      min-height: 240px;
+      background: rgb(241 245 249);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .loading-image {
+        background: rgb(51 65 85);
+      }
+    }
+
+    .loading-content {
+      flex: 1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .loading-bar {
+      height: 1rem;
+      border-radius: 0.5rem;
+      background: rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .loading-bar {
+        background: rgb(51 65 85);
+      }
+    }
+
+    .loading-bar.large {
+      height: 2rem;
+      width: 70%;
+    }
+
+    .loading-bar.medium {
+      width: 50%;
+    }
+
+    .loading-bar.small {
+      width: 30%;
+    }
+
+    /* Filters Button and Modal */
+    .filters-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+      border: 1px solid rgb(203 213 225);
+      background: white;
+      color: rgb(51 65 85);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: rgb(51 65 85);
+      background: rgb(248 250 252);
+    }
+
+    .filter-btn.active {
+      background: rgb(15 23 42);
+      color: white;
+      border-color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .filter-btn {
+        border-color: rgb(71 85 105);
+        background: rgb(30 41 59);
+        color: rgb(226 232 240);
+      }
+      .filter-btn:hover {
+        border-color: rgb(100 116 139);
+        background: rgb(51 65 85);
+      }
+      .filter-btn.active {
+        background: rgb(51 65 85);
+        border-color: rgb(71 85 105);
+      }
+    }
+
+    .filter-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 1rem;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .modal {
+        background: rgb(30 41 59);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .modal-header {
+        border-bottom-color: rgb(51 65 85);
+      }
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: rgb(100 116 139);
+      transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .close-btn:hover {
+        color: rgb(241 245 249);
+      }
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .filter-section {
+      margin-bottom: 2rem;
+    }
+
+    .filter-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .filter-section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+    }
+
+    .filter-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      position: relative;
+    }
+    
+    .filter-options.collapsed {
+      max-height: 7.5rem; /* ~3 rows */
+      overflow: hidden;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-checkbox {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+    }
+
+    .filter-label {
+      font-size: 0.875rem;
+      color: rgb(51 65 85);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .filter-label {
+        color: rgb(226 232 240);
+      }
+    }
+
+    .filter-count {
+      color: rgb(100 116 139);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .filter-count {
+        color: rgb(148 163 184);
+      }
+    }
+    
+    .see-more-btn {
+      margin-top: 0.5rem !important;
+      padding: 0.375rem 0.75rem;
+      background: none;
+      border: 1px solid rgb(203 213 225);
+      border-radius: 0.375rem;
+      color: rgb(51 65 85);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      max-width: 120px;
+      margin: auto;
+    }
+    
+    .see-more-btn:hover {
+      background: rgb(248 250 252);
+      border-color: rgb(148 163 184);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .see-more-btn {
+        border-color: rgb(71 85 105);
+        color: rgb(226 232 240);
+      }
+      .see-more-btn:hover {
+        background: rgb(51 65 85);
+        border-color: rgb(100 116 139);
+      }
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 1.5rem;
+      border-top: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .modal-footer {
+        border-top-color: rgb(51 65 85);
+      }
+    }
+
+    .clear-btn {
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgb(203 213 225);
+      background: white;
+      color: rgb(51 65 85);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: rgb(248 250 252);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .clear-btn {
+        border-color: rgb(71 85 105);
+        background: rgb(30 41 59);
+        color: rgb(226 232 240);
+      }
+      .clear-btn:hover {
+        background: rgb(51 65 85);
+      }
+    }
+
+    .apply-btn {
+      padding: 0.625rem 2rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: rgb(15 23 42);
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .apply-btn:hover {
+      background: rgb(30 41 59);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .apply-btn {
+        background: rgb(51 65 85);
+      }
+      .apply-btn:hover {
+        background: rgb(71 85 105);
+      }
+    }
+
+    .active-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .active-filter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 1rem;
+      background: rgb(241 245 249);
+      color: rgb(51 65 85);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .active-filter-tag {
+        background: rgb(51 65 85);
+        color: rgb(226 232 240);
+      }
+    }
+
+    .remove-filter {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: rgb(100 116 139);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .remove-filter:hover {
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .remove-filter:hover {
+        color: rgb(241 245 249);
+      }
+    }
+
+    /* ========== HOTEL DETAILS STYLES ========== */
+    
+    #detailsView .hotel-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 1rem 0;
+      line-height: 1.2;
+    }
+
+    #detailsView .hotel-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1rem;
+      color: rgb(71 85 105);
+      margin-bottom: 2rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #detailsView .hotel-meta {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #detailsView .rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Photo Carousel in Details View */
+    .photo-carousel {
+      position: relative;
+      margin-bottom: 3rem;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+      border-radius: 1rem;
+      background: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .carousel-container {
+        background: rgb(0 0 0);
+      }
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      height: 100%;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .carousel-slide img {
+        background: rgb(0 0 0);
+      }
+    }
+
+    .carousel-label {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    /* Carousel Navigation */
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border: none;
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 3;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .carousel-nav:hover {
+      background: white;
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .carousel-nav {
+        background: rgba(51, 65, 85, 0.9);
+        color: white;
+      }
+      .carousel-nav:hover {
+        background: rgb(71 85 105);
+      }
+    }
+
+    .carousel-nav.prev { left: 1rem; }
+    .carousel-nav.next { right: 1rem; }
+    .carousel-nav svg { width: 1.5rem; height: 1.5rem; }
+    .carousel-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Carousel Indicators */
+    .carousel-indicators {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 0.75rem 1rem;
+      border-radius: 2rem;
+    }
+
+    .carousel-indicator {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      padding: 0;
+    }
+
+    .carousel-indicator.active {
+      background: white;
+      width: 1.5rem;
+      border-radius: 0.25rem;
+    }
+
+    .carousel-counter {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      z-index: 3;
+    }
+
+    /* Thumbnails */
+    .carousel-thumbnails {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+      scroll-behavior: smooth;
+    }
+
+    .carousel-thumbnail {
+      min-width: 120px;
+      height: 80px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .carousel-thumbnail.active {
+      border-color: rgb(37 99 235);
+    }
+
+    .carousel-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Details Sections */
+    #detailsView .section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #detailsView .section {
+        border-bottom-color: rgb(51 65 85);
+      }
+    }
+
+    #detailsView .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 1.5rem 0;
+    }
+
+    #detailsView .section-content {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: rgb(51 65 85);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #detailsView .section-content {
+        color: rgb(203 213 225);
+      }
+    }
+
+    /* Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .info-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-shrink: 0;
+      color: rgb(59 130 246);
+    }
+
+    .info-content h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .info-content p {
+      margin: 0.25rem 0;
+      font-size: 1rem;
+      color: rgb(71 85 105);
+    }
+
+    /* Amenities Grid */
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .amenity-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1rem;
+    }
+
+    /* Airports */
+    .airports-list {
+      margin-top: 1rem;
+    }
+
+    .airport-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: rgb(248 250 252);
+      border-radius: 0.75rem;
+      border: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .airport-item {
+        background: rgb(30 41 59);
+        border-color: rgb(51 65 85);
+      }
+    }
+
+    .airport-name {
+      font-weight: 600;
+      color: rgb(15 23 42);
+      margin-bottom: 0.25rem;
+    }
+
+    .airport-distance {
+      font-size: 0.875rem;
+      color: rgb(100 116 139);
+    }
+
+    /* Details View Specific */
+    #detailsView .view-website-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border-radius: 0.5rem;
+      color: rgb(15 23 42);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    #detailsView .view-website-btn:hover {
+      background: rgb(248 250 252);
+      border-color: rgb(148 163 184);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #detailsView .view-website-btn {
+        background: rgb(30 41 59);
+        border-color: rgb(71 85 105);
+        color: rgb(226 232 240);
+      }
+      #detailsView .view-website-btn:hover {
+        background: rgb(51 65 85);
+      }
+    }
+
+    #detailsView .arrow-right {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    #detailsView .star-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: rgb(234 179 8);
+      fill: currentColor;
+    }
+
+    #detailsView .divider {
+      color: rgb(203 213 225);
+    }
+
+    .location-grid {
+      display: flex;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+
+    .location-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .location-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgb(71 85 105);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .location-label {
+        color: rgb(148 163 184);
+      }
+    }
+
+    .location-value {
+      font-size: 1.125rem;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .location-value {
+        color: rgb(226 232 240);
+      }
+    }
+
+    .location-value a {
+      color: rgb(37 99 235);
+      text-decoration: none;
+    }
+
+    .location-value a:hover {
+      text-decoration: underline;
+    }
+
+    .amenity-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+      color: rgb(34 197 94);
+    }
+
+    .see-all-amenities {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgb(37 99 235);
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+      margin-top: 1rem;
+    }
+
+    .see-all-amenities:hover {
+      color: rgb(29 78 216);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .see-all-amenities {
+        color: rgb(96 165 250);
+      }
+      .see-all-amenities:hover {
+        color: rgb(147 197 253);
+      }
+    }
+
+    .chevron-down {
+      width: 1rem;
+      height: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .chevron-down.expanded {
+      transform: rotate(180deg);
+    }
+
+    .hidden-amenities {
+      display: none;
+    }
+
+    .hidden-amenities.show {
+      display: grid;
+    }
+
+    .airport-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: rgb(59 130 246);
+    }
+
+    .airport-info {
+      flex: 1;
+    }
+
+    .airport-shuttle {
+      font-size: 0.75rem;
+      color: rgb(34 197 94);
+      font-weight: 500;
+    }
+
+    .info-link {
+      color: rgb(37 99 235);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .info-link {
+        color: rgb(96 165 250);
+      }
+    }
+
+    .carousel-thumbnail-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 0.625rem;
+      padding: 0.25rem 0.5rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* ========== RATES VIEW STYLES ========== */
+    #ratesView {
+      padding: 0;
+    }
+
+    #ratesView .rates-header {
+      background: white;
+      border-bottom: 1px solid rgb(226 232 240);
+      padding: 1.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .rates-header {
+        background: rgb(15 23 42);
+        border-bottom-color: rgb(51 65 85);
+      }
+    }
+
+    #ratesView .hotel-brand {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgb(71 85 105);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .hotel-brand {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #ratesView .hotel-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: rgb(15 23 42);
+      margin-bottom: 0.75rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .hotel-name {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #ratesView .hotel-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-bottom: 1rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .hotel-info {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #ratesView .booking-summary {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 1rem;
+      background: rgb(248 250 252);
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .booking-summary {
+        background: rgb(30 41 59);
+      }
+    }
+
+    #ratesView .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    #ratesView .summary-item-edit {
+      margin-left: auto;
+      background: none;
+      border: 1px solid rgb(226 232 240);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #ratesView .rates-section {
+      padding: 1.5rem;
+    }
+
+    #ratesView .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #ratesView .room-card {
+      display: flex;
+      gap: 1.5rem;
+      border: 1px solid rgb(226 232 240);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: white;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .room-card {
+        background: rgb(15 23 42);
+        border-color: rgb(51 65 85);
+      }
+    }
+
+    #ratesView .room-image-container {
+      position: relative;
+      width: 300px;
+      flex-shrink: 0;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    #ratesView .room-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    #ratesView .room-image-placeholder {
+      width: 100%;
+      height: 200px;
+      background: rgb(241 245 249);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgb(148 163 184);
+    }
+
+    #ratesView .almost-sold-out {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: black;
+      color: white;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    #ratesView .room-carousel-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #ratesView .room-carousel-controls:hover {
+      background: white;
+    }
+
+    #ratesView .room-carousel-prev {
+      left: 0.5rem;
+    }
+
+    #ratesView .room-carousel-next {
+      right: 0.5rem;
+    }
+
+    #ratesView .room-carousel-indicators {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.375rem;
+    }
+
+    #ratesView .room-carousel-indicator {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+    }
+
+    #ratesView .room-carousel-indicator.active {
+      background: white;
+    }
+
+    #ratesView .room-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    #ratesView .room-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .room-title {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #ratesView .room-details-link {
+      color: rgb(37 99 235);
+      text-decoration: none;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    #ratesView .room-details-link:hover {
+      text-decoration: underline;
+    }
+
+    #ratesView .bonvoy-banner {
+      background: rgb(255 165 0);
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    #ratesView .rates-summary {
+      margin-left: auto;
+      text-align: right;
+      min-width: 280px;
+    }
+
+    #ratesView .rates-from {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-bottom: 0.5rem;
+    }
+
+    #ratesView .rates-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: rgb(15 23 42);
+      margin-bottom: 0.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .rates-amount {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #ratesView .rates-total {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-bottom: 0.5rem;
+    }
+
+    #ratesView .rates-taxes-note {
+      font-size: 0.75rem;
+      color: rgb(71 85 105);
+      margin-bottom: 0.75rem;
+    }
+
+    #ratesView .view-rates-toggle {
+      display: inline-block;
+      border-radius: 9999px;
+      background: rgb(15 23 42);
+      padding: 0.625rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    #ratesView .view-rates-toggle:hover {
+      background: rgb(30 41 59);
+    }
+
+    #ratesView .view-rates-toggle.expanded {
+      background: rgb(226 232 240);
+      color: rgb(15 23 42);
+    }
+
+    #ratesView .view-rates-toggle.expanded:hover {
+      background: rgb(203 213 225);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .view-rates-toggle {
+        background: rgb(51 65 85);
+      }
+      #ratesView .view-rates-toggle:hover {
+        background: rgb(71 85 105);
+      }
+      #ratesView .view-rates-toggle.expanded {
+        background: rgb(51 65 85);
+        color: rgb(226 232 240);
+      }
+      #ratesView .view-rates-toggle.expanded:hover {
+        background: rgb(71 85 105);
+      }
+    }
+
+    #ratesView .rates-details {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .rates-details {
+        border-top-color: rgb(51 65 85);
+      }
+    }
+
+    #ratesView .rate-type {
+      margin-bottom: 1.5rem;
+    }
+
+    #ratesView .rate-type-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #ratesView .most-popular-badge {
+      background: black;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    #ratesView .rate-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border: 1px solid rgb(226 232 240);
+      border-radius: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .rate-option {
+        border-color: rgb(51 65 85);
+      }
+    }
+
+    #ratesView .rate-option-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    #ratesView .rate-option-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    #ratesView .rate-option-price {
+      text-align: right;
+      margin-right: 1rem;
+    }
+
+    #ratesView .rate-option-nightly {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #ratesView .rate-option-nightly {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #ratesView .rate-option-total {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-top: 0.25rem;
+    }
+
+    #ratesView .rate-select-btn {
+      background: rgb(15 23 42);
+      color: white;
+      border: none;
+      padding: 0.625rem 1.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #ratesView .rate-select-btn:hover {
+      background: rgb(30 41 59);
+    }
   </style>
 </head>
 <body>
-  <div class="widget">
-    <div class="header">
-      <h1>🏨 Marriott Hotels</h1>
-      <div class="meta" id="meta">Searching...</div>
-    </div>
+  <div class="widget" id="mainWidget">
+    <!-- Search Results View -->
+    <div id="searchView">
+      <div class="header">
+        <div class="header-top">
+          <div class="results-count" id="resultsCount">Searching...</div>
+          <div class="dates" id="dates"></div>
+        </div>
+      </div>
+      
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <button class="filter-btn" id="allFiltersBtn" onclick="openFiltersModal()">
+          <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          All Filters
+        </button>
+        <div class="active-filters" id="activeFilters"></div>
+      </div>
+      
+      <div class="hotels" id="hotels">
+        <div class="empty">No results to display yet</div>
+      </div>
     
-    <div class="hotels" id="hotels">
-      <div class="empty">No results to display</div>
+    <!-- Pagination Controls -->
+    <div class="pagination" id="pagination" style="display: none;">
+      <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      <div id="pageNumbers"></div>
+      
+      <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+      
+      <span class="pagination-info" id="pageInfo"></span>
+    </div>
+    </div>
+    <!-- End Search View -->
+
+    <!-- Hotel Details View -->
+    <div id="detailsView" style="display: none;">
+      <!-- Hotel details will be dynamically inserted here -->
+    </div>
+
+    <!-- Hotel Rates View -->
+    <div id="ratesView" style="display: none;">
+      <!-- Hotel rates will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <!-- Filters Modal -->
+  <div class="modal-overlay" id="filtersModal" onclick="closeFiltersModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Filters</h2>
+        <button class="close-btn" onclick="closeFiltersModal()">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="filtersModalBody">
+        <!-- Filters will be dynamically populated here -->
+      </div>
+      <div class="modal-footer">
+        <button class="clear-btn" onclick="clearFilters()">Clear</button>
+        <button class="apply-btn" onclick="applyFilters()">Apply</button>
+      </div>
     </div>
   </div>
 
   <script>
     debugger
     const SET_GLOBALS_EVENT = 'openai:set-globals';
+    
+    // State for pagination
+    let searchParams = null;
+    let paginationInfo = null;
+    let isLoadingPage = false;
+    let currentContainerHeight = null;
+    
+    // State for filters
+    let availableFacets = null;
+    let selectedFilters = {
+      brands: [],
+      amenities: [],
+      activities: [],
+      transportationTypes: [],
+      propertyTypes: [],
+      cities: [],
+      states: [],
+      countries: [],
+      meetingsAndEvents: [],
+      hotelServiceTypes: [],
+      leisureRegion: [],
+      allInclusive: []
+    };
+    let tempSelectedFilters = {}; // Temporary state for modal
+    let expandedSections = {}; // Track which filter sections are expanded
 
     function renderHotels(data) {
+      console.log('🎨 renderHotels called with data:', {
+        hasData: !!data,
+        hasHotels: !!data?.hotels,
+        hotelCount: data?.hotels?.length,
+        hasFacets: !!data?.facets,
+        facetsCount: data?.facets?.length,
+        facetsIsArray: Array.isArray(data?.facets),
+        dataKeys: data ? Object.keys(data) : []
+      });
+      
       const container = document.getElementById('hotels');
-      const meta = document.getElementById('meta');
+      const resultsCount = document.getElementById('resultsCount');
+      const datesEl = document.getElementById('dates');
+      const pagination = document.getElementById('pagination');
       
       if (!data || !data.hotels || data.hotels.length === 0) {
         container.innerHTML = '<div class="empty">No hotels found. Try adjusting your search criteria.</div>';
-        meta.textContent = 'No results';
+        resultsCount.textContent = 'No results';
+        datesEl.textContent = '';
+        pagination.style.display = 'none';
         return;
       }
 
-      const { hotels, location, dates, total } = data;
+      const { hotels, location, dates, total, pagination: paginationData, searchParams: params } = data;
       
-      meta.textContent = `${total || hotels.length} hotels found${location ? ` in ${location}` : ''}${dates ? ` • ${dates}` : ''}`;
+      // Store search params and pagination info for future calls
+      searchParams = params;
+      paginationInfo = paginationData;
+      
+      // Update results count in Marriott style: "1 - 5 of 189 Results"
+      const startIdx = paginationData ? (paginationData.currentPage - 1) * paginationData.perPage + 1 : 1;
+      const endIdx = paginationData ? Math.min(paginationData.currentPage * paginationData.perPage, paginationData.totalResults) : hotels.length;
+      const totalResults = paginationData ? paginationData.totalResults : total || hotels.length;
+      resultsCount.textContent = `${startIdx} - ${endIdx} of ${totalResults} Results`;
+      
+      // Show dates on the right
+      if (dates) {
+        datesEl.textContent = dates;
+      }
 
       container.innerHTML = hotels.map((hotel) => {
         // Extract price value (remove $ and convert to number for display)
@@ -403,11 +1995,15 @@
           <div class="hotel-card">
             <!-- Hotel Image -->
             <div class="hotel-image">
-              <div class="hotel-image-placeholder">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
+              ${hotel.image ? `
+                <img src="${hotel.image}" alt="${hotel.name}" />
+              ` : `
+                <div class="hotel-image-placeholder">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+              `}
               ${hotel.brand ? `
                 <div class="brand-badge">
                   <span>${hotel.brand}</span>
@@ -446,14 +2042,12 @@
                   ` : ''}
                 </div>
                 
-                ${hotel.url ? `
-                  <a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="view-details-link">
-                    View Details
-                    <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </a>
-                ` : ''}
+                <button class="view-details-link" onclick="viewHotelDetails('${hotel.id}', '${hotel.name.replace(/'/g, "\\'")}')">
+                  View Details
+                  <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </button>
               </div>
               
               <div class="hotel-bottom">
@@ -467,16 +2061,1404 @@
                   </div>
                 ` : '<div></div>'}
                 
-                ${hotel.url ? `
-                  <a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="view-rates-btn">
-                    View Rates
-                  </a>
-                ` : ''}
+                <button class="view-rates-btn" onclick="viewHotelRates('${hotel.id}', '${hotel.name.replace(/'/g, "\\'")}')">
+                  View Rates
+                </button>
               </div>
             </div>
           </div>
         `;
       }).join('');
+      
+      // Update pagination controls
+      updatePaginationControls();
+      
+      // Extract and store facets for filtering
+      console.log('🔍 Extracting facets from data...');
+      console.log('🔍 data.facets type:', typeof data.facets);
+      console.log('🔍 data.facets isArray:', Array.isArray(data.facets));
+      console.log('🔍 data.facets length:', data.facets?.length);
+      
+      if (data.facets && Array.isArray(data.facets) && data.facets.length > 0) {
+        availableFacets = data.facets;
+        console.log('✅ Available facets stored:', availableFacets.length, 'facet groups');
+        console.log('✅ Facet types:', availableFacets.map(f => f.type?.code).join(', '));
+        // Log first facet as sample
+        if (availableFacets[0]) {
+          console.log('📊 Sample facet:', {
+            type: availableFacets[0].type?.code,
+            bucketCount: availableFacets[0].buckets?.length
+          });
+        }
+      } else {
+        console.warn('⚠️ No facets found in data. Current state:', {
+          hasFacets: !!data.facets,
+          isArray: Array.isArray(data.facets),
+          length: data.facets?.length,
+          facetsValue: data.facets
+        });
+        availableFacets = null;
+      }
+      
+      // Update active filters display
+      updateActiveFiltersDisplay();
+    }
+    
+    function updatePaginationControls() {
+      const pagination = document.getElementById('pagination');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageNumbers = document.getElementById('pageNumbers');
+      const pageInfo = document.getElementById('pageInfo');
+      
+      if (!paginationInfo || paginationInfo.totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+      }
+      
+      pagination.style.display = 'flex';
+      
+      const { currentPage, totalPages, totalResults, perPage, hasNextPage, hasPrevPage } = paginationInfo;
+      
+      // Update prev/next buttons
+      prevBtn.disabled = !hasPrevPage || isLoadingPage;
+      nextBtn.disabled = !hasNextPage || isLoadingPage;
+      
+      // Generate page numbers
+      let pages = [];
+      const maxButtons = 5;
+      
+      if (totalPages <= maxButtons) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Smart pagination with ellipsis
+        if (currentPage <= 3) {
+          pages = [1, 2, 3, 4, '...', totalPages];
+        } else if (currentPage >= totalPages - 2) {
+          pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        } else {
+          pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+        }
+      }
+      
+      pageNumbers.innerHTML = pages.map(page => {
+        if (page === '...') {
+          return '<span class="pagination-info">...</span>';
+        }
+        const isActive = page === currentPage;
+        return `<button class="pagination-btn ${isActive ? 'active' : ''}" onclick="goToPage(${page})" ${isLoadingPage ? 'disabled' : ''}>${page}</button>`;
+      }).join('');
+      
+      // Update page info
+      const startIdx = (currentPage - 1) * perPage + 1;
+      const endIdx = Math.min(currentPage * perPage, totalResults);
+      pageInfo.textContent = `${startIdx}-${endIdx} of ${totalResults}`;
+    }
+    
+    function createLoadingSkeleton(count = 5) {
+      let skeletonHTML = '<div class="loading-container">';
+      
+      for (let i = 0; i < count; i++) {
+        skeletonHTML += `
+          <div class="loading-card">
+            <div class="loading-image"></div>
+            <div class="loading-content">
+              <div class="loading-bar large"></div>
+              <div class="loading-bar medium"></div>
+              <div class="loading-bar small"></div>
+              <div style="flex: 1;"></div>
+              <div class="loading-bar medium"></div>
+            </div>
+          </div>
+        `;
+      }
+      
+      skeletonHTML += '</div>';
+      return skeletonHTML;
+    }
+    
+    async function goToPage(page) {
+      if (isLoadingPage || !searchParams) {
+        console.warn('Cannot navigate: loading or no search params');
+        return;
+      }
+      
+      console.log(`🔄 Fetching page ${page}...`);
+      isLoadingPage = true;
+      
+      const container = document.getElementById('hotels');
+      
+      // 🎯 PRESERVE HEIGHT: Capture current height before showing loading
+      currentContainerHeight = container.offsetHeight;
+      container.style.minHeight = `${currentContainerHeight}px`;
+      container.style.transition = 'min-height 0.3s ease';
+      
+      // Show loading skeleton
+      container.innerHTML = createLoadingSkeleton(5);
+      updatePaginationControls(); // Disable buttons
+      
+      try {
+        // Call the MCP tool with the same search params + new page number
+        const result = await window.openai?.callTool('marriott_search_hotels', {
+          ...searchParams,
+          page: page
+        });
+        
+        console.log('✅ Page loaded successfully:', result);
+        
+        // The tool response should trigger a new render via the event system
+        // But we can also handle it directly if available
+        if (result?.structuredContent) {
+          renderHotels(result.structuredContent);
+        }
+      } catch (error) {
+        console.error('❌ Error loading page:', error);
+        container.innerHTML = '<div class="empty">Error loading page. Please try again.</div>';
+      } finally {
+        isLoadingPage = false;
+        
+        // 🎯 RESET HEIGHT: Remove fixed height after content loads
+        setTimeout(() => {
+          container.style.minHeight = 'auto';
+        }, 100);
+        
+        updatePaginationControls();
+      }
+      
+      // Scroll to top of results
+      document.getElementById('hotels').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function changePage(delta) {
+      if (!paginationInfo || isLoadingPage) return;
+      
+      const newPage = paginationInfo.currentPage + delta;
+      if (newPage >= 1 && newPage <= paginationInfo.totalPages) {
+        goToPage(newPage);
+      }
+    }
+    
+    // ========== FILTER FUNCTIONS ==========
+    
+    function openFiltersModal() {
+      const modal = document.getElementById('filtersModal');
+      const modalBody = document.getElementById('filtersModalBody');
+      
+      // Clone current filters to temp state
+      tempSelectedFilters = JSON.parse(JSON.stringify(selectedFilters));
+      
+      // Render filter options
+      renderFilterOptions();
+      
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFiltersModal(event) {
+      if (event && event.target.classList.contains('modal')) return;
+      
+      const modal = document.getElementById('filtersModal');
+      modal.classList.remove('show');
+      document.body.style.overflow = 'auto';
+    }
+    
+    function renderFilterOptions() {
+      const modalBody = document.getElementById('filtersModalBody');
+      
+      console.log('🎨 Rendering filter options...');
+      console.log('🎨 availableFacets:', availableFacets);
+      
+      if (!availableFacets || !Array.isArray(availableFacets) || availableFacets.length === 0) {
+        console.warn('⚠️ No facets available for rendering');
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: rgb(100 116 139);">
+            <p style="margin-bottom: 1rem; font-size: 1.125rem;">No filters available yet</p>
+            <p style="font-size: 0.875rem;">Filters will appear after your first hotel search.</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem;">The system needs to analyze available hotels to show relevant filter options.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      console.log(`✅ Found ${availableFacets.length} facet groups to render`);
+      
+      // Map facet types to friendly names (using actual API codes)
+      const facetLabels = {
+        'brands': 'Brands',
+        'amenities': 'Amenities',
+        'activities-on-site': 'Activities',
+        'transportation-types': 'Transportation',
+        'property-types': 'Property Type',
+        'cities': 'City',
+        'states': 'States / Provinces',
+        'countries': 'Countries',
+        'meetings-and-events': 'Meetings & Events',
+        'hotel-service-types': 'Service Type',
+        'leisure-region': 'Region',
+        'all-inclusive': 'All-Inclusive'
+      };
+      
+      const facetKeys = {
+        'brands': 'brands',
+        'amenities': 'amenities',
+        'activities-on-site': 'activities',
+        'transportation-types': 'transportationTypes',
+        'property-types': 'propertyTypes',
+        'cities': 'cities',
+        'states': 'states',
+        'countries': 'countries',
+        'meetings-and-events': 'meetingsAndEvents',
+        'hotel-service-types': 'hotelServiceTypes',
+        'leisure-region': 'leisureRegion',
+        'all-inclusive': 'allInclusive'
+      };
+      
+      let html = '';
+      const ITEMS_PER_ROW = 2; // 2-column grid
+      const MAX_ROWS_BEFORE_COLLAPSE = 3;
+      const MAX_ITEMS_BEFORE_COLLAPSE = ITEMS_PER_ROW * MAX_ROWS_BEFORE_COLLAPSE; // 6 items
+      
+      availableFacets.forEach(facet => {
+        const facetType = facet.type?.code;
+        const facetLabel = facetLabels[facetType];
+        const facetKey = facetKeys[facetType];
+        
+        if (!facetLabel || !facetKey || !facet.buckets || facet.buckets.length === 0) {
+          return;
+        }
+        
+        const itemCount = facet.buckets.length;
+        const needsCollapse = itemCount > MAX_ITEMS_BEFORE_COLLAPSE;
+        const isExpanded = expandedSections[facetType] || false;
+        const collapsedClass = needsCollapse && !isExpanded ? 'collapsed' : '';
+        
+        html += `
+          <div class="filter-section">
+            <h3 class="filter-section-title">${facetLabel}</h3>
+            <div class="filter-options ${collapsedClass}" id="filter-options-${facetType}">
+        `;
+        
+        facet.buckets.forEach(bucket => {
+          const code = bucket.code;
+          const label = bucket.label || code;
+          const count = bucket.count;
+          const isChecked = tempSelectedFilters[facetKey]?.includes(code) ? 'checked' : '';
+          
+          html += `
+            <div class="filter-option">
+              <input 
+                type="checkbox" 
+                id="filter-${facetKey}-${code}" 
+                class="filter-checkbox"
+                data-facet-key="${facetKey}"
+                data-code="${code}"
+                ${isChecked}
+                onchange="toggleFilter('${facetKey}', '${code}')"
+              />
+              <label for="filter-${facetKey}-${code}" class="filter-label">
+                ${label} <span class="filter-count">(${count})</span>
+              </label>
+            </div>
+          `;
+        });
+        
+        html += `</div>`; // Close filter-options
+        
+        // Add "See More" button if needed
+        if (needsCollapse) {
+          const buttonText = isExpanded ? 'Show Less' : 'See More';
+          const icon = isExpanded 
+            ? '<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>'
+            : '<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+          
+          html += `
+            <button class="see-more-btn" onclick="toggleFilterSection('${facetType}')">
+              ${buttonText} ${icon}
+            </button>
+          `;
+        }
+        
+        html += `</div>`; // Close filter-section
+      });
+      
+      modalBody.innerHTML = html;
+    }
+    
+    function toggleFilterSection(facetType) {
+      // Toggle the expanded state
+      expandedSections[facetType] = !expandedSections[facetType];
+      
+      // Re-render to update the UI
+      renderFilterOptions();
+    }
+    
+    function toggleFilter(facetKey, code) {
+      if (!tempSelectedFilters[facetKey]) {
+        tempSelectedFilters[facetKey] = [];
+      }
+      
+      const index = tempSelectedFilters[facetKey].indexOf(code);
+      if (index > -1) {
+        tempSelectedFilters[facetKey].splice(index, 1);
+      } else {
+        tempSelectedFilters[facetKey].push(code);
+      }
+      
+      console.log('🔧 Temp filters updated:', tempSelectedFilters);
+    }
+    
+    function clearFilters() {
+      tempSelectedFilters = {
+        brands: [],
+        amenities: [],
+        activities: [],
+        transportationTypes: [],
+        propertyTypes: [],
+        cities: [],
+        states: [],
+        countries: [],
+        meetingsAndEvents: [],
+        hotelServiceTypes: [],
+        leisureRegion: [],
+        allInclusive: []
+      };
+      // Keep expanded sections state when clearing filters
+      renderFilterOptions();
+    }
+    
+    async function applyFilters() {
+      console.log('✅ Applying filters:', tempSelectedFilters);
+      
+      // Update actual selected filters
+      selectedFilters = JSON.parse(JSON.stringify(tempSelectedFilters));
+      
+      // Close modal
+      closeFiltersModal();
+      
+      // Update active filters display
+      updateActiveFiltersDisplay();
+      
+      // Trigger new search with filters
+      await searchWithFilters();
+    }
+    
+    function updateActiveFiltersDisplay() {
+      const activeFiltersContainer = document.getElementById('activeFilters');
+      let html = '';
+      
+      Object.keys(selectedFilters).forEach(facetKey => {
+        selectedFilters[facetKey].forEach(code => {
+          // Find the label from facets
+          const label = getFacetLabel(facetKey, code);
+          if (label) {
+            html += `
+              <div class="active-filter-tag">
+                ${label}
+                <button class="remove-filter" onclick="removeFilter('${facetKey}', '${code}')">×</button>
+              </div>
+            `;
+          }
+        });
+      });
+      
+      activeFiltersContainer.innerHTML = html;
+    }
+    
+    function getFacetLabel(facetKey, code) {
+      if (!availableFacets) return code;
+      
+      const facetTypeMap = {
+        'brands': 'brands',
+        'amenities': 'amenities',
+        'activities': 'activities-on-site',
+        'transportationTypes': 'transportation-types',
+        'propertyTypes': 'property-types',
+        'cities': 'cities',
+        'states': 'states',
+        'countries': 'countries',
+        'meetingsAndEvents': 'meetings-and-events',
+        'hotelServiceTypes': 'hotel-service-types',
+        'leisureRegion': 'leisure-region',
+        'allInclusive': 'all-inclusive'
+      };
+      
+      const facetType = facetTypeMap[facetKey];
+      const facet = availableFacets.find(f => f.type?.code === facetType);
+      if (!facet) return code;
+      
+      const bucket = facet.buckets.find(b => b.code === code);
+      return bucket ? (bucket.label || code) : code;
+    }
+    
+    async function removeFilter(facetKey, code) {
+      const index = selectedFilters[facetKey].indexOf(code);
+      if (index > -1) {
+        selectedFilters[facetKey].splice(index, 1);
+      }
+      
+      updateActiveFiltersDisplay();
+      await searchWithFilters();
+    }
+    
+    async function searchWithFilters() {
+      if (!searchParams) {
+        console.warn('No search params available');
+        return;
+      }
+      
+      console.log('🔍 Searching with filters...', selectedFilters);
+      
+      const container = document.getElementById('hotels');
+      container.innerHTML = createLoadingSkeleton(5);
+      
+      try {
+        // Build filter parameters
+        const filterParams = {};
+        Object.keys(selectedFilters).forEach(key => {
+          if (selectedFilters[key].length > 0) {
+            filterParams[key] = selectedFilters[key];
+          }
+        });
+        
+        // Call MCP tool with filters
+        const result = await window.openai?.callTool('marriott_search_hotels', {
+          ...searchParams,
+          ...filterParams,
+          page: 1 // Reset to page 1 when filters change
+        });
+        
+        console.log('✅ Filtered search complete:', result);
+        
+        if (result?.structuredContent) {
+          renderHotels(result.structuredContent);
+        }
+      } catch (error) {
+        console.error('❌ Error applying filters:', error);
+        container.innerHTML = '<div class="empty">Error applying filters. Please try again.</div>';
+      }
+    }
+    
+    // ========== HOTEL DETAILS NAVIGATION ==========
+    async function viewHotelDetails(propertyId, hotelName) {
+      console.log(`🏨 Viewing details for property: ${propertyId} (${hotelName})`);
+      
+      try {
+        const searchView = document.getElementById('searchView');
+        const detailsView = document.getElementById('detailsView');
+        
+        // Capture current height to preserve widget height during loading
+        const currentHeight = searchView.offsetHeight;
+        console.log(`📏 Preserving height: ${currentHeight}px`);
+        
+        // Hide search view
+        searchView.style.display = 'none';
+        
+        // Show details view with height preservation and loading skeleton
+        detailsView.style.display = 'block';
+        detailsView.style.minHeight = `${currentHeight}px`;
+        
+        // Create loading skeleton with same structure as details
+        detailsView.innerHTML = `
+          <div style="padding: 0;">
+            ${createLoadingSkeleton(8)}
+          </div>
+        `;
+        
+        // Call the hotel details MCP tool
+        const result = await window.openai?.callTool('marriott_hotel_details', {
+          propertyId: propertyId
+        });
+        
+        console.log('✅ Hotel details loaded:', result);
+        
+        if (result?.structuredContent) {
+          renderHotelDetails(result.structuredContent);
+          
+          // Reset min-height after content is rendered and allow natural sizing
+          setTimeout(() => {
+            detailsView.style.minHeight = 'auto';
+            console.log('✅ Height constraint removed, natural sizing restored');
+          }, 100);
+        } else {
+          detailsView.innerHTML = '<div class="empty">Unable to load hotel details</div>';
+          detailsView.style.minHeight = 'auto';
+        }
+        
+      } catch (error) {
+        console.error('❌ Error loading hotel details:', error);
+        const detailsView = document.getElementById('detailsView');
+        detailsView.innerHTML = '<div class="empty">Error loading hotel details. Please try again.</div>';
+        detailsView.style.minHeight = 'auto';
+      }
+    }
+    
+    function goBackToSearch() {
+      console.log('🔙 Going back to search results');
+      document.getElementById('detailsView').style.display = 'none';
+      document.getElementById('ratesView').style.display = 'none';
+      document.getElementById('searchView').style.display = 'block';
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== HOTEL RATES NAVIGATION ==========
+    async function viewHotelRates(propertyId, hotelName) {
+      console.log(`💰 Viewing rates for property: ${propertyId} (${hotelName})`);
+      
+      try {
+        const searchView = document.getElementById('searchView');
+        const ratesView = document.getElementById('ratesView');
+        
+        // Capture current height to preserve widget height during loading
+        const currentHeight = searchView.offsetHeight;
+        console.log(`📏 Preserving height: ${currentHeight}px`);
+        
+        // Hide search view
+        searchView.style.display = 'none';
+        
+        // Show rates view with height preservation and loading skeleton
+        ratesView.style.display = 'block';
+        ratesView.style.minHeight = `${currentHeight}px`;
+        
+        // Create loading skeleton
+        ratesView.innerHTML = `
+          <div style="padding: 0;">
+            ${createLoadingSkeleton(8)}
+          </div>
+        `;
+        
+        // Extract dates, rooms, and guests from searchParams
+        if (!searchParams) {
+          throw new Error('Search parameters not available. Please perform a search first.');
+        }
+        
+        const checkInDate = searchParams.startDate;
+        const checkOutDate = searchParams.endDate;
+        const rooms = searchParams.rooms || 1;
+        const guests = searchParams.guests || 1;
+        
+        console.log(`📅 Dates: ${checkInDate} to ${checkOutDate}, Rooms: ${rooms}, Guests: ${guests}`);
+        
+        // Call the hotel rates MCP tool
+        const result = await window.openai?.callTool('marriott_hotel_rates', {
+          propertyId: propertyId,
+          checkInDate: checkInDate,
+          checkOutDate: checkOutDate,
+          rooms: rooms,
+          guests: guests
+        });
+        
+        console.log('✅ Hotel rates loaded:', result);
+        
+        if (result?.structuredContent) {
+          renderHotelRates(result.structuredContent, hotelName, checkInDate, checkOutDate, rooms, guests);
+          
+          // Reset min-height after content is rendered
+          setTimeout(() => {
+            ratesView.style.minHeight = 'auto';
+            console.log('✅ Height constraint removed, natural sizing restored');
+          }, 100);
+        } else {
+          ratesView.innerHTML = '<div class="empty">Unable to load hotel rates</div>';
+          ratesView.style.minHeight = 'auto';
+        }
+        
+      } catch (error) {
+        console.error('❌ Error loading hotel rates:', error);
+        const ratesView = document.getElementById('ratesView');
+        ratesView.innerHTML = '<div class="empty">Error loading hotel rates. Please try again.</div>';
+        ratesView.style.minHeight = 'auto';
+      }
+    }
+    
+    function renderHotelRates(data, hotelName, checkInDate, checkOutDate, rooms, guests) {
+      console.log('🎨 Rendering hotel rates:', data);
+      
+      const ratesView = document.getElementById('ratesView');
+      const header = data.header;
+      const roomsData = data.rooms;
+      const images = data.images;
+      const property = data.property;
+      
+      const basicInfo = header?.basicInformation || {};
+      const contactInfo = header?.contactInformation || {};
+      const reviews = header?.reviews || {};
+      
+      // Calculate nights
+      const checkIn = new Date(checkInDate);
+      const checkOut = new Date(checkOutDate);
+      const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+      
+      // Format dates
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')}`;
+      };
+      
+      // Get room images map
+      const roomImagesMap = {};
+      if (images?.imagesForAllTags?.assets) {
+        images.imagesForAllTags.assets.forEach(asset => {
+          if (asset.roomPoolCodes && asset.roomPoolCodes.length > 0) {
+            asset.roomPoolCodes.forEach(code => {
+              if (!roomImagesMap[code]) {
+                roomImagesMap[code] = [];
+              }
+              const imageUrl = asset.imageUrls?.wideHorizontal 
+                ? `https://www.marriott.com${asset.imageUrls.wideHorizontal}`
+                : null;
+              if (imageUrl) {
+                roomImagesMap[code].push({
+                  url: imageUrl,
+                  caption: asset.caption || asset.title || ''
+                });
+              }
+            });
+          }
+        });
+      }
+      
+      // Process rooms and group by room type
+      const roomGroups = {};
+      if (roomsData?.edges) {
+        roomsData.edges.forEach(edge => {
+          const room = edge.node;
+          const roomType = room.basicInformation?.type || 'unknown';
+          
+          if (!roomGroups[roomType]) {
+            roomGroups[roomType] = {
+              type: roomType,
+              name: room.basicInformation?.localizedName?.translatedText || room.basicInformation?.name || 'Guest room',
+              description: room.basicInformation?.localizedDescription?.translatedText || room.basicInformation?.description || '',
+              images: roomImagesMap[roomType] || [],
+              rates: [],
+              isNearSellout: room.availabilityAttributes?.isNearSellout || false,
+              membersOnly: room.basicInformation?.membersOnly || false
+            };
+          }
+          
+          // Add rate to this room type
+          if (room.rates) {
+            const rateInfo = {
+              name: room.rates.localizedName?.translatedText || room.rates.name || '',
+              description: room.rates.localizedDescription?.translatedText || room.rates.description || '',
+              rateAmounts: room.rates.rateAmounts || [],
+              averageNightlyRate: room.rates.rateAmountsByMode?.averageNightlyRatePerUnit,
+              totalPricing: room.totalPricing,
+              ratePlan: room.basicInformation?.ratePlan?.[0],
+              freeCancellationUntil: room.basicInformation?.freeCancellationUntil
+            };
+            
+            roomGroups[roomType].rates.push(rateInfo);
+          }
+        });
+      }
+      
+      // Build HTML
+      let html = `
+        <!-- Back Button -->
+        <button class="filter-btn" onclick="goBackToSearch()" style="margin: 1.5rem; margin-bottom: 0;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Search Results
+        </button>
+
+        <!-- Header -->
+        <div class="rates-header">
+          <div class="hotel-name">${basicInfo.name || hotelName}</div>
+          <div class="hotel-info">
+            ${contactInfo.address ? `
+              <span>${contactInfo.address.line1}, ${contactInfo.address.city}, ${contactInfo.address.stateProvince?.description || ''} ${contactInfo.address.postalCode || ''}</span>
+            ` : ''}
+            ${contactInfo.contactNumbers?.[0]?.number ? `
+              <span>|</span>
+              <span>${contactInfo.contactNumbers[0].number}</span>
+            ` : ''}
+            ${reviews.stars?.count ? `
+              <span>|</span>
+              <span>${reviews.stars.count} (${reviews.numberOfReviews?.count?.toLocaleString() || 0} reviews)</span>
+            ` : ''}
+          </div>
+          
+          <!-- Booking Summary -->
+          <div class="booking-summary">
+            <div class="summary-item">
+              <strong>STAY DATES (${nights} NIGHT${nights > 1 ? 'S' : ''})</strong>
+              <span>${formatDate(checkInDate)} → ${formatDate(checkOutDate)}</span>
+            </div>
+            <div class="summary-item">
+              <strong>ROOMS & GUESTS</strong>
+              <span>${rooms} Room${rooms > 1 ? 's' : ''}, ${guests} Guest${guests > 1 ? 's' : ''}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rates Section -->
+        <div class="rates-section">
+          <div class="section-title">
+            <span>Select a Room and Rate</span>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+                <input type="checkbox">
+                Show with taxes and fees
+              </label>
+              <select style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid rgb(226 232 240);">
+                <option>$ USD</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: rgb(71 85 105);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            You can request an accessible room when reviewing your reservation.
+          </div>
+      `;
+      
+      // Render room cards
+      // Store room images data for carousel functionality (before rendering)
+      window.roomCarouselData = window.roomCarouselData || {};
+      
+      Object.values(roomGroups).forEach((roomGroup, roomIndex) => {
+        const roomImages = roomGroup.images.length > 0 ? roomGroup.images : [];
+        const firstImage = roomImages[0]?.url || null;
+        const hasMultipleImages = roomImages.length > 1;
+        
+        // Store images data for this carousel
+        const carouselId = `room-carousel-${roomGroup.type}`;
+        window.roomCarouselData[carouselId] = {
+          images: roomImages,
+          currentIndex: 0
+        };
+        
+        // Find lowest rate
+        let lowestRate = null;
+        let lowestTotal = null;
+        roomGroup.rates.forEach(rate => {
+          if (rate.averageNightlyRate?.amount?.origin) {
+            const nightly = rate.averageNightlyRate.amount.origin.amount / Math.pow(10, rate.averageNightlyRate.amount.origin.valueDecimalPoint || 2);
+            if (!lowestRate || nightly < lowestRate) {
+              lowestRate = nightly;
+            }
+          }
+          if (rate.totalPricing?.rateAmountsByMode?.grandTotal?.amount?.origin) {
+            const total = rate.totalPricing.rateAmountsByMode.grandTotal.amount.origin.value / Math.pow(10, rate.totalPricing.rateAmountsByMode.grandTotal.amount.origin.valueDecimalPoint || 2);
+            if (!lowestTotal || total < lowestTotal) {
+              lowestTotal = total;
+            }
+          }
+        });
+        
+        html += `
+          <div class="room-card" data-room-type="${roomGroup.type}">
+            <!-- Room Image -->
+            <div class="room-image-container" id="${carouselId}-container">
+              ${roomGroup.isNearSellout ? `
+                <div class="almost-sold-out">ALMOST SOLD OUT</div>
+              ` : ''}
+              ${firstImage ? `
+                <img src="${firstImage}" alt="${roomGroup.name}" class="room-image" id="${carouselId}-image" />
+                ${hasMultipleImages ? `
+                  <button class="room-carousel-controls room-carousel-prev" onclick="roomCarouselPrev('${carouselId}', ${roomImages.length})">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button class="room-carousel-controls room-carousel-next" onclick="roomCarouselNext('${carouselId}', ${roomImages.length})">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <div class="room-carousel-indicators">
+                    ${roomImages.map((_, idx) => `
+                      <div class="room-carousel-indicator ${idx === 0 ? 'active' : ''}" 
+                           onclick="roomCarouselGoTo('${carouselId}', ${idx}, ${roomImages.length})"
+                           data-index="${idx}"></div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              ` : `
+                <div class="room-image-placeholder">
+                  <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              `}
+            </div>
+            
+            <!-- Room Content -->
+            <div class="room-content">
+              <div>
+                <div class="room-title">${roomGroup.name}</div>
+                ${roomIndex === 0 ? `
+                  <div class="bonvoy-banner">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    Save on this and every stay by joining Marriott Bonvoy at checkout. Membership is free.
+                  </div>
+                ` : ''}
+              </div>
+              
+              <!-- Rates Summary -->
+              <div class="rates-summary">
+                <div class="rates-from">Rates from</div>
+                ${lowestRate ? `
+                  <div class="rates-amount">${Math.round(lowestRate)} USD Avg/Night</div>
+                ` : ''}
+                ${lowestTotal ? `
+                  <div class="rates-total">${Math.round(lowestTotal).toLocaleString()} Total Per Room</div>
+                ` : ''}
+                <div class="rates-taxes-note">Taxes and all fees included</div>
+                <button class="view-rates-toggle" id="toggle-rates-${roomGroup.type}" onclick="toggleRatesDetails('${roomGroup.type}')">
+                  + View Rates
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Rates Details (Initially Hidden) -->
+          <div class="rates-details" id="rates-details-${roomGroup.type}" style="display: none;">
+            ${roomGroup.rates.map((rate, rateIndex) => {
+              const rateType = rate.name.toLowerCase().includes('flexible') ? 'Flexible' : 
+                               rate.name.toLowerCase().includes('prepay') ? 'Prepay' : 'Standard';
+              const isMostPopular = rateType === 'Flexible' && rateIndex === 0;
+              const isMember = rate.description?.toLowerCase().includes('member') || rate.name.toLowerCase().includes('member');
+              
+              const nightlyRate = rate.averageNightlyRate?.amount?.origin 
+                ? rate.averageNightlyRate.amount.origin.amount / Math.pow(10, rate.averageNightlyRate.amount.origin.valueDecimalPoint || 2)
+                : null;
+              const totalPrice = rate.totalPricing?.rateAmountsByMode?.grandTotal?.amount?.origin
+                ? rate.totalPricing.rateAmountsByMode.grandTotal.amount.origin.value / Math.pow(10, rate.totalPricing.rateAmountsByMode.grandTotal.amount.origin.valueDecimalPoint || 2)
+                : null;
+              const currency = rate.averageNightlyRate?.amount?.origin?.currency || 'USD';
+              
+              return `
+                <div class="rate-type">
+                  <div class="rate-type-title">
+                    <span>${rateType}</span>
+                    ${isMostPopular ? '<span class="most-popular-badge">MOST POPULAR</span>' : ''}
+                  </div>
+                  ${rate.description ? `<div style="font-size: 0.875rem; color: rgb(71 85 105); margin-bottom: 0.75rem;">${rate.description}</div>` : ''}
+                  <div style="font-size: 0.875rem; color: rgb(71 85 105); margin-bottom: 0.75rem;">✓ Taxes and all fees included</div>
+                  
+                  <div class="rate-option">
+                    <div class="rate-option-info">
+                      <span>${isMember ? 'Member Rate' : 'Non-Member Rate'}</span>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="cursor: help;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div class="rate-option-price">
+                      ${nightlyRate ? `<div class="rate-option-nightly">${Math.round(nightlyRate)} USD Avg/Night</div>` : ''}
+                      ${totalPrice ? `<div class="rate-option-total">${Math.round(totalPrice).toLocaleString()} Total Per Room</div>` : ''}
+                    </div>
+                    <button class="rate-select-btn">Select</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+      
+      ratesView.innerHTML = html;
+    }
+    
+    // ========== ROOM CAROUSEL FUNCTIONS ==========
+    function roomCarouselGoTo(carouselId, index, totalImages) {
+      const carouselData = window.roomCarouselData?.[carouselId];
+      if (!carouselData || index < 0 || index >= totalImages) return;
+      
+      carouselData.currentIndex = index;
+      const imageEl = document.getElementById(`${carouselId}-image`);
+      const indicators = document.querySelectorAll(`#${carouselId}-container .room-carousel-indicator`);
+      
+      if (imageEl && carouselData.images[index]) {
+        // Fade transition
+        imageEl.style.opacity = '0';
+        setTimeout(() => {
+          imageEl.src = carouselData.images[index].url;
+          imageEl.alt = carouselData.images[index].caption || '';
+          imageEl.style.opacity = '1';
+        }, 150);
+      }
+      
+      // Update indicators
+      indicators.forEach((indicator, idx) => {
+        if (idx === index) {
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('active');
+        }
+      });
+    }
+    
+    function roomCarouselNext(carouselId, totalImages) {
+      const carouselData = window.roomCarouselData?.[carouselId];
+      if (!carouselData) return;
+      
+      const nextIndex = (carouselData.currentIndex + 1) % totalImages;
+      roomCarouselGoTo(carouselId, nextIndex, totalImages);
+    }
+    
+    function roomCarouselPrev(carouselId, totalImages) {
+      const carouselData = window.roomCarouselData?.[carouselId];
+      if (!carouselData) return;
+      
+      const prevIndex = carouselData.currentIndex === 0 ? totalImages - 1 : carouselData.currentIndex - 1;
+      roomCarouselGoTo(carouselId, prevIndex, totalImages);
+    }
+    
+    function toggleRatesDetails(roomType) {
+      const detailsEl = document.getElementById(`rates-details-${roomType}`);
+      const toggleBtn = document.getElementById(`toggle-rates-${roomType}`);
+      
+      if (!detailsEl || !toggleBtn) return;
+      
+      const isExpanded = detailsEl.style.display !== 'none';
+      
+      if (isExpanded) {
+        // Collapse
+        detailsEl.style.display = 'none';
+        toggleBtn.textContent = '+ View Rates';
+        toggleBtn.classList.remove('expanded');
+      } else {
+        // Expand
+        detailsEl.style.display = 'block';
+        toggleBtn.textContent = 'Hide Rates';
+        toggleBtn.classList.add('expanded');
+      }
+    }
+    
+    function renderHotelDetails(data) {
+      console.log('🎨 Rendering hotel details:', data);
+      
+      const detailsView = document.getElementById('detailsView');
+      const property = data.propertyInfo;
+      const photoGallery = data.photoGallery;
+      const amenities = data.amenities;
+      
+      if (!property) {
+        detailsView.innerHTML = `
+          <div class="loading">
+            <div style="text-align: center; padding: 2rem;">
+              <p style="font-size: 1.25rem;">No hotel data available</p>
+              <p style="color: rgb(100 116 139); margin-top: 0.5rem;">The hotel information could not be retrieved.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const basicInfo = property.basicInformation;
+      const contactInfo = property.contactInformation;
+      const reviews = property.reviews;
+      const policies = property.policies;
+      const airports = property.airports || [];
+      const parking = property.parking || [];
+
+      // Collect all photos from all categories in gallery
+      const allPhotos = [];
+      if (photoGallery) {
+        const categories = [
+          { key: 'hotelView', label: 'Property View' },
+          { key: 'guestRooms', label: 'Guest Rooms' },
+          { key: 'suites', label: 'Suites' },
+          { key: 'dining', label: 'Dining' },
+          { key: 'recreationAndFitness', label: 'Recreation & Fitness' },
+          { key: 'eventsAndMeetings', label: 'Events & Meetings' },
+          { key: 'features', label: 'Features' },
+          { key: 'activities', label: 'Activities' },
+          { key: 'spa', label: 'Spa' },
+          { key: 'golf', label: 'Golf' },
+          { key: 'nearbyAttractions', label: 'Nearby Attractions' },
+        ];
+
+        categories.forEach(({ key, label }) => {
+          if (photoGallery[key]?.edges) {
+            photoGallery[key].edges.forEach(edge => {
+              if (edge.node?.imageUrls?.classicHorizontal) {
+                allPhotos.push({
+                  url: `https://cache.marriott.com${edge.node.imageUrls.classicHorizontal}`,
+                  title: edge.node.title || edge.node.caption || label,
+                  category: label,
+                  alt: edge.node.alternateDescription || edge.node.caption || label,
+                });
+              }
+            });
+          }
+        });
+      }
+
+      // Generate website URL
+      const websiteUrl = property.seoNickname 
+        ? `https://www.marriott.com/en-us/hotels/${property.id}-${property.seoNickname}/overview/`
+        : `https://www.marriott.com/en-us/hotels/${property.id}/overview/`;
+
+      let html = `
+        <!-- Back Button -->
+        <button class="filter-btn" onclick="goBackToSearch()" style="margin-bottom: 1.5rem;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Search Results
+        </button>
+
+        <!-- Header -->
+        <div class="header">
+          <h1 class="hotel-title">${basicInfo?.name || 'Hotel Details'}</h1>
+          <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="view-website-btn">
+            View Property Website
+            <svg class="arrow-right" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+          <div class="hotel-meta">
+            ${reviews ? `
+              <div class="rating">
+                <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span>${reviews.stars?.count || 'N/A'} (${reviews.numberOfReviews?.count?.toLocaleString() || 0} reviews)</span>
+              </div>
+            ` : ''}
+            ${basicInfo?.latitude && basicInfo?.longitude ? `
+              <span class="divider">|</span>
+              <span>📍 ${contactInfo?.address?.city || ''}, ${contactInfo?.address?.stateProvince?.code || ''}</span>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Photo Carousel -->
+        ${allPhotos.length > 0 ? `
+          <div class="photo-carousel" id="photoCarousel">
+            <div class="carousel-container">
+              <!-- Carousel Track -->
+              <div class="carousel-track" id="carouselTrack">
+                ${allPhotos.map((photo, index) => `
+                  <div class="carousel-slide" data-index="${index}">
+                    <img src="${photo.url}" alt="${photo.alt}" loading="${index < 3 ? 'eager' : 'lazy'}" />
+                    <div class="carousel-label">${photo.category}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Navigation Buttons -->
+              <button class="carousel-nav prev" id="carouselPrev" onclick="carouselPrev()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button class="carousel-nav next" id="carouselNext" onclick="carouselNext()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <!-- Counter -->
+              <div class="carousel-counter" id="carouselCounter">1 / ${allPhotos.length}</div>
+
+              <!-- Indicators -->
+              <div class="carousel-indicators" id="carouselIndicators">
+                ${allPhotos.slice(0, Math.min(allPhotos.length, 10)).map((_, index) => `
+                  <button class="carousel-indicator ${index === 0 ? 'active' : ''}" 
+                          onclick="goToSlide(${index})"
+                          aria-label="Go to slide ${index + 1}"></button>
+                `).join('')}
+                ${allPhotos.length > 10 ? `
+                  <span style="color: white; font-size: 0.75rem; padding: 0 0.5rem;">+${allPhotos.length - 10}</span>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Thumbnail Strip -->
+            <div class="carousel-thumbnails" id="carouselThumbnails">
+              ${allPhotos.map((photo, index) => `
+                <div class="carousel-thumbnail ${index === 0 ? 'active' : ''}" 
+                     onclick="goToSlide(${index})"
+                     data-index="${index}">
+                  <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+                  <div class="carousel-thumbnail-label">${photo.category}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Overview Section -->
+        ${basicInfo?.descriptions?.[0]?.text ? `
+          <div class="section">
+            <h2 class="section-title">Overview</h2>
+            <p class="section-content">${basicInfo.descriptions[0].text}</p>
+          </div>
+        ` : ''}
+
+        <!-- Location Section -->
+        <div class="section">
+          <h2 class="section-title">Location</h2>
+          <div class="location-grid">
+            ${contactInfo?.address ? `
+              <div class="location-item">
+                <div class="location-label">Address</div>
+                <div class="location-value">
+                  ${contactInfo.address.line1 || ''}<br>
+                  ${contactInfo.address.city || ''}, ${contactInfo.address.stateProvince?.code || ''}, ${contactInfo.address.country?.code || ''}, ${contactInfo.address.postalCode || ''}
+                </div>
+              </div>
+            ` : ''}
+            ${contactInfo?.contactNumbers?.[0] ? `
+              <div class="location-item">
+                <div class="location-label">Telephone</div>
+                <div class="location-value">
+                  <a href="tel:${contactInfo.contactNumbers[0].phoneNumber.original}">${contactInfo.contactNumbers[0].phoneNumber.display}</a>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          ${airports.length > 0 ? `
+            <div class="airports-list">
+              <h3 style="margin: 2rem 0 1rem 0; font-size: 1.25rem;">Nearby Airports</h3>
+              ${airports.slice(0, 4).map(airport => `
+                <div class="airport-item">
+                  <svg class="airport-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                  </svg>
+                  <div class="airport-info">
+                    <div class="airport-name">${airport.name} (${airport.id})</div>
+                    <div class="airport-distance">${airport.distanceDetails?.description || ''}</div>
+                    ${airport.complimentaryShuttle ? '<div class="airport-shuttle">✓ Complimentary shuttle available</div>' : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Property Information Section -->
+        <div class="section">
+          <h2 class="section-title">Property Information</h2>
+          <div class="info-grid">
+            ${policies ? `
+              <div class="info-item">
+                <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="info-content">
+                  <h3>Check-in / Check-out</h3>
+                  <p>CHECK IN: ${policies.checkInTime || 'N/A'}</p>
+                  <p>CHECK OUT: ${policies.checkOutTime || 'N/A'}</p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${policies?.smokefree ? `
+              <div class="info-item">
+                <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                <div class="info-content">
+                  <h3>Smoke-Free Policy</h3>
+                  <p>This property has a smoke-free policy</p>
+                  <p class="info-link">See Accessibility Features</p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${policies?.petsAllowed ? `
+              <div class="info-item">
+                <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="info-content">
+                  <h3>Pet Policy</h3>
+                  <p>${policies.petsPolicyDescription || 'Pets allowed'}</p>
+                  ${policies.petsPolicyDetails?.[0] ? `
+                    <p>Non-refundable fee: ${policies.petsPolicyDetails[0].nonRefundableFee || 'N/A'} per ${policies.petsPolicyDetails[0].nonRefundableFeeType || 'Stay'}</p>
+                  ` : ''}
+                  <p>Contact hotel for details</p>
+                </div>
+              </div>
+            ` : ''}
+
+            ${parking.length > 0 ? `
+              <div class="info-item">
+                <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <div class="info-content">
+                  <h3>Parking</h3>
+                  ${parking.map(p => `<p>${p.fees?.description || ''}</p>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Amenities Section -->
+        ${amenities?.matchingSearchFacets?.length > 0 ? `
+          <div class="section">
+            <h2 class="section-title">Amenities</h2>
+            <div class="amenities-grid" id="visibleAmenities">
+              ${amenities.matchingSearchFacets.slice(0, 9).map(facet => `
+                <div class="amenity-item">
+                  <svg class="amenity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>${facet.dimension?.description || ''}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${amenities.matchingSearchFacets.length > 9 ? `
+              <div class="amenities-grid hidden-amenities" id="hiddenAmenities">
+                ${amenities.matchingSearchFacets.slice(9).map(facet => `
+                  <div class="amenity-item">
+                    <svg class="amenity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>${facet.dimension?.description || ''}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="see-all-amenities" onclick="toggleAmenities()">
+                <span id="toggleText">See all amenities</span>
+                <svg class="chevron-down" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
+      `;
+
+      detailsView.innerHTML = html;
+      
+      // Initialize carousel after rendering
+      initCarousel();
+    }
+    
+    function toggleAmenities() {
+      const hidden = document.getElementById('hiddenAmenities');
+      const toggleText = document.getElementById('toggleText');
+      const chevron = document.getElementById('chevronIcon');
+      
+      if (hidden.classList.contains('show')) {
+        hidden.classList.remove('show');
+        toggleText.textContent = 'See all amenities';
+        chevron.classList.remove('expanded');
+      } else {
+        hidden.classList.add('show');
+        toggleText.textContent = 'See fewer amenities';
+        chevron.classList.add('expanded');
+      }
+    }
+
+    // ========== CAROUSEL FUNCTIONS ==========
+    
+    let currentSlide = 0;
+    let totalSlides = 0;
+    let isTransitioning = false;
+
+    function initCarousel() {
+      const track = document.getElementById('carouselTrack');
+      if (!track) {
+        console.log('⚠️ No carousel track found');
+        return;
+      }
+      
+      totalSlides = track.children.length;
+      currentSlide = 0;
+      updateCarouselUI();
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyDown);
+      
+      console.log(`🎠 Carousel initialized with ${totalSlides} slides`);
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'ArrowLeft') {
+        carouselPrev();
+      } else if (e.key === 'ArrowRight') {
+        carouselNext();
+      }
+    }
+
+    function goToSlide(index) {
+      if (isTransitioning || index < 0 || index >= totalSlides) return;
+      
+      isTransitioning = true;
+      currentSlide = index;
+      
+      const track = document.getElementById('carouselTrack');
+      const offset = -currentSlide * 100;
+      track.style.transform = `translateX(${offset}%)`;
+      
+      updateCarouselUI();
+      
+      // Reset transition lock after animation
+      setTimeout(() => {
+        isTransitioning = false;
+      }, 500);
+    }
+
+    function carouselNext() {
+      if (currentSlide < totalSlides - 1) {
+        goToSlide(currentSlide + 1);
+      }
+    }
+
+    function carouselPrev() {
+      if (currentSlide > 0) {
+        goToSlide(currentSlide - 1);
+      }
+    }
+
+    function updateCarouselUI() {
+      // Update counter
+      const counter = document.getElementById('carouselCounter');
+      if (counter) {
+        counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+      }
+
+      // Update navigation buttons
+      const prevBtn = document.getElementById('carouselPrev');
+      const nextBtn = document.getElementById('carouselNext');
+      if (prevBtn) prevBtn.disabled = currentSlide === 0;
+      if (nextBtn) nextBtn.disabled = currentSlide === totalSlides - 1;
+
+      // Update indicators (if within first 10)
+      const indicators = document.querySelectorAll('.carousel-indicator');
+      indicators.forEach((indicator, index) => {
+        if (index === currentSlide) {
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('active');
+        }
+      });
+
+      // Update thumbnails
+      const thumbnails = document.querySelectorAll('.carousel-thumbnail');
+      thumbnails.forEach((thumb, index) => {
+        if (index === currentSlide) {
+          thumb.classList.add('active');
+          // Scroll thumbnail into view
+          thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
     }
 
     // Track if data has been rendered to avoid duplicates
@@ -578,7 +3560,12 @@
       function poll() {
         attempts++;
         const elapsed = attempts * pollDelay / 1000;
-        console.log(`🔄 Polling attempt ${attempts} (${elapsed.toFixed(1)}s)...`);
+        
+        // Log less frequently to reduce noise
+        if (attempts % 5 === 0 || attempts <= 5) {
+          console.log(`🔄 Polling attempt ${attempts} (${elapsed.toFixed(1)}s)...`);
+          console.log('🔍 Current toolOutput:', window.openai?.toolOutput);
+        }
         
         if (checkAndRender()) {
           console.log('✅ Data found and rendered via polling!');
@@ -591,9 +3578,9 @@
           console.log('⏰ Switching to slower polling (200ms)');
         }
         
-        // Give up after 10 seconds total
-        if (elapsed >= 10) {
-          console.error('❌ Timeout: No data received after 10 seconds');
+        // Give up after 30 seconds total (increased for slow API responses)
+        if (elapsed >= 30) {
+          console.error('❌ Timeout: No data received after 30 seconds');
           const container = document.getElementById('hotels');
           container.innerHTML = `
             <div class="empty">

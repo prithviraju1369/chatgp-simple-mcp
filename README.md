@@ -51,3 +51,5 @@ Copy the forwarded `https://<subdomain>.ngrok.app` URL. Use that base URL when r
 - Alpha Vantage enforces rate limits. Handle throttling errors in ChatGPT by retrying after a short delay.
 - Update the manifest (`/.well-known/apps.json`) metadata (name, description, instructions) as needed before production.
 - When deploying beyond ngrok, ensure the widget resource is cache-busted if the HTML changes to avoid stale embeds inside ChatGPT.
+
+ngrok config add-authtoken 34f26CZ6VlSwaPZSUSjUKipDOHO_6VpDVkmsTtsmgefKNvM3p

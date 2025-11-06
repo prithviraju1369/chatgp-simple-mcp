@@ -1597,7 +1597,10 @@ You tried to skip STEP 1! Please make the discovery call first.`
         console.log('✅ Filtered call made (after discovery) for location:', locationKey);
     }
     // Call the local Marriott MCP server via subprocess
-    const marriottPath = '/Users/prithvirajuuppalapati/Documents/agentic-travel-chat/mcp-local-main/dist/index.js';
+    // Use environment variable if set, otherwise use relative path from dist/
+    // In deployment, set MARRIOTT_MCP_SERVER_PATH or ensure mcp-local-main is bundled
+    const marriottPath = process.env.MARRIOTT_MCP_SERVER_PATH ||
+        path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
     console.log('🔧 Spawning subprocess:', marriottPath);
     const result = await new Promise((resolve, reject) => {
         const proc = spawn('node', [marriottPath]);
@@ -2199,7 +2202,9 @@ app.post('/mcp', async (req, res) => {
         const transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: undefined,
             enableJsonResponse: true,
-            allowedHosts: ['127.0.0.1', 'localhost'],
+            // Allow all hosts for deployment (Render, Railway, etc.)
+            // In production, you may want to restrict this to specific domains
+            allowedHosts: undefined, // undefined = allow all hosts
             enableDnsRebindingProtection: false,
         });
         res.on('close', () => {
@@ -2629,12 +2634,18 @@ app.get('/', (_req, res) => {
         ]
     });
 });
-const port = Number.parseInt(process.env.PORT ?? '3000', 10);
-app.listen(port, () => {
-    console.log(`🏨 Marriott Hotel Search running at http://localhost:${port}`);
-    console.log(`📱 ChatGPT app manifest: http://localhost:${port}/.well-known/apps.json`);
-    console.log(`🛠️  Tools: marriott_search_places, marriott_place_details, marriott_search_hotels`);
-}).on('error', (error) => {
-    console.error('Server error:', error);
-    process.exit(1);
-});
+// Only start server if not in Vercel/serverless environment
+// Vercel will use the exported app directly
+if (process.env.VERCEL !== '1' && !process.env.VERCEL_ENV) {
+    const port = Number.parseInt(process.env.PORT ?? '3000', 10);
+    app.listen(port, () => {
+        console.log(`🏨 Marriott Hotel Search running at http://localhost:${port}`);
+        console.log(`📱 ChatGPT app manifest: http://localhost:${port}/.well-known/apps.json`);
+        console.log(`🛠️  Tools: marriott_search_places, marriott_place_details, marriott_search_hotels`);
+    }).on('error', (error) => {
+        console.error('Server error:', error);
+        process.exit(1);
+    });
+}
+// Export app for Vercel serverless functions
+export default app;

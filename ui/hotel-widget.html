@@ -1832,6 +1832,320 @@
     #ratesView .rate-select-btn:hover {
       background: rgb(30 41 59);
     }
+
+    /* Booking Confirmation View Styles */
+    #bookingView {
+      padding: 0;
+    }
+
+    #bookingView .booking-header {
+      background: white;
+      border-bottom: 1px solid rgb(226 232 240);
+      padding: 1.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .booking-header {
+        background: rgb(15 23 42);
+        border-bottom-color: rgb(51 65 85);
+      }
+    }
+
+    #bookingView .booking-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .booking-title {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .booking-subtitle {
+      font-size: 1rem;
+      color: rgb(71 85 105);
+      margin-bottom: 1.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .booking-subtitle {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #bookingView .confirmation-number {
+      background: rgb(240 253 244);
+      border: 1px solid rgb(187 247 208);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .confirmation-number {
+        background: rgb(20 83 45);
+        border-color: rgb(34 197 94);
+      }
+    }
+
+    #bookingView .confirmation-label {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .confirmation-label {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #bookingView .confirmation-code {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: rgb(15 23 42);
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .confirmation-code {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .booking-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .booking-section {
+        border-bottom-color: rgb(51 65 85);
+      }
+    }
+
+    #bookingView .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .section-title {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .booking-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    #bookingView .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #bookingView .info-label {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .info-label {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #bookingView .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .info-value {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .hotel-summary-card {
+      background: rgb(248 250 252);
+      border: 1px solid rgb(226 232 240);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .hotel-summary-card {
+        background: rgb(30 41 59);
+        border-color: rgb(51 65 85);
+      }
+    }
+
+    #bookingView .hotel-name-large {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .hotel-name-large {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .hotel-address {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-bottom: 0.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .hotel-address {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #bookingView .room-details {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .room-details {
+        border-top-color: rgb(51 65 85);
+      }
+    }
+
+    #bookingView .room-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .room-name {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .rate-name {
+      font-size: 0.875rem;
+      color: rgb(71 85 105);
+      margin-bottom: 0.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .rate-name {
+        color: rgb(148 163 184);
+      }
+    }
+
+    #bookingView .price-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgb(226 232 240);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .price-summary {
+        border-top-color: rgb(51 65 85);
+      }
+    }
+
+    #bookingView .price-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .price-label {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .price-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: rgb(15 23 42);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .price-amount {
+        color: rgb(226 232 240);
+      }
+    }
+
+    #bookingView .action-buttons {
+      padding: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    #bookingView .btn-primary {
+      background: rgb(15 23 42);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #bookingView .btn-primary:hover {
+      background: rgb(30 41 59);
+    }
+
+    #bookingView .btn-secondary {
+      background: white;
+      color: rgb(15 23 42);
+      border: 1px solid rgb(226 232 240);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #bookingView .btn-secondary:hover {
+      background: rgb(248 250 252);
+      border-color: rgb(148 163 184);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #bookingView .btn-secondary {
+        background: rgb(30 41 59);
+        color: rgb(226 232 240);
+        border-color: rgb(51 65 85);
+      }
+
+      #bookingView .btn-secondary:hover {
+        background: rgb(51 65 85);
+        border-color: rgb(71 85 105);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1889,6 +2203,11 @@
     <!-- Hotel Rates View -->
     <div id="ratesView" style="display: none;">
       <!-- Hotel rates will be dynamically inserted here -->
+    </div>
+
+    <!-- Booking Confirmation View -->
+    <div id="bookingView" style="display: none;">
+      <!-- Booking confirmation will be dynamically inserted here -->
     </div>
   </div>
 
@@ -1983,12 +2302,29 @@
         datesEl.textContent = dates;
       }
 
+      // Store hotel data globally for use in details view
+      window.hotelSearchData = window.hotelSearchData || {};
+      hotels.forEach(hotel => {
+        window.hotelSearchData[hotel.id] = {
+          id: hotel.id,
+          name: hotel.name,
+          brand: hotel.brand,
+          rating: hotel.rating,
+          reviews: hotel.reviews,
+          distance: hotel.distance,
+          image: hotel.image,
+          address: hotel.address,
+          price: hotel.price
+        };
+      });
+
       container.innerHTML = hotels.map((hotel) => {
-        // Extract price value (remove $ and convert to number for display)
+        // Extract price value (price is now stored as a number string)
         let priceAmount = null;
+        let currency = hotel.currency || 'USD'; // Use currency from hotel data
         if (hotel.price) {
-          const priceStr = hotel.price.replace('$', '').replace(',', '');
-          priceAmount = Math.round(parseFloat(priceStr));
+          // Price is already a number string (no $ symbol)
+          priceAmount = Math.round(parseFloat(hotel.price));
         }
 
         return `
@@ -2055,7 +2391,7 @@
                   <div class="price-box">
                     <span class="price-amount">${priceAmount}</span>
                     <div class="price-currency">
-                      <span class="price-currency-code">USD</span>
+                      <span class="price-currency-code">${currency}</span>
                       <span>/ Night</span>
                     </div>
                   </div>
@@ -2178,6 +2514,125 @@
       
       skeletonHTML += '</div>';
       return skeletonHTML;
+    }
+    
+    function createHotelDetailsSkeleton() {
+      return `
+        <!-- Back Button Skeleton -->
+        <div style="margin-bottom: 1.5rem;">
+          <div class="loading-bar" style="width: 180px; height: 40px; border-radius: 0.5rem;"></div>
+        </div>
+
+        <!-- Header Skeleton -->
+        <div class="header" style="margin-bottom: 2rem;">
+          <div class="loading-bar large" style="width: 60%; height: 2.5rem; margin-bottom: 1rem; border-radius: 0.5rem;"></div>
+          <div class="loading-bar" style="width: 200px; height: 2.5rem; margin-bottom: 0.75rem; border-radius: 0.5rem;"></div>
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="loading-bar" style="width: 150px; height: 1.5rem; border-radius: 0.375rem;"></div>
+            <div class="loading-bar" style="width: 200px; height: 1.5rem; border-radius: 0.375rem;"></div>
+          </div>
+        </div>
+
+        <!-- Photo Carousel Skeleton -->
+        <div style="position: relative; width: 100%; height: 480px; background: rgb(241 245 249); border-radius: 1rem; margin-bottom: 2rem; overflow: hidden;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgb(241 245 249) 0%, rgb(226 232 240) 50%, rgb(241 245 249) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
+          <div style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem;">
+            ${Array(5).fill(0).map(() => `
+              <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255, 255, 255, 0.5);"></div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Sections Skeleton -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+          ${Array(4).fill(0).map(() => `
+            <div class="section">
+              <div class="loading-bar large" style="width: 40%; height: 2rem; margin-bottom: 1rem; border-radius: 0.5rem;"></div>
+              <div class="loading-bar medium" style="width: 100%; height: 1.25rem; margin-bottom: 0.75rem; border-radius: 0.375rem;"></div>
+              <div class="loading-bar medium" style="width: 95%; height: 1.25rem; margin-bottom: 0.75rem; border-radius: 0.375rem;"></div>
+              <div class="loading-bar medium" style="width: 90%; height: 1.25rem; margin-bottom: 0.75rem; border-radius: 0.375rem;"></div>
+              <div class="loading-bar small" style="width: 80%; height: 1.25rem; border-radius: 0.375rem;"></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <style>
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+        </style>
+      `;
+    }
+    
+    function createRatesSkeleton() {
+      return `
+        <!-- Back Button Skeleton -->
+        <div style="margin: 1.5rem; margin-bottom: 0;">
+          <div class="loading-bar" style="width: 180px; height: 40px; border-radius: 0.5rem;"></div>
+        </div>
+
+        <!-- Rates Header Skeleton -->
+        <div class="rates-header" style="padding: 1.5rem;">
+          <div class="loading-bar large" style="width: 50%; height: 2rem; margin-bottom: 0.75rem; border-radius: 0.5rem;"></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+            <div class="loading-bar" style="width: 200px; height: 1.25rem; border-radius: 0.375rem;"></div>
+            <div class="loading-bar" style="width: 150px; height: 1.25rem; border-radius: 0.375rem;"></div>
+            <div class="loading-bar" style="width: 180px; height: 1.25rem; border-radius: 0.375rem;"></div>
+          </div>
+          
+          <!-- Booking Summary Skeleton -->
+          <div class="booking-summary" style="padding: 1rem; border-radius: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <div class="loading-bar" style="width: 180px; height: 1.25rem; border-radius: 0.375rem;"></div>
+              <div class="loading-bar" style="width: 200px; height: 1.25rem; border-radius: 0.375rem;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="loading-bar" style="width: 150px; height: 1.25rem; border-radius: 0.375rem;"></div>
+              <div class="loading-bar" style="width: 180px; height: 1.25rem; border-radius: 0.375rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rates Section Skeleton -->
+        <div class="rates-section" style="padding: 1.5rem;">
+          <div class="loading-bar large" style="width: 200px; height: 1.5rem; margin-bottom: 1.5rem; border-radius: 0.5rem;"></div>
+          
+          <!-- Room Cards Skeleton -->
+          ${Array(3).fill(0).map(() => `
+            <div class="room-card" style="display: flex; gap: 1.5rem; padding: 1.5rem; border: 1px solid rgb(226 232 240); border-radius: 0.75rem; margin-bottom: 1.5rem; background: white;">
+              <!-- Room Image Skeleton -->
+              <div style="width: 300px; height: 200px; background: rgb(241 245 249); border-radius: 0.5rem; position: relative; overflow: hidden; flex-shrink: 0;">
+                <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgb(241 245 249) 0%, rgb(226 232 240) 50%, rgb(241 245 249) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
+              </div>
+              
+              <!-- Room Content Skeleton -->
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div class="loading-bar large" style="width: 40%; height: 1.5rem; margin-bottom: 0.75rem; border-radius: 0.375rem;"></div>
+                  <div class="loading-bar medium" style="width: 60%; height: 1rem; margin-bottom: 0.5rem; border-radius: 0.375rem;"></div>
+                </div>
+                
+                <!-- Rates Summary Skeleton -->
+                <div style="text-align: right;">
+                  <div class="loading-bar" style="width: 100px; height: 0.875rem; margin-bottom: 0.5rem; margin-left: auto; border-radius: 0.375rem;"></div>
+                  <div class="loading-bar large" style="width: 180px; height: 1.75rem; margin-bottom: 0.5rem; margin-left: auto; border-radius: 0.375rem;"></div>
+                  <div class="loading-bar" style="width: 150px; height: 0.875rem; margin-bottom: 0.75rem; margin-left: auto; border-radius: 0.375rem;"></div>
+                  <div class="loading-bar" style="width: 120px; height: 0.75rem; margin-bottom: 0.75rem; margin-left: auto; border-radius: 0.375rem;"></div>
+                  <div class="loading-bar" style="width: 140px; height: 2.5rem; margin-left: auto; border-radius: 9999px;"></div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <style>
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+        </style>
+      `;
     }
     
     async function goToPage(page) {
@@ -2549,6 +3004,10 @@
         const searchView = document.getElementById('searchView');
         const detailsView = document.getElementById('detailsView');
         
+        // Get stored hotel data from search results
+        const storedHotelData = window.hotelSearchData?.[propertyId] || null;
+        console.log('📋 Stored hotel data:', storedHotelData);
+        
         // Capture current height to preserve widget height during loading
         const currentHeight = searchView.offsetHeight;
         console.log(`📏 Preserving height: ${currentHeight}px`);
@@ -2562,8 +3021,8 @@
         
         // Create loading skeleton with same structure as details
         detailsView.innerHTML = `
-          <div style="padding: 0;">
-            ${createLoadingSkeleton(8)}
+          <div style="padding: 1.5rem;">
+            ${createHotelDetailsSkeleton()}
           </div>
         `;
         
@@ -2575,7 +3034,9 @@
         console.log('✅ Hotel details loaded:', result);
         
         if (result?.structuredContent) {
-          renderHotelDetails(result.structuredContent);
+          // Merge stored hotel data with API response if available
+          const mergedData = mergeHotelData(result.structuredContent, storedHotelData);
+          renderHotelDetails(mergedData);
           
           // Reset min-height after content is rendered and allow natural sizing
           setTimeout(() => {
@@ -2595,11 +3056,351 @@
       }
     }
     
+    // Merge stored hotel data from search results with API response
+    function mergeHotelData(apiData, storedData) {
+      if (!storedData) {
+        return apiData;
+      }
+      
+      const property = apiData?.propertyInfo;
+      
+      // Check if this looks like mock/empty data
+      // Mock data indicators:
+      // 1. Missing property info
+      // 2. Missing or generic name
+      // 3. Missing address information
+      // 4. Missing reviews
+      const isMockData = !property || 
+                        !property.basicInformation?.name || 
+                        property.basicInformation?.name === 'Hotel Details' ||
+                        (property.basicInformation?.name && property.basicInformation?.name.includes('Mock')) ||
+                        !property.contactInformation?.address?.line1 ||
+                        !property.reviews?.stars?.count;
+      
+      console.log('🔍 Is mock data?', isMockData, {
+        hasProperty: !!property,
+        hasName: !!property?.basicInformation?.name,
+        hasAddress: !!property?.contactInformation?.address?.line1,
+        hasReviews: !!property?.reviews?.stars?.count
+      });
+      
+      // Always merge stored data if available, prioritizing stored data over API data
+      if (storedData) {
+        console.log('🔄 Merging stored hotel data with API response');
+        
+        // Create merged property info
+        const mergedProperty = {
+          ...property,
+          id: property?.id || storedData.id,
+          basicInformation: {
+            ...property?.basicInformation,
+            // Use stored name if API name is missing or looks like mock
+            name: (storedData.name && (!property?.basicInformation?.name || isMockData)) 
+              ? storedData.name 
+              : (property?.basicInformation?.name || storedData.name),
+            brand: storedData.brand ? {
+              id: storedData.brand,
+              name: storedData.brand,
+              __typename: "Brand"
+            } : property?.basicInformation?.brand
+          },
+          contactInformation: {
+            ...property?.contactInformation,
+            // Merge address - use stored data if API address is missing
+            address: (!property?.contactInformation?.address?.line1 && storedData.address) ? {
+              line1: storedData.address,
+              city: storedData.address?.city || property?.contactInformation?.address?.city,
+              stateProvince: storedData.address?.state ? {
+                code: storedData.address?.state,
+                description: storedData.address?.state,
+                label: storedData.address?.state
+              } : property?.contactInformation?.address?.stateProvince,
+              postalCode: storedData.address?.postalCode || property?.contactInformation?.address?.postalCode,
+              country: property?.contactInformation?.address?.country
+            } : property?.contactInformation?.address
+          },
+          reviews: (storedData.rating || storedData.reviews) ? {
+            ...property?.reviews,
+            stars: {
+              ...property?.reviews?.stars,
+              count: storedData.rating || property?.reviews?.stars?.count || 0
+            },
+            numberOfReviews: {
+              ...property?.reviews?.numberOfReviews,
+              count: storedData.reviews || property?.reviews?.numberOfReviews?.count || 0
+            }
+          } : property?.reviews
+        };
+        
+        return {
+          ...apiData,
+          propertyInfo: mergedProperty
+        };
+      }
+      
+      return apiData;
+    }
+    
     function goBackToSearch() {
       console.log('🔙 Going back to search results');
       document.getElementById('detailsView').style.display = 'none';
       document.getElementById('ratesView').style.display = 'none';
+      document.getElementById('bookingView').style.display = 'none';
       document.getElementById('searchView').style.display = 'block';
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== BOOKING CONFIRMATION ==========
+    function selectRateFromButton(button) {
+      const rateKey = button.getAttribute('data-rate-key');
+      
+      // Get rate data from stored data
+      const rateData = window.roomRatesData?.[rateKey];
+      if (rateData) {
+        selectRate(
+          rateData.roomType,
+          rateData.roomName,
+          rateData.roomDescription,
+          rateData.rateName,
+          null,
+          rateData.totalPricing
+        );
+      } else {
+        // Fallback: extract from DOM
+        const rateOption = button.closest('.rate-option');
+        const roomCard = button.closest('.room-card');
+        const roomType = roomCard?.getAttribute('data-room-type') || 'unknown';
+        const roomName = roomCard?.querySelector('.room-title')?.textContent || 'Guest room';
+        const rateName = rateOption?.querySelector('.rate-option-info span')?.textContent || 'Rate';
+        
+        let totalPrice = 0;
+        let currency = 'USD';
+        const totalPriceEl = rateOption?.querySelector('.rate-option-total');
+        if (totalPriceEl) {
+          const priceText = totalPriceEl.textContent || '';
+          // Extract price and currency from text like "1,234 USD Total Per Room"
+          const priceMatch = priceText.match(/([\d,]+)/);
+          const currencyMatch = priceText.match(/([A-Z]{3})/);
+          if (priceMatch) {
+            totalPrice = parseInt(priceMatch[1].replace(/,/g, '')) || 0;
+          }
+          if (currencyMatch) {
+            currency = currencyMatch[1];
+          }
+        }
+        
+        selectRate(roomType, roomName, '', rateName, null, { totalPrice, currency });
+      }
+    }
+    
+    function selectRate(roomType, roomName, roomDescription, rateName, rateData, totalPricing) {
+      console.log('🎫 Selecting rate:', { roomType, roomName, rateName });
+      
+      const ratesView = document.getElementById('ratesView');
+      const bookingView = document.getElementById('bookingView');
+      
+      // Capture current height
+      const currentHeight = ratesView.offsetHeight;
+      
+      // Hide rates view
+      ratesView.style.display = 'none';
+      
+      // Show booking view
+      bookingView.style.display = 'block';
+      bookingView.style.minHeight = `${currentHeight}px`;
+      
+      // Get hotel info from rates view header
+      const hotelNameEl = document.querySelector('#ratesView .hotel-name');
+      const hotelInfoEl = document.querySelector('#ratesView .hotel-info');
+      const hotelName = hotelNameEl?.textContent || 'Hotel';
+      const hotelAddress = hotelInfoEl?.textContent || '';
+      
+      // Get booking summary from rates view
+      const summaryItems = document.querySelectorAll('#ratesView .summary-item');
+      let checkInDate = '';
+      let checkOutDate = '';
+      let rooms = 1;
+      let guests = 1;
+      
+      summaryItems.forEach(item => {
+        const text = item.textContent || '';
+        if (text.includes('STAY DATES')) {
+          const datesMatch = text.match(/(\w+, \w+ \d+) → (\w+, \w+ \d+)/);
+          if (datesMatch) {
+            checkInDate = datesMatch[1];
+            checkOutDate = datesMatch[2];
+          }
+        }
+        if (text.includes('ROOMS & GUESTS')) {
+          const roomsMatch = text.match(/(\d+) Room/);
+          const guestsMatch = text.match(/(\d+) Guest/);
+          if (roomsMatch) rooms = parseInt(roomsMatch[1]);
+          if (guestsMatch) guests = parseInt(guestsMatch[1]);
+        }
+      });
+      
+      // Calculate total price
+      let totalPrice = 0;
+      let currency = 'USD';
+      if (totalPricing && typeof totalPricing === 'object' && totalPricing.totalPrice) {
+        // Use provided total price
+        totalPrice = totalPricing.totalPrice;
+        currency = totalPricing.currency || 'USD';
+      } else {
+        try {
+          const pricing = typeof totalPricing === 'string' ? JSON.parse(totalPricing) : totalPricing;
+          const totalAmount = pricing?.rateAmountsByMode?.grandTotal?.amount?.origin?.value || 0;
+          const decimalPoint = pricing?.rateAmountsByMode?.grandTotal?.amount?.origin?.valueDecimalPoint || 2;
+          totalPrice = totalAmount / Math.pow(10, decimalPoint);
+          currency = pricing?.rateAmountsByMode?.grandTotal?.amount?.origin?.currency || 'USD';
+        } catch (e) {
+          console.warn('Error parsing total pricing:', e);
+          // Try to extract from DOM if available
+          const totalPriceEl = document.querySelector('#ratesView .rate-option-total');
+          if (totalPriceEl) {
+            const priceText = totalPriceEl.textContent || '';
+            const priceMatch = priceText.match(/([\d,]+)/);
+            if (priceMatch) {
+              totalPrice = parseInt(priceMatch[1].replace(/,/g, '')) || 0;
+            }
+          }
+        }
+      }
+      
+      // Generate confirmation number
+      const confirmationNumber = 'MR' + Math.random().toString(36).substring(2, 10).toUpperCase() + 
+        Math.random().toString(36).substring(2, 6).toUpperCase();
+      
+      // Calculate nights
+      let nights = 1;
+      try {
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)) || 1;
+      } catch (e) {
+        console.warn('Error calculating nights:', e);
+      }
+      
+      // Render booking confirmation
+      renderBookingConfirmation({
+        confirmationNumber,
+        hotelName,
+        hotelAddress,
+        roomName,
+        roomDescription,
+        rateName,
+        checkInDate,
+        checkOutDate,
+        nights,
+        rooms,
+        guests,
+        totalPrice,
+        currency
+      });
+    }
+    
+    function renderBookingConfirmation(booking) {
+      const bookingView = document.getElementById('bookingView');
+      
+      const html = `
+        <!-- Back Button -->
+        <button class="filter-btn" onclick="goBackToRates()" style="margin: 1.5rem; margin-bottom: 0;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Rates
+        </button>
+
+        <!-- Header -->
+        <div class="booking-header">
+          <div class="booking-title">Booking Confirmed!</div>
+          <div class="booking-subtitle">Your reservation has been successfully confirmed.</div>
+          
+          <div class="confirmation-number">
+            <div class="confirmation-label">Confirmation Number</div>
+            <div class="confirmation-code">${booking.confirmationNumber}</div>
+          </div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="booking-section">
+          <div class="section-title">Booking Details</div>
+          <div class="booking-info-grid">
+            <div class="info-item">
+              <div class="info-label">Check-in</div>
+              <div class="info-value">${booking.checkInDate}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Check-out</div>
+              <div class="info-value">${booking.checkOutDate}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Nights</div>
+              <div class="info-value">${booking.nights}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Rooms</div>
+              <div class="info-value">${booking.rooms}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Guests</div>
+              <div class="info-value">${booking.guests}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hotel & Room Summary -->
+        <div class="booking-section">
+          <div class="section-title">Hotel & Room Information</div>
+          <div class="hotel-summary-card">
+            <div class="hotel-name-large">${booking.hotelName}</div>
+            ${booking.hotelAddress ? `<div class="hotel-address">${booking.hotelAddress}</div>` : ''}
+            <div class="room-details">
+              <div class="room-name">${booking.roomName}</div>
+              ${booking.roomDescription ? `<div class="rate-name">${booking.roomDescription}</div>` : ''}
+              <div class="rate-name">${booking.rateName}</div>
+            </div>
+            <div class="price-summary">
+              <div class="price-label">Total Amount</div>
+              <div class="price-amount">${Math.round(booking.totalPrice).toLocaleString()} ${booking.currency}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="booking-section">
+          <div class="section-title">What's Next?</div>
+          <div style="color: rgb(71 85 105); font-size: 0.875rem; line-height: 1.6;">
+            <p style="margin-bottom: 0.75rem;">• A confirmation email has been sent to your registered email address.</p>
+            <p style="margin-bottom: 0.75rem;">• Please arrive at the hotel on ${booking.checkInDate} for check-in.</p>
+            <p style="margin-bottom: 0.75rem;">• You can modify or cancel your reservation using your confirmation number.</p>
+            <p>• For any questions, please contact the hotel directly.</p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-secondary" onclick="goBackToSearch()">New Search</button>
+          <button class="btn-primary" onclick="goBackToRates()">View Another Room</button>
+        </div>
+      `;
+      
+      bookingView.innerHTML = html;
+      
+      // Reset height after rendering
+      setTimeout(() => {
+        bookingView.style.minHeight = 'auto';
+      }, 100);
+    }
+    
+    function goBackToRates() {
+      const bookingView = document.getElementById('bookingView');
+      const ratesView = document.getElementById('ratesView');
+      
+      bookingView.style.display = 'none';
+      ratesView.style.display = 'block';
       
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2627,7 +3428,7 @@
         // Create loading skeleton
         ratesView.innerHTML = `
           <div style="padding: 0;">
-            ${createLoadingSkeleton(8)}
+            ${createRatesSkeleton()}
           </div>
         `;
         
@@ -2726,10 +3527,19 @@
       
       // Process rooms and group by room type
       const roomGroups = {};
+      let globalCurrency = 'USD'; // Extract currency from first room for display
+      // Store rate data globally for access in selectRate
+      window.roomRatesData = window.roomRatesData || {};
+      
       if (roomsData?.edges) {
-        roomsData.edges.forEach(edge => {
+        roomsData.edges.forEach((edge, index) => {
           const room = edge.node;
           const roomType = room.basicInformation?.type || 'unknown';
+          
+          // Extract currency from first room's rate data
+          if (index === 0 && room.rates?.rateAmountsByMode?.averageNightlyRatePerUnit?.amount?.origin?.currency) {
+            globalCurrency = room.rates.rateAmountsByMode.averageNightlyRatePerUnit.amount.origin.currency;
+          }
           
           if (!roomGroups[roomType]) {
             roomGroups[roomType] = {
@@ -2756,6 +3566,16 @@
             };
             
             roomGroups[roomType].rates.push(rateInfo);
+            
+            // Store rate data for easy access
+            const rateKey = `${roomType}_${rateInfo.name}`;
+            window.roomRatesData[rateKey] = {
+              roomType,
+              roomName: roomGroups[roomType].name,
+              roomDescription: roomGroups[roomType].description,
+              rateName: rateInfo.name,
+              totalPricing: room.totalPricing
+            };
           }
         });
       }
@@ -2809,8 +3629,8 @@
                 <input type="checkbox">
                 Show with taxes and fees
               </label>
-              <select style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid rgb(226 232 240);">
-                <option>$ USD</option>
+              <select style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid rgb(226 232 240);" disabled>
+                <option>Currency: ${globalCurrency}</option>
               </select>
             </div>
           </div>
@@ -2839,12 +3659,17 @@
           currentIndex: 0
         };
         
-        // Find lowest rate
+        // Find lowest rate and extract currency
         let lowestRate = null;
         let lowestTotal = null;
+        let currency = 'USD'; // Default fallback
         roomGroup.rates.forEach(rate => {
           if (rate.averageNightlyRate?.amount?.origin) {
             const nightly = rate.averageNightlyRate.amount.origin.amount / Math.pow(10, rate.averageNightlyRate.amount.origin.valueDecimalPoint || 2);
+            // Extract currency from first rate (all rates should have same currency)
+            if (!currency || currency === 'USD') {
+              currency = rate.averageNightlyRate.amount.origin.currency || 'USD';
+            }
             if (!lowestRate || nightly < lowestRate) {
               lowestRate = nightly;
             }
@@ -2898,24 +3723,16 @@
             <div class="room-content">
               <div>
                 <div class="room-title">${roomGroup.name}</div>
-                ${roomIndex === 0 ? `
-                  <div class="bonvoy-banner">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                    </svg>
-                    Save on this and every stay by joining Marriott Bonvoy at checkout. Membership is free.
-                  </div>
-                ` : ''}
               </div>
               
               <!-- Rates Summary -->
               <div class="rates-summary">
                 <div class="rates-from">Rates from</div>
                 ${lowestRate ? `
-                  <div class="rates-amount">${Math.round(lowestRate)} USD Avg/Night</div>
+                  <div class="rates-amount">${Math.round(lowestRate)} ${currency} Avg/Night</div>
                 ` : ''}
                 ${lowestTotal ? `
-                  <div class="rates-total">${Math.round(lowestTotal).toLocaleString()} Total Per Room</div>
+                  <div class="rates-total">${Math.round(lowestTotal).toLocaleString()} ${currency} Total Per Room</div>
                 ` : ''}
                 <div class="rates-taxes-note">Taxes and all fees included</div>
                 <button class="view-rates-toggle" id="toggle-rates-${roomGroup.type}" onclick="toggleRatesDetails('${roomGroup.type}')">
@@ -2958,10 +3775,12 @@
                       </svg>
                     </div>
                     <div class="rate-option-price">
-                      ${nightlyRate ? `<div class="rate-option-nightly">${Math.round(nightlyRate)} USD Avg/Night</div>` : ''}
-                      ${totalPrice ? `<div class="rate-option-total">${Math.round(totalPrice).toLocaleString()} Total Per Room</div>` : ''}
+                      ${nightlyRate ? `<div class="rate-option-nightly">${Math.round(nightlyRate)} ${currency} Avg/Night</div>` : ''}
+                      ${totalPrice ? `<div class="rate-option-total">${Math.round(totalPrice).toLocaleString()} ${currency} Total Per Room</div>` : ''}
                     </div>
-                    <button class="rate-select-btn">Select</button>
+                    <button class="rate-select-btn" 
+                            data-rate-key="${roomGroup.type}_${rate.name}"
+                            onclick="selectRateFromButton(this)">Book Now</button>
                   </div>
                 </div>
               `;
@@ -3344,8 +4163,10 @@
 
       detailsView.innerHTML = html;
       
-      // Initialize carousel after rendering
-      initCarousel();
+      // Initialize carousel after rendering (with a small delay to ensure DOM is ready)
+      setTimeout(() => {
+        initCarousel();
+      }, 100);
     }
     
     function toggleAmenities() {
@@ -3370,6 +4191,9 @@
     let totalSlides = 0;
     let isTransitioning = false;
 
+    // Keep track of whether keyboard listener is already added
+    let keyboardListenerAdded = false;
+    
     function initCarousel() {
       const track = document.getElementById('carouselTrack');
       if (!track) {
@@ -3381,8 +4205,11 @@
       currentSlide = 0;
       updateCarouselUI();
       
-      // Add keyboard navigation
-      document.addEventListener('keydown', handleKeyDown);
+      // Add keyboard navigation (only once)
+      if (!keyboardListenerAdded) {
+        document.addEventListener('keydown', handleKeyDown);
+        keyboardListenerAdded = true;
+      }
       
       console.log(`🎠 Carousel initialized with ${totalSlides} slides`);
     }
@@ -3402,6 +4229,11 @@
       currentSlide = index;
       
       const track = document.getElementById('carouselTrack');
+      if (!track) {
+        isTransitioning = false;
+        return;
+      }
+      
       const offset = -currentSlide * 100;
       track.style.transform = `translateX(${offset}%)`;
       
@@ -3424,6 +4256,11 @@
         goToSlide(currentSlide - 1);
       }
     }
+    
+    // Expose carousel functions on window for onclick handlers
+    window.goToSlide = goToSlide;
+    window.carouselNext = carouselNext;
+    window.carouselPrev = carouselPrev;
 
     function updateCarouselUI() {
       // Update counter

@@ -1117,6 +1117,11 @@
       currentSlide = index;
       
       const track = document.getElementById('carouselTrack');
+      if (!track) {
+        isTransitioning = false;
+        return;
+      }
+      
       const offset = -currentSlide * 100;
       track.style.transform = `translateX(${offset}%)`;
       
@@ -1139,6 +1144,11 @@
         goToSlide(currentSlide - 1);
       }
     }
+    
+    // Expose carousel functions on window for onclick handlers
+    window.goToSlide = goToSlide;
+    window.carouselNext = carouselNext;
+    window.carouselPrev = carouselPrev;
 
     function updateCarouselUI() {
       // Update counter

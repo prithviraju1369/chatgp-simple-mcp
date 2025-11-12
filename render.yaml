@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install && npm run build:ts && npm run ensure:mcp:server && test -f dist/mcp-server/index.js && echo "✅ Build complete - MCP server available" || (echo "❌ ERROR: MCP server not found after build!" && echo "Current directory: $(pwd)" && echo "Checking dist:" && ls -la dist/ 2>&1 && echo "Checking mcp-server:" && ls -la dist/mcp-server/ 2>&1 || echo "dist/mcp-server/ does not exist" && exit 1)
+    buildCommand: npm install && npm run build:ts && npm run ensure:mcp:server && (test -f dist/mcp-server/index.js && echo "✅ Build complete - MCP server available at $(pwd)/dist/mcp-server/index.js" && ls -lh dist/mcp-server/index.js || (echo "❌ ERROR: MCP server not found after build!" && echo "Current directory: $(pwd)" && echo "Checking dist:" && ls -la dist/ 2>&1 || echo "dist/ does not exist" && echo "Checking mcp-server:" && ls -la dist/mcp-server/ 2>&1 || echo "dist/mcp-server/ does not exist" && echo "Checking git:" && git ls-files dist/mcp-server/index.js 2>&1 || echo "File not in git" && exit 1))
     startCommand: npm run start:hotels
     envVars:
       - key: NODE_ENV

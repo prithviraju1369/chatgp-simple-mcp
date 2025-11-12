@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:ts && npm run ensure:mcp",
+    "build": "npm run build:ts && npm run ensure:mcp:server",
     "build:ts": "tsc --project tsconfig.json",
+    "ensure:mcp:server": "node scripts/ensure-mcp.js",
     "build:mcp": "cd ../mcp-local-main && npm install && npm run build",
     "build:mcp:optional": "npm run build:mcp || echo '⚠️  MCP build skipped (mcp-local-main not found - will use pre-bundled version)'",
     "copy:mcp": "node scripts/copy-mcp.js",

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Marriott Hotel Search Results</title>
   <style>
     * {
@@ -115,6 +116,201 @@
       flex-shrink: 0;
       overflow: hidden;
       min-height: 240px;
+    }
+
+    /* Mobile: Stack cards vertically and adjust sizes */
+    @media (max-width: 768px) {
+      .widget {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.25rem;
+      }
+      
+      .hotel-card {
+        flex-direction: column;
+      }
+      
+      .hotel-image {
+        width: 100%;
+        min-height: 200px;
+      }
+      
+      .hotel-content {
+        padding: 1rem;
+      }
+      
+      .hotel-name {
+        font-size: 1.25rem;
+      }
+      
+      .hotel-info {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      .hotel-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .price-amount {
+        font-size: 1.75rem;
+      }
+      
+      .view-rates-btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .loading-image {
+        width: 100%;
+        min-height: 200px;
+      }
+      
+      .loading-card {
+        flex-direction: column;
+      }
+    }
+
+    /* Very small mobile devices */
+    @media (max-width: 480px) {
+      .widget {
+        padding: 0.75rem;
+      }
+      
+      .header h1 {
+        font-size: 1.125rem;
+      }
+      
+      .hotel-name {
+        font-size: 1.125rem;
+      }
+      
+      .hotel-content {
+        padding: 0.75rem;
+      }
+      
+      .price-amount {
+        font-size: 1.5rem;
+      }
+      
+      .filter-options {
+        grid-template-columns: 1fr;
+      }
+      
+      .amenities-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .modal {
+        max-width: 100%;
+        margin: 0.5rem;
+      }
+      
+      .modal-header {
+        padding: 1rem;
+      }
+      
+      .modal-body {
+        padding: 1rem;
+      }
+      
+      .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .clear-btn,
+      .apply-btn {
+        width: 100%;
+      }
+      
+      .carousel-container {
+        height: 300px;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+      
+      .pagination-btn {
+        min-width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+        padding: 0.25rem;
+      }
+    }
+
+    /* Mobile: Filters and pagination */
+    @media (max-width: 768px) {
+      .filters-bar {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .filter-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .active-filters {
+        width: 100%;
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin: 0.5rem 0;
+      }
+      
+      .filter-options {
+        grid-template-columns: 1fr;
+      }
+      
+      .modal {
+        max-width: 95%;
+        margin: 0.5rem;
+      }
+      
+      .modal-title {
+        font-size: 1.25rem;
+      }
+      
+      .modal-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .clear-btn,
+      .apply-btn {
+        width: 100%;
+      }
+      
+      .carousel-container {
+        height: 350px;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .amenities-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .hotel-image img {

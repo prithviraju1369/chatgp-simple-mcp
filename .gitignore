@@ -1,1 +1,4 @@
 node_modules
+dist
+!dist/mcp-server
+!dist/mcp-server/index.js

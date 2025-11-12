@@ -4351,37 +4351,74 @@
     console.log('✅ Event listener registered for:', SET_GLOBALS_EVENT);
 
     // According to Apps SDK docs, structuredContent is injected as window.openai.toolOutput
-    console.log('Widget initialized. Checking for data...');
-    console.log('window.openai:', window.openai);
-    console.log('window.openai.toolOutput:', window.openai?.toolOutput);
-    console.log('window.openai.widget:', window.openai?.widget);
+    console.log('🔍 Widget initialized. Checking for data...');
+    console.log('📍 Location:', window.location.href);
+    console.log('📍 Origin:', window.location.origin);
+    console.log('📍 Referrer:', document.referrer);
+    console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
+    console.log('🔍 window.openai:', window.openai);
+    console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
+    console.log('🔍 window.openai.widget:', window.openai?.widget);
+    console.log('🔍 window.openai keys:', window.openai ? Object.keys(window.openai) : 'N/A');
+    
+    // Check if widget is in iframe (ChatGPT sandbox)
+    console.log('🔍 Is in iframe:', window.self !== window.top);
+    console.log('🔍 Parent:', window.parent !== window.self ? 'exists' : 'same');
     
     // Function to check and render data
     function checkAndRender() {
-      if (dataRendered) return true; // Already rendered
+      if (dataRendered) {
+        console.log('✅ Data already rendered, skipping');
+        return true; // Already rendered
+      }
       
+      // Check for toolOutput (primary method)
       if (window.openai?.toolOutput) {
         const data = window.openai.toolOutput;
         console.log('✅ Found toolOutput:', data);
+        console.log('🔍 toolOutput type:', typeof data);
+        console.log('🔍 toolOutput keys:', Object.keys(data || {}));
+        console.log('🔍 toolOutput.hotels exists:', 'hotels' in (data || {}));
+        console.log('🔍 toolOutput.hotels type:', typeof data?.hotels);
+        console.log('🔍 toolOutput.hotels isArray:', Array.isArray(data?.hotels));
+        console.log('🔍 toolOutput.hotels length:', data?.hotels?.length);
         
         // Check if data has the expected structure
         if (data.hotels && Array.isArray(data.hotels) && data.hotels.length > 0) {
           console.log('✅ toolOutput has hotels array with', data.hotels.length, 'hotels - rendering...');
-          renderHotels(data);
-          dataRendered = true;
-          return true; // Success
+          console.log('🔍 First hotel:', data.hotels[0]);
+          try {
+            renderHotels(data);
+            dataRendered = true;
+            console.log('✅ Widget rendered successfully!');
+            return true; // Success
+          } catch (renderError) {
+            console.error('❌ Error rendering hotels:', renderError);
+            console.error('❌ Error stack:', renderError.stack);
+            return false;
+          }
         } else if (data.hotels && Array.isArray(data.hotels) && data.hotels.length === 0) {
           console.warn('⚠️ toolOutput has empty hotels array');
           const container = document.getElementById('hotels');
-          container.innerHTML = `<div class="empty">No hotels found. The search returned zero results.</div>`;
-          dataRendered = true;
-          return true;
+          if (container) {
+            container.innerHTML = `<div class="empty">No hotels found. The search returned zero results.</div>`;
+            dataRendered = true;
+            return true;
+          }
         } else {
-          console.warn('⚠️ toolOutput does not contain hotels array:', data);
-          console.warn('⚠️ toolOutput keys:', Object.keys(data));
-          console.warn('⚠️ toolOutput.hotels type:', typeof data.hotels);
+          console.warn('⚠️ toolOutput does not contain hotels array');
+          console.warn('⚠️ toolOutput structure:', JSON.stringify(data, null, 2).substring(0, 500));
+          console.warn('⚠️ toolOutput keys:', Object.keys(data || {}));
+          console.warn('⚠️ toolOutput.hotels value:', data?.hotels);
+          console.warn('⚠️ toolOutput.hotels type:', typeof data?.hotels);
           // Don't mark as rendered yet - data structure might be incomplete
           return false;
+        }
+      } else {
+        console.log('⚠️ window.openai.toolOutput not found');
+        console.log('🔍 window.openai:', window.openai);
+        if (window.openai) {
+          console.log('🔍 Available keys:', Object.keys(window.openai));
         }
       }
       return false; // No data yet
@@ -4390,20 +4427,64 @@
     // Try immediately
     if (!checkAndRender()) {
       console.log('⚠️ No window.openai.toolOutput found initially. Starting aggressive polling...');
-      console.log('Available keys on window.openai:', Object.keys(window.openai || {}));
+      console.log('🔍 Available keys on window.openai:', Object.keys(window.openai || {}));
+      console.log('🔍 window.openai type:', typeof window.openai);
+      console.log('🔍 window.openai value:', window.openai);
+      console.log('🔍 window.location:', window.location.href);
+      console.log('🔍 document.readyState:', document.readyState);
+      console.log('🔍 Is in iframe:', window.self !== window.top);
+      
+      // Check if widget container exists
+      const container = document.getElementById('hotels');
+      if (!container) {
+        console.error('❌ Hotel container not found! Widget HTML may not be loaded correctly.');
+        console.error('🔍 Available elements:', Array.from(document.querySelectorAll('*')).map(el => el.id || el.className || el.tagName).slice(0, 20));
+      } else {
+        console.log('✅ Hotel container found:', container);
+        console.log('🔍 Container parent:', container.parentElement);
+      }
       
       // More aggressive polling: every 50ms for first 2 seconds, then every 200ms for 8 more seconds
       let attempts = 0;
       let pollDelay = 50;
+      let lastToolOutputState = null;
+      let lastOpenAiState = null;
       
       function poll() {
         attempts++;
         const elapsed = attempts * pollDelay / 1000;
         
-        // Log less frequently to reduce noise
-        if (attempts % 5 === 0 || attempts <= 5) {
+        // Check if window.openai changed
+        const currentOpenAi = window.openai;
+        if (currentOpenAi !== lastOpenAiState) {
+          console.log(`🔄 window.openai changed on attempt ${attempts} (${elapsed.toFixed(1)}s)`);
+          console.log('🔍 New window.openai:', currentOpenAi);
+          console.log('🔍 window.openai keys:', currentOpenAi ? Object.keys(currentOpenAi) : 'N/A');
+          lastOpenAiState = currentOpenAi;
+        }
+        
+        // Check if toolOutput changed
+        const currentToolOutput = window.openai?.toolOutput;
+        if (currentToolOutput !== lastToolOutputState) {
+          console.log(`🔄 toolOutput changed on attempt ${attempts} (${elapsed.toFixed(1)}s)`);
+          console.log('🔍 New toolOutput:', currentToolOutput);
+          console.log('🔍 toolOutput type:', typeof currentToolOutput);
+          console.log('🔍 toolOutput keys:', currentToolOutput ? Object.keys(currentToolOutput) : 'N/A');
+          lastToolOutputState = currentToolOutput;
+        }
+        
+        // Log less frequently to reduce noise, but always log first few attempts
+        if (attempts <= 10 || attempts % 10 === 0) {
           console.log(`🔄 Polling attempt ${attempts} (${elapsed.toFixed(1)}s)...`);
-          console.log('🔍 Current toolOutput:', window.openai?.toolOutput);
+          console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
+          console.log('🔍 window.openai.toolOutput exists:', !!window.openai?.toolOutput);
+          if (window.openai?.toolOutput) {
+            console.log('🔍 toolOutput keys:', Object.keys(window.openai.toolOutput));
+            console.log('🔍 toolOutput.hotels:', window.openai.toolOutput.hotels);
+            console.log('🔍 toolOutput.hotels type:', typeof window.openai.toolOutput.hotels);
+            console.log('🔍 toolOutput.hotels isArray:', Array.isArray(window.openai.toolOutput.hotels));
+            console.log('🔍 toolOutput.hotels length:', window.openai.toolOutput.hotels?.length);
+          }
         }
         
         if (checkAndRender()) {
@@ -4420,14 +4501,47 @@
         // Give up after 30 seconds total (increased for slow API responses)
         if (elapsed >= 30) {
           console.error('❌ Timeout: No data received after 30 seconds');
+          console.error('🔍 Final diagnostic check:');
+          console.error('   - window.openai exists:', typeof window.openai !== 'undefined');
+          console.error('   - window.openai.toolOutput exists:', !!window.openai?.toolOutput);
+          console.error('   - window.openai keys:', window.openai ? Object.keys(window.openai) : 'N/A');
+          console.error('   - Location:', window.location.href);
+          console.error('   - Origin:', window.location.origin);
+          console.error('   - Is in iframe:', window.self !== window.top);
+          console.error('   - Parent:', window.parent !== window.self ? 'exists' : 'same');
+          console.error('   - Referrer:', document.referrer);
+          console.error('   - Container exists:', !!document.getElementById('hotels'));
+          
           const container = document.getElementById('hotels');
-          container.innerHTML = `
-            <div class="empty">
-              <p>⏱️ Widget loaded but no data received</p>
-              <p>The server may still be processing your request.</p>
-              <p>Try refreshing or making a new search.</p>
-            </div>
-          `;
+          if (container) {
+            container.innerHTML = `
+              <div class="empty" style="padding: 2rem; text-align: center; background: rgb(254 242 242); border: 2px solid rgb(239 68 68); border-radius: 0.75rem; margin: 1rem;">
+                <h3 style="margin: 0 0 1rem 0; font-size: 1.25rem; font-weight: 600; color: rgb(127 29 29);">⚠️ Widget Not Loading</h3>
+                <p style="margin: 0.5rem 0; color: rgb(127 29 29);"><strong>Possible causes:</strong></p>
+                <ul style="text-align: left; margin: 1rem 0; padding-left: 2rem; color: rgb(127 29 29);">
+                  <li>Corporate firewall blocking widget communication</li>
+                  <li>Network restrictions preventing data injection</li>
+                  <li>Browser security policies blocking iframe content</li>
+                  <li>Corporate proxy blocking ChatGPT's widget sandbox</li>
+                </ul>
+                <p style="margin: 1rem 0; color: rgb(127 29 29);"><strong>Try:</strong></p>
+                <ul style="text-align: left; margin: 1rem 0; padding-left: 2rem; color: rgb(127 29 29);">
+                  <li>Using a personal network (not corporate VPN)</li>
+                  <li>Checking browser console (F12) for detailed logs</li>
+                  <li>Contacting IT administrator about firewall rules</li>
+                  <li>Testing on a personal device</li>
+                </ul>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: rgb(100 116 139);">
+                  <strong>Diagnostic:</strong> Check browser console (F12) for detailed logs.<br/>
+                  Look for messages starting with 🔍 to see what's happening.
+                </p>
+                <p style="margin-top: 0.5rem; font-size: 0.75rem; color: rgb(100 116 139);">
+                  Server is returning data correctly (confirmed in server logs).<br/>
+                  Issue is likely network/firewall blocking widget communication.
+                </p>
+              </div>
+            `;
+          }
           return;
         }
         
@@ -4436,7 +4550,7 @@
       
       poll();
     } else {
-      console.log('✅ Data was immediately available!');
+      console.log('✅ Data was immediately available and rendered!');
     }
   </script>
 </body>

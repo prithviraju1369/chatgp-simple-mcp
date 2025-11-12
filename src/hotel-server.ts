@@ -2966,42 +2966,42 @@ You tried to skip STEP 1! Please make the discovery call first.`
         });
         
         if (proc.stdout) {
-          proc.stdout.on('data', (data) => {
-            const chunk = data.toString();
-            stdout += chunk;
-            console.log('📤 Subprocess stdout chunk:', chunk.substring(0, 200));
-            
-            const lines = stdout.split('\n');
-            
-            for (const line of lines) {
-              if (line.trim()) {
-                try {
-                  const response = JSON.parse(line);
+      proc.stdout.on('data', (data) => {
+        const chunk = data.toString();
+        stdout += chunk;
+        console.log('📤 Subprocess stdout chunk:', chunk.substring(0, 200));
+        
+        const lines = stdout.split('\n');
+        
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              const response = JSON.parse(line);
                   console.log('✅ Parsed JSON response from subprocess, id:', response.id);
-                  if (response.result && response.id === jsonrpcId) {
+              if (response.result && response.id === jsonrpcId) {
                     hasReceivedResponse = true;
-                    const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
-                    console.log('🎯 Got result from subprocess, length:', text.length);
+                const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
+                console.log('🎯 Got result from subprocess, length:', text.length);
                     if (!resolved) {
                       resolved = true;
                       cleanup();
-                      resolve(text);
+                resolve(text);
                     }
-                  }
-                } catch (e) {
-                  // Not JSON yet, keep accumulating
-                }
               }
+            } catch (e) {
+              // Not JSON yet, keep accumulating
             }
-          });
+          }
+        }
+      });
         }
 
         if (proc.stderr) {
-          proc.stderr.on('data', (data) => {
+      proc.stderr.on('data', (data) => {
             const chunk = data.toString();
             stderr += chunk;
             console.error('❌ Subprocess stderr:', chunk);
-          });
+      });
         }
 
         proc.on('close', (code, signal) => {
@@ -3020,52 +3020,52 @@ You tried to skip STEP 1! Please make the discovery call first.`
               console.error('❌', errorMsg);
               reject(new Error(errorMsg));
             }
-          }
-        });
+        }
+      });
 
         // Wait a bit for process to start, then send initialize
         setTimeout(() => {
           if (proc && !proc.killed && proc.stdin && !proc.stdin.destroyed) {
             try {
-              const initMsg = {
-                jsonrpc: '2.0',
-                id: jsonrpcId++,
-                method: 'initialize',
-                params: {
-                  protocolVersion: '2024-11-05',
-                  capabilities: {},
-                  clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
-                }
-              };
+      const initMsg = {
+        jsonrpc: '2.0',
+        id: jsonrpcId++,
+        method: 'initialize',
+        params: {
+          protocolVersion: '2024-11-05',
+          capabilities: {},
+          clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
+        }
+      };
               console.log('📨 Sending initialize:', JSON.stringify(initMsg));
-              proc.stdin.write(JSON.stringify(initMsg) + '\n');
-              
+      proc.stdin.write(JSON.stringify(initMsg) + '\n');
+
               // Wait a bit more, then send tool call
-              setTimeout(() => {
+      setTimeout(() => {
                 if (proc && !proc.killed && proc.stdin && !proc.stdin.destroyed) {
                   try {
-                    // Build arguments with pagination parameters
-                    const toolArgs = {
-                      ...args,
-                      offset: offset,  // Pass calculated offset to MCP server
-                      limit: limit,     // Pass limit (5) to MCP server
-                    };
-                    // Remove page parameter (MCP server uses offset, not page)
-                    delete toolArgs.page;
-                    
-                    const toolMsg = {
-                      jsonrpc: '2.0',
-                      id: jsonrpcId,
-                      method: 'tools/call',
-                      params: { name: 'marriott_search_hotels', arguments: toolArgs }
-                    };
+        // Build arguments with pagination parameters
+        const toolArgs = {
+          ...args,
+          offset: offset,  // Pass calculated offset to MCP server
+          limit: limit,     // Pass limit (5) to MCP server
+        };
+        // Remove page parameter (MCP server uses offset, not page)
+        delete toolArgs.page;
+        
+        const toolMsg = {
+          jsonrpc: '2.0',
+          id: jsonrpcId,
+          method: 'tools/call',
+          params: { name: 'marriott_search_hotels', arguments: toolArgs }
+        };
                     console.log('📨 Sending tool call with offset/limit:', JSON.stringify(toolMsg).substring(0, 200));
-                    proc.stdin.write(JSON.stringify(toolMsg) + '\n');
+        proc.stdin.write(JSON.stringify(toolMsg) + '\n');
                   } catch (error) {
                     console.error('❌ Error writing tool call to stdin:', error);
                   }
                 }
-              }, 500);
+      }, 500);
             } catch (error) {
               console.error('❌ Error writing initialize to stdin:', error);
             }

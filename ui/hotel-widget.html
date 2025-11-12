@@ -4307,26 +4307,87 @@
     function handleGlobals(event) {
       console.log('📨 Received SET_GLOBALS_EVENT:', event);
       const globals = event?.detail?.globals;
+      console.log('📦 Event detail:', event?.detail);
       console.log('📦 Globals:', globals);
       
-      // According to Apps SDK, when SET_GLOBALS_EVENT fires, window.openai.toolOutput is updated
-      // So we should read directly from window.openai.toolOutput, not from the event payload
-      // Use a small delay to ensure window.openai.toolOutput is synced
-      setTimeout(() => {
-        if (!dataRendered && checkAndRender()) {
-          if (pollInterval) {
-            clearTimeout(pollInterval);
-            pollInterval = null;
-            console.log('🛑 Stopped polling - data found via event');
-          }
-        }
-      }, 50);
+      // According to Apps SDK docs and community posts:
+      // 1. window.openai.toolOutput is null on initial load
+      // 2. When SET_GLOBALS_EVENT fires, window.openai.toolOutput gets updated
+      // 3. The event detail might have nested structure (result.structuredOutput or globals.toolOutput)
+      // 4. We should read from window.openai.toolOutput as the source of truth
       
-      // Also check event payload as fallback (for legacy support)
+      // Check event detail structure (for debugging and fallback)
       if (globals?.toolOutput) {
-        console.log('📦 Event payload has toolOutput:', globals.toolOutput);
-        // The primary path is window.openai.toolOutput, but log this for debugging
+        console.log('📦 Event globals.toolOutput:', globals.toolOutput);
       }
+      if (event?.detail?.result?.structuredOutput) {
+        console.log('📦 Event result.structuredOutput:', event.detail.result.structuredOutput);
+      }
+      
+      // Primary approach: Read from window.openai.toolOutput after event fires
+      // Use requestAnimationFrame + setTimeout to ensure DOM and window.openai are synced
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          console.log('🔍 Checking window.openai.toolOutput after event...');
+          console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
+          console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
+          
+          // Try reading from window.openai.toolOutput first (primary path)
+          if (!dataRendered && checkAndRender()) {
+            if (pollInterval) {
+              clearTimeout(pollInterval);
+              pollInterval = null;
+              console.log('🛑 Stopped polling - data found via event (window.openai.toolOutput)');
+            }
+            return;
+          }
+          
+          // Fallback: Try reading from event payload if window.openai.toolOutput not ready
+          if (!dataRendered) {
+            let eventData = null;
+            
+            // Check different event structures (based on community forum posts)
+            if (globals?.toolOutput) {
+              eventData = globals.toolOutput;
+              console.log('📦 Trying to use event globals.toolOutput as fallback');
+            } else if (event?.detail?.result?.structuredOutput) {
+              eventData = event.detail.result.structuredOutput;
+              console.log('📦 Trying to use event result.structuredOutput as fallback');
+            } else if (event?.detail?.result?.structuredContent) {
+              eventData = event.detail.result.structuredContent;
+              console.log('📦 Trying to use event result.structuredContent as fallback');
+            }
+            
+            if (eventData && eventData.hotels && Array.isArray(eventData.hotels)) {
+              console.log('✅ Found hotels in event payload, rendering...');
+              try {
+                renderHotels(eventData);
+                dataRendered = true;
+                if (pollInterval) {
+                  clearTimeout(pollInterval);
+                  pollInterval = null;
+                  console.log('🛑 Stopped polling - data found via event payload fallback');
+                }
+                return;
+              } catch (error) {
+                console.error('❌ Error rendering from event payload:', error);
+              }
+            }
+            
+            console.log('⚠️ Event fired but data not ready yet, will retry...');
+            // Retry once more after a longer delay
+            setTimeout(() => {
+              if (!dataRendered && checkAndRender()) {
+                if (pollInterval) {
+                  clearTimeout(pollInterval);
+                  pollInterval = null;
+                  console.log('🛑 Stopped polling - data found on retry');
+                }
+              }
+            }, 200);
+          }
+        }, 100); // Increased delay to ensure sync
+      });
     }
 
     window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });

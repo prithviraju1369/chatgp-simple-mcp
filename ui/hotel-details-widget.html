@@ -1051,12 +1051,12 @@
       console.log('⚠️ No window.openai.toolOutput found initially. Starting polling...');
       
       let attempts = 0;
-      const pollDelay = 100;
+      const pollDelay = 1000;
       
       function poll() {
         attempts++;
         
-        if (attempts % 10 === 0) {
+        if (attempts % 5 === 0) {
           console.log(`🔄 Hotel details polling attempt ${attempts} (${attempts * pollDelay / 1000}s)...`);
           console.log('🔍 Current toolOutput:', window.openai?.toolOutput);
         }

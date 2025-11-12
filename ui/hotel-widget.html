@@ -4444,9 +4444,9 @@
         console.log('🔍 Container parent:', container.parentElement);
       }
       
-      // More aggressive polling: every 50ms for first 2 seconds, then every 200ms for 8 more seconds
+      // Polling: every 1 second
       let attempts = 0;
-      let pollDelay = 50;
+      let pollDelay = 1000;
       let lastToolOutputState = null;
       let lastOpenAiState = null;
       
@@ -4474,7 +4474,7 @@
         }
         
         // Log less frequently to reduce noise, but always log first few attempts
-        if (attempts <= 10 || attempts % 10 === 0) {
+        if (attempts <= 10 || attempts % 5 === 0) {
           console.log(`🔄 Polling attempt ${attempts} (${elapsed.toFixed(1)}s)...`);
           console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
           console.log('🔍 window.openai.toolOutput exists:', !!window.openai?.toolOutput);
@@ -4490,12 +4490,6 @@
         if (checkAndRender()) {
           console.log('✅ Data found and rendered via polling!');
           return;
-        }
-        
-        // Switch to slower polling after 2 seconds
-        if (attempts === 40) {
-          pollDelay = 200;
-          console.log('⏰ Switching to slower polling (200ms)');
         }
         
         // Give up after 30 seconds total (increased for slow API responses)

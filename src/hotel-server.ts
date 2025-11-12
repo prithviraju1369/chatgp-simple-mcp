@@ -2751,93 +2751,204 @@ You tried to skip STEP 1! Please make the discovery call first.`
       const bundledPath = path.resolve(__dirname, './mcp-server/index.js');
       if (existsSync(bundledPath)) {
         marriottPath = bundledPath;
+        console.log('✅ Found bundled MCP server at:', bundledPath);
       } else {
         // Fall back to relative path (for local development)
-        marriottPath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
+        const relativePath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
+        if (existsSync(relativePath)) {
+          marriottPath = relativePath;
+          console.log('✅ Found MCP server at relative path:', relativePath);
+        } else {
+          console.error('❌ MCP server not found at any expected path:');
+          console.error('   - Bundled:', bundledPath);
+          console.error('   - Relative:', relativePath);
+          console.error('   - __dirname:', __dirname);
+          throw new Error(`MCP server not found. Please ensure mcp-local-main is built and available. Checked paths: ${bundledPath}, ${relativePath}`);
+        }
       }
+    }
+    
+    // Verify file exists and is readable
+    if (!existsSync(marriottPath)) {
+      throw new Error(`MCP server file not found: ${marriottPath}`);
     }
     
     console.log('🔧 Spawning subprocess:', marriottPath);
     
+    // Add timeout (30 seconds)
+    const timeoutMs = 30000;
+    let timeoutHandle: NodeJS.Timeout | null = null;
+    let resolved = false;
+    
     const result = await new Promise<string>((resolve, reject) => {
-      const proc = spawn('node', [marriottPath]);
-      
+      let proc: ReturnType<typeof spawn> | null = null;
       let stdout = '';
       let stderr = '';
       let jsonrpcId = 1;
+      let hasReceivedResponse = false;
       
-      proc.stdout.on('data', (data) => {
-        const chunk = data.toString();
-        stdout += chunk;
-        console.log('📤 Subprocess stdout chunk:', chunk.substring(0, 200));
-        
-        const lines = stdout.split('\n');
-        
-        for (const line of lines) {
-          if (line.trim()) {
-            try {
-              const response = JSON.parse(line);
-              console.log('✅ Parsed JSON response from subprocess:', response.id);
-              if (response.result && response.id === jsonrpcId) {
-                const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
-                console.log('🎯 Got result from subprocess, length:', text.length);
-                proc.kill();
-                resolve(text);
-              }
-            } catch (e) {
-              // Not JSON yet, keep accumulating
-            }
+      // Cleanup function
+      const cleanup = () => {
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+          timeoutHandle = null;
+        }
+        if (proc && !proc.killed) {
+          try {
+            proc.kill();
+          } catch (e) {
+            // Ignore kill errors
           }
         }
-      });
-
-      proc.stderr.on('data', (data) => {
-        stderr += data.toString();
-        console.error('❌ Subprocess stderr:', data.toString());
-      });
-
-      proc.on('close', (code) => {
-        console.log('🔴 Subprocess closed with code:', code);
-        if (stderr) console.error('🔴 Subprocess stderr output:', stderr);
-        if (!stdout.includes('result')) {
-          reject(new Error('Marriott MCP failed'));
-        }
-      });
-
-      // Initialize
-      const initMsg = {
-        jsonrpc: '2.0',
-        id: jsonrpcId++,
-        method: 'initialize',
-        params: {
-          protocolVersion: '2024-11-05',
-          capabilities: {},
-          clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
-        }
       };
-      console.log('📨 Sending initialize:', initMsg);
-      proc.stdin.write(JSON.stringify(initMsg) + '\n');
-
-      // Call tool
-      setTimeout(() => {
-        // Build arguments with pagination parameters
-        const toolArgs = {
-          ...args,
-          offset: offset,  // Pass calculated offset to MCP server
-          limit: limit,     // Pass limit (5) to MCP server
-        };
-        // Remove page parameter (MCP server uses offset, not page)
-        delete toolArgs.page;
+      
+      // Set timeout
+      timeoutHandle = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          reject(new Error(`MCP server timeout after ${timeoutMs}ms. stdout: ${stdout.substring(0, 500)}, stderr: ${stderr.substring(0, 500)}`));
+        }
+      }, timeoutMs);
+      
+      try {
+        proc = spawn('node', [marriottPath], {
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: { ...process.env }
+        });
         
-        const toolMsg = {
-          jsonrpc: '2.0',
-          id: jsonrpcId,
-          method: 'tools/call',
-          params: { name: 'marriott_search_hotels', arguments: toolArgs }
-        };
-        console.log('📨 Sending tool call with offset/limit:', toolMsg);
-        proc.stdin.write(JSON.stringify(toolMsg) + '\n');
-      }, 500);
+        if (!proc) {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            reject(new Error('Failed to create subprocess'));
+          }
+          return;
+        }
+        
+        // Handle spawn errors
+        proc.on('error', (error) => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            reject(new Error(`Failed to spawn MCP server process: ${error.message}. Path: ${marriottPath}. Make sure Node.js is available and the file is executable.`));
+          }
+        });
+        
+        if (proc.stdout) {
+          proc.stdout.on('data', (data) => {
+            const chunk = data.toString();
+            stdout += chunk;
+            console.log('📤 Subprocess stdout chunk:', chunk.substring(0, 200));
+            
+            const lines = stdout.split('\n');
+            
+            for (const line of lines) {
+              if (line.trim()) {
+                try {
+                  const response = JSON.parse(line);
+                  console.log('✅ Parsed JSON response from subprocess, id:', response.id);
+                  if (response.result && response.id === jsonrpcId) {
+                    hasReceivedResponse = true;
+                    const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
+                    console.log('🎯 Got result from subprocess, length:', text.length);
+                    if (!resolved) {
+                      resolved = true;
+                      cleanup();
+                      resolve(text);
+                    }
+                  }
+                } catch (e) {
+                  // Not JSON yet, keep accumulating
+                }
+              }
+            }
+          });
+        }
+
+        if (proc.stderr) {
+          proc.stderr.on('data', (data) => {
+            const chunk = data.toString();
+            stderr += chunk;
+            console.error('❌ Subprocess stderr:', chunk);
+          });
+        }
+
+        proc.on('close', (code, signal) => {
+          console.log(`🔴 Subprocess closed with code: ${code}, signal: ${signal}`);
+          
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            
+            if (code !== 0 || stderr) {
+              const errorMsg = `MCP server process exited with code ${code}. stderr: ${stderr.substring(0, 1000)}. stdout: ${stdout.substring(0, 1000)}`;
+              console.error('❌', errorMsg);
+              reject(new Error(errorMsg));
+            } else if (!hasReceivedResponse) {
+              const errorMsg = `MCP server process closed without sending a result. stdout: ${stdout.substring(0, 1000)}, stderr: ${stderr.substring(0, 1000)}`;
+              console.error('❌', errorMsg);
+              reject(new Error(errorMsg));
+            }
+          }
+        });
+
+        // Wait a bit for process to start, then send initialize
+        setTimeout(() => {
+          if (proc && !proc.killed && proc.stdin && !proc.stdin.destroyed) {
+            try {
+              const initMsg = {
+                jsonrpc: '2.0',
+                id: jsonrpcId++,
+                method: 'initialize',
+                params: {
+                  protocolVersion: '2024-11-05',
+                  capabilities: {},
+                  clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
+                }
+              };
+              console.log('📨 Sending initialize:', JSON.stringify(initMsg));
+              proc.stdin.write(JSON.stringify(initMsg) + '\n');
+              
+              // Wait a bit more, then send tool call
+              setTimeout(() => {
+                if (proc && !proc.killed && proc.stdin && !proc.stdin.destroyed) {
+                  try {
+                    // Build arguments with pagination parameters
+                    const toolArgs = {
+                      ...args,
+                      offset: offset,  // Pass calculated offset to MCP server
+                      limit: limit,     // Pass limit (5) to MCP server
+                    };
+                    // Remove page parameter (MCP server uses offset, not page)
+                    delete toolArgs.page;
+                    
+                    const toolMsg = {
+                      jsonrpc: '2.0',
+                      id: jsonrpcId,
+                      method: 'tools/call',
+                      params: { name: 'marriott_search_hotels', arguments: toolArgs }
+                    };
+                    console.log('📨 Sending tool call with offset/limit:', JSON.stringify(toolMsg).substring(0, 200));
+                    proc.stdin.write(JSON.stringify(toolMsg) + '\n');
+                  } catch (error) {
+                    console.error('❌ Error writing tool call to stdin:', error);
+                  }
+                }
+              }, 500);
+            } catch (error) {
+              console.error('❌ Error writing initialize to stdin:', error);
+            }
+          }
+        }, 100);
+        
+      } catch (error) {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          reject(new Error(`Failed to start MCP server: ${error instanceof Error ? error.message : String(error)}`));
+        }
+      }
     });
 
     // Parse the result to extract structured data

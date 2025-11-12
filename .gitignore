@@ -3,3 +3,6 @@ dist
 !dist/mcp-server
 !dist/mcp-server/index.js
 .mcp-server-backup
+# Allow assets directory
+!assets
+!assets/**

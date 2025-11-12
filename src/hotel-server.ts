@@ -2751,73 +2751,143 @@ You tried to skip STEP 1! Please make the discovery call first.`
     if (!marriottPath) {
       // Try bundled path first (for deployment)
       const bundledPath = path.resolve(__dirname, './mcp-server/index.js');
+      const relativePath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
       
-      // Ensure file exists - restore if needed
-      if (!existsSync(bundledPath)) {
-        console.log('⚠️  MCP server not found at bundled path, attempting to restore...');
-        ensureMcpServer(projectRoot, bundledPath);
+      console.log('🔍 Checking for MCP server at:', bundledPath);
+      console.log('   Project root:', projectRoot);
+      console.log('   __dirname:', __dirname);
+      
+      // ALWAYS attempt restoration first (ensures file is present, even if it was cleaned)
+      // This is critical for Render deployments where files might be cleaned between requests
+      console.log('🔧 Attempting to ensure MCP server exists...');
+      ensureMcpServer(projectRoot, bundledPath);
+      
+      // Check if file exists and is valid
+      let fileValid = false;
+      if (existsSync(bundledPath)) {
+        try {
+          const stats = statSync(bundledPath);
+          if (stats.size > 0) {
+            fileValid = true;
+            marriottPath = bundledPath;
+            console.log('✅ Found valid bundled MCP server at:', bundledPath);
+            console.log('   File size:', stats.size, 'bytes');
+          } else {
+            console.log('⚠️  MCP server file exists but is empty (0 bytes)');
+          }
+        } catch (statError) {
+          console.log('⚠️  Error checking file stats:', (statError as Error).message);
+        }
+      } else {
+        console.log('⚠️  MCP server file does not exist after restoration attempt');
       }
       
-      if (existsSync(bundledPath)) {
-        const stats = statSync(bundledPath);
-        if (stats.size > 0) {
-          marriottPath = bundledPath;
-          console.log('✅ Found bundled MCP server at:', bundledPath);
-        } else {
-          console.log('⚠️  MCP server file is empty, attempting to restore...');
-          ensureMcpServer(projectRoot, bundledPath);
-          if (existsSync(bundledPath) && statSync(bundledPath).size > 0) {
-            marriottPath = bundledPath;
-            console.log('✅ Restored and found bundled MCP server at:', bundledPath);
+      // If bundled path didn't work, try relative path (for local development)
+      if (!fileValid) {
+        console.log('🔍 Checking relative path:', relativePath);
+        
+        if (existsSync(relativePath)) {
+          try {
+            const stats = statSync(relativePath);
+            if (stats.size > 0) {
+              marriottPath = relativePath;
+              fileValid = true;
+              console.log('✅ Found MCP server at relative path:', relativePath);
+              console.log('   File size:', stats.size, 'bytes');
+            } else {
+              console.log('⚠️  Relative path file exists but is empty');
+            }
+          } catch (statError) {
+            console.log('⚠️  Error checking relative file stats:', (statError as Error).message);
           }
+        } else {
+          console.log('⚠️  Relative path does not exist');
         }
       }
       
-      // If still not found, try relative path (for local development)
-      if (!marriottPath) {
-        const relativePath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
-        if (existsSync(relativePath)) {
-          marriottPath = relativePath;
-          console.log('✅ Found MCP server at relative path:', relativePath);
-        } else {
-          // Last attempt: try to restore again and check
-          console.log('⚠️  Trying one more restore attempt...');
-          ensureMcpServer(projectRoot, bundledPath);
-          if (existsSync(bundledPath) && statSync(bundledPath).size > 0) {
-            marriottPath = bundledPath;
-            console.log('✅ Restored MCP server at:', bundledPath);
-          } else {
-            console.error('❌ MCP server not found at any expected path:');
-            console.error('   - Bundled:', bundledPath);
-            console.error('   - Relative:', relativePath);
-            console.error('   - __dirname:', __dirname);
-            console.error('   - Project root:', projectRoot);
-            console.error('   - Current directory:', process.cwd());
-            // List what's in project root to help debug
-            try {
-              const rootContents = readdirSync(projectRoot);
-              console.error('   - Project root contents:', rootContents.slice(0, 20));
-              const assetsDir = path.join(projectRoot, 'assets');
-              if (existsSync(assetsDir)) {
+      // If still not found, make one final restoration attempt with detailed logging
+      if (!fileValid) {
+        console.log('🔧 Making final restoration attempt with all methods...');
+        ensureMcpServer(projectRoot, bundledPath);
+        
+        // Check again after final restoration
+        if (existsSync(bundledPath)) {
+          try {
+            const stats = statSync(bundledPath);
+            if (stats.size > 0) {
+              marriottPath = bundledPath;
+              fileValid = true;
+              console.log('✅ Final restoration successful! File size:', stats.size, 'bytes');
+            } else {
+              console.log('⚠️  File still empty after final restoration');
+            }
+          } catch (statError) {
+            console.log('⚠️  Error checking file after final restoration:', (statError as Error).message);
+          }
+        }
+        
+        // If still not valid, throw detailed error
+        if (!fileValid) {
+          console.error('❌ MCP server not found at any expected path after all restoration attempts');
+          console.error('   - Bundled path:', bundledPath);
+          console.error('   - Relative path:', relativePath);
+          console.error('   - __dirname:', __dirname);
+          console.error('   - Project root:', projectRoot);
+          console.error('   - Current directory:', process.cwd());
+          
+          // List what's in project root to help debug
+          try {
+            const rootContents = readdirSync(projectRoot);
+            console.error('   - Project root contents:', rootContents.slice(0, 20));
+            
+            const assetsDir = path.join(projectRoot, 'assets');
+            console.error('   - Assets directory exists:', existsSync(assetsDir));
+            if (existsSync(assetsDir)) {
+              try {
                 const assetsContents = readdirSync(assetsDir, { recursive: true });
                 console.error('   - Assets contents:', assetsContents.slice(0, 20));
+                
+                const assetsMcpFile = path.join(assetsDir, 'mcp-server', 'index.js');
+                console.error('   - Assets MCP file exists:', existsSync(assetsMcpFile));
+                if (existsSync(assetsMcpFile)) {
+                  const assetsStats = statSync(assetsMcpFile);
+                  console.error('   - Assets MCP file size:', assetsStats.size, 'bytes');
+                }
+              } catch (readError) {
+                console.error('   - Could not read assets directory:', (readError as Error).message);
               }
-            } catch (e) {
-              console.error('   - Could not list directories');
             }
-            throw new Error(`MCP server not found. Please ensure mcp-local-main is built and available. Checked paths: ${bundledPath}, ${relativePath}`);
+            
+            const distDir = path.dirname(bundledPath);
+            console.error('   - Dist directory exists:', existsSync(distDir));
+            if (existsSync(distDir)) {
+              try {
+                const distContents = readdirSync(distDir, { recursive: true });
+                console.error('   - Dist contents:', distContents.slice(0, 10));
+              } catch (readError) {
+                console.error('   - Could not read dist directory:', (readError as Error).message);
+              }
+            }
+          } catch (e) {
+            console.error('   - Could not list directories:', (e as Error).message);
           }
+          
+          throw new Error(`MCP server not found after all restoration attempts. Please ensure mcp-local-main is built and available. Checked paths: ${bundledPath}, ${relativePath}`);
         }
       }
     }
     
-    // Verify file exists and is readable
+    // Final verification: file must exist and be readable
+    if (!marriottPath) {
+      throw new Error('MCP server path is undefined after all restoration attempts');
+    }
+    
     if (!existsSync(marriottPath)) {
-      // Final attempt to restore
-      console.log('⚠️  File not found, making final restore attempt...');
+      console.log('⚠️  Final verification: File not found, making one last restore attempt...');
       ensureMcpServer(projectRoot, marriottPath);
+      
       if (!existsSync(marriottPath)) {
-        throw new Error(`MCP server file not found: ${marriottPath}`);
+        throw new Error(`MCP server file not found after final verification: ${marriottPath}`);
       }
     }
     

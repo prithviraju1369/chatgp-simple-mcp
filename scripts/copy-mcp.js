@@ -23,10 +23,13 @@ try {
 
   // Check if source file exists
   if (!existsSync(mcpSource)) {
-    console.warn('⚠️  MCP server source not found:', mcpSource);
-    console.warn('⚠️  Skipping copy. Make sure mcp-local-main is built first.');
-    console.warn('⚠️  The app will use bundled MCP server if available, or fall back to relative path.');
-    process.exit(0);
+    console.error('❌ MCP server source not found:', mcpSource);
+    console.error('❌ Expected path:', mcpSource);
+    console.error('❌ Current working directory:', process.cwd());
+    console.error('❌ Project root:', projectRoot);
+    console.error('❌ Please ensure mcp-local-main is built first.');
+    console.error('❌ Run: cd ../mcp-local-main && npm install && npm run build');
+    process.exit(1);
   }
 
   // Copy MCP server file
@@ -34,6 +37,9 @@ try {
   console.log('✅ Copied MCP server:', mcpSource, '→', mcpDest);
 } catch (error) {
   console.error('❌ Error copying MCP server:', error.message);
+  console.error('❌ Error stack:', error.stack);
+  console.error('❌ Source path:', mcpSource);
+  console.error('❌ Destination path:', mcpDest);
   process.exit(1);
 }
 

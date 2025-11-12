@@ -10,6 +10,7 @@
     "build:mcp:optional": "npm run build:mcp || echo '⚠️  MCP build skipped (mcp-local-main not found - will use bundled version if available)'",
     "copy:mcp": "node scripts/copy-mcp.js",
     "copy:mcp:optional": "node scripts/copy-mcp.js || echo '⚠️  MCP copy skipped (will use bundled version if available)'",
+    "verify:mcp": "test -f dist/mcp-server/index.js && echo '✅ MCP server found' || (echo '❌ MCP server not found!' && exit 1)",
     "dev": "tsx watch src/server.ts",
     "dev:hotels": "tsx watch src/hotel-server.ts",
     "start": "node dist/server.js",

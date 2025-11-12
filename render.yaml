@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install && npm run build:ts && (npm run build:mcp:optional || true) && (npm run copy:mcp:optional || true)
+    buildCommand: npm install && npm run build:ts && npm run build:mcp && npm run copy:mcp && test -f dist/mcp-server/index.js || (echo "ERROR: MCP server not found after build!" && ls -la dist/ && ls -la dist/mcp-server/ 2>&1 || echo "dist/mcp-server/ does not exist" && exit 1)
     startCommand: npm run start:hotels
     envVars:
       - key: NODE_ENV

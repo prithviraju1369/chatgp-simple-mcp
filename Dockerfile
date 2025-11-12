@@ -10,7 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (needed for build)
-RUN npm ci
+# Use npm install instead of npm ci to handle lock file updates
+RUN npm install
 
 # Copy source files
 COPY . .
@@ -21,7 +22,7 @@ COPY . .
 RUN npm run build || echo "Build may fail if mcp-local-main not available - use deployment platforms instead"
 
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Expose port
 EXPOSE 3000

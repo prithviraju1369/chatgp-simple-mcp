@@ -1,0 +1,4 @@
+# Render-specific ignore file
+# This ensures Render uses Node.js environment, not Docker
+Dockerfile
+

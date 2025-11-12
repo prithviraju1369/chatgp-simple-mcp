@@ -4304,40 +4304,101 @@
     let dataRendered = false;
     let pollInterval = null;
     
+    // Track last known toolOutput to detect changes
+    let lastToolOutput = null;
+    
+    // Function to check and render if toolOutput changed
+    function checkToolOutputChange() {
+      const currentToolOutput = window.openai?.toolOutput ?? null;
+      
+      // Check if toolOutput actually changed
+      if (currentToolOutput !== lastToolOutput) {
+        console.log('🔄 window.openai.toolOutput changed!');
+        console.log('🔍 Previous:', lastToolOutput);
+        console.log('🔍 Current:', currentToolOutput);
+        lastToolOutput = currentToolOutput;
+        
+        if (currentToolOutput && !dataRendered) {
+          if (checkAndRender()) {
+            if (pollInterval) {
+              clearTimeout(pollInterval);
+              pollInterval = null;
+              console.log('🛑 Stopped polling - data found via toolOutput change');
+            }
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    
     // Adapted from OpenAI community post: https://community.openai.com/t/when-or-how-to-enable-the-chatgpt-developer-mode-ui-components-for-apps-sdk/1362828/10
     // Key pattern: Check if event.detail?.globals?.toolOutput !== undefined, then read from window.openai.toolOutput
     function handleGlobals(event) {
       console.log('📨 Received SET_GLOBALS_EVENT:', event);
+      console.log('📦 Event detail:', event?.detail);
+      console.log('📦 Event globals:', event?.detail?.globals);
       
       // Critical check from community post: Only process if toolOutput is being updated
       const value = event?.detail?.globals?.toolOutput;
       if (value === undefined) {
-        console.log('⚠️ Event received but toolOutput not in globals, ignoring');
+        console.log('⚠️ Event received but toolOutput not in globals');
+        // Still check window.openai.toolOutput in case it was updated directly
+        setTimeout(() => checkToolOutputChange(), 50);
         return;
       }
       
-      console.log('✅ toolOutput found in event globals, reading from window.openai.toolOutput');
+      console.log('✅ toolOutput found in event globals');
       
       // Read from window.openai.toolOutput (the event updates this property)
-      // This matches the pattern: () => window.openai?.[key] ?? null
-      const toolOutput = window.openai?.toolOutput ?? null;
-      
-      if (toolOutput && !dataRendered) {
-        console.log('🔍 window.openai.toolOutput:', toolOutput);
-        if (checkAndRender()) {
-          if (pollInterval) {
-            clearTimeout(pollInterval);
-            pollInterval = null;
-            console.log('🛑 Stopped polling - data found via event');
-          }
-        }
-      } else if (!toolOutput) {
-        console.log('⚠️ window.openai.toolOutput is null, will continue polling');
-      }
+      // Use a small delay to ensure window.openai.toolOutput is synced
+      setTimeout(() => {
+        checkToolOutputChange();
+      }, 50);
     }
 
     window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });
     console.log('✅ Event listener registered for:', SET_GLOBALS_EVENT);
+    
+    // Also watch for direct changes to window.openai.toolOutput (in case event doesn't fire)
+    // This is a fallback mechanism
+    let toolOutputWatcher = null;
+    function startToolOutputWatcher() {
+      if (toolOutputWatcher) return; // Already watching
+      
+      console.log('👀 Starting toolOutput watcher (fallback mechanism)');
+      let checkCount = 0;
+      
+      function watchToolOutput() {
+        checkCount++;
+        if (checkCount % 10 === 0) {
+          console.log(`👀 ToolOutput watcher check #${checkCount}`);
+        }
+        
+        if (dataRendered) {
+          console.log('🛑 Stopping toolOutput watcher - data rendered');
+          toolOutputWatcher = null;
+          return;
+        }
+        
+        if (checkToolOutputChange()) {
+          toolOutputWatcher = null;
+          return;
+        }
+        
+        // Continue watching
+        toolOutputWatcher = setTimeout(watchToolOutput, 200);
+      }
+      
+      watchToolOutput();
+    }
+    
+    // Start watcher after a short delay
+    setTimeout(() => {
+      if (!dataRendered) {
+        startToolOutputWatcher();
+      }
+    }, 500);
 
     // According to Apps SDK docs, structuredContent is injected as window.openai.toolOutput
     console.log('🔍 Widget initialized. Checking for data...');
@@ -4474,6 +4535,12 @@
             console.log('🔍 toolOutput.hotels isArray:', Array.isArray(window.openai.toolOutput.hotels));
             console.log('🔍 toolOutput.hotels length:', window.openai.toolOutput.hotels?.length);
           }
+        }
+        
+        // Check for toolOutput changes during polling
+        if (checkToolOutputChange()) {
+          console.log('✅ Data found and rendered via polling (toolOutput change detected)!');
+          return;
         }
         
         if (checkAndRender()) {

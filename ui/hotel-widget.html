@@ -4492,9 +4492,9 @@
           return;
         }
         
-        // Give up after 30 seconds total (increased for slow API responses)
-        if (elapsed >= 30) {
-          console.error('❌ Timeout: No data received after 30 seconds');
+        // Give up after 60 seconds total (increased for slow API responses)
+        if (elapsed >= 60) {
+          console.error('❌ Timeout: No data received after 60 seconds');
           console.error('🔍 Final diagnostic check:');
           console.error('   - window.openai exists:', typeof window.openai !== 'undefined');
           console.error('   - window.openai.toolOutput exists:', !!window.openai?.toolOutput);

@@ -1066,11 +1066,11 @@
           return;
         }
         
-        if (attempts * pollDelay >= 30000) {
-          console.error('❌ Timeout: No hotel details data received after 30 seconds');
+        if (attempts * pollDelay >= 60000) {
+          console.error('❌ Timeout: No hotel details data received after 60 seconds');
           document.getElementById('hotelDetailsWidget').innerHTML = `
             <div class="loading">
-              <p>⏱️ Widget loaded but no data received after 30 seconds</p>
+              <p>⏱️ Widget loaded but no data received after 60 seconds</p>
               <p>The server may still be processing your request.</p>
             </div>
           `;

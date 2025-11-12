@@ -4300,105 +4300,55 @@
       });
     }
 
-    // Track if data has been rendered to avoid duplicates
     let dataRendered = false;
     let pollInterval = null;
     
-    // Track last known toolOutput to detect changes
-    let lastToolOutput = null;
-    
-    // Function to check and render if toolOutput changed
-    function checkToolOutputChange() {
-      const currentToolOutput = window.openai?.toolOutput ?? null;
-      
-      // Check if toolOutput actually changed
-      if (currentToolOutput !== lastToolOutput) {
-        console.log('🔄 window.openai.toolOutput changed!');
-        console.log('🔍 Previous:', lastToolOutput);
-        console.log('🔍 Current:', currentToolOutput);
-        lastToolOutput = currentToolOutput;
-        
-        if (currentToolOutput && !dataRendered) {
-          if (checkAndRender()) {
-            if (pollInterval) {
-              clearTimeout(pollInterval);
-              pollInterval = null;
-              console.log('🛑 Stopped polling - data found via toolOutput change');
-            }
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-    
-    // Adapted from OpenAI community post: https://community.openai.com/t/when-or-how-to-enable-the-chatgpt-developer-mode-ui-components-for-apps-sdk/1362828/10
-    // Key pattern: Check if event.detail?.globals?.toolOutput !== undefined, then read from window.openai.toolOutput
     function handleGlobals(event) {
-      console.log('📨 Received SET_GLOBALS_EVENT:', event);
-      console.log('📦 Event detail:', event?.detail);
-      console.log('📦 Event globals:', event?.detail?.globals);
+      if (dataRendered) return; // Already rendered
       
-      // Critical check from community post: Only process if toolOutput is being updated
-      const value = event?.detail?.globals?.toolOutput;
-      if (value === undefined) {
-        console.log('⚠️ Event received but toolOutput not in globals');
-        // Still check window.openai.toolOutput in case it was updated directly
-        setTimeout(() => checkToolOutputChange(), 50);
+      console.log('📨 Received SET_GLOBALS_EVENT:', event);
+      const globals = event?.detail?.globals;
+      console.log('📦 Globals:', globals);
+      
+      if (!globals) {
+        console.warn('⚠️ No globals in event');
         return;
       }
-      
-      console.log('✅ toolOutput found in event globals');
-      
-      // Read from window.openai.toolOutput (the event updates this property)
-      // Use a small delay to ensure window.openai.toolOutput is synced
-      setTimeout(() => {
-        checkToolOutputChange();
-      }, 50);
+
+      // Check for toolOutput (where structuredContent is injected)
+      if (globals.toolOutput) {
+        console.log('✅ Found toolOutput in event:', globals.toolOutput);
+        if (globals.toolOutput.hotels && Array.isArray(globals.toolOutput.hotels)) {
+          console.log('✅ Rendering hotels from event...');
+          renderHotels(globals.toolOutput);
+          dataRendered = true;
+          if (pollInterval) {
+            clearTimeout(pollInterval);
+            pollInterval = null;
+            console.log('🛑 Stopped polling - data received via event');
+          }
+        } else {
+          console.warn('⚠️ toolOutput exists but no hotels array:', globals.toolOutput);
+        }
+      }
+      // Legacy fallback
+      else if (Object.prototype.hasOwnProperty.call(globals, 'hotelResults')) {
+        console.log('✅ Found hotelResults in event (legacy path)');
+        renderHotels(globals.hotelResults);
+        dataRendered = true;
+        if (pollInterval) clearTimeout(pollInterval);
+      } else if (Object.prototype.hasOwnProperty.call(globals, 'structuredContent')) {
+        console.log('✅ Found structuredContent in event (legacy path)');
+        renderHotels(globals.structuredContent);
+        dataRendered = true;
+        if (pollInterval) clearTimeout(pollInterval);
+      } else {
+        console.warn('⚠️ Event received but no recognized data keys:', Object.keys(globals));
+      }
     }
 
     window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });
     console.log('✅ Event listener registered for:', SET_GLOBALS_EVENT);
-    
-    // Also watch for direct changes to window.openai.toolOutput (in case event doesn't fire)
-    // This is a fallback mechanism
-    let toolOutputWatcher = null;
-    function startToolOutputWatcher() {
-      if (toolOutputWatcher) return; // Already watching
-      
-      console.log('👀 Starting toolOutput watcher (fallback mechanism)');
-      let checkCount = 0;
-      
-      function watchToolOutput() {
-        checkCount++;
-        if (checkCount % 10 === 0) {
-          console.log(`👀 ToolOutput watcher check #${checkCount}`);
-        }
-        
-        if (dataRendered) {
-          console.log('🛑 Stopping toolOutput watcher - data rendered');
-          toolOutputWatcher = null;
-          return;
-        }
-        
-        if (checkToolOutputChange()) {
-          toolOutputWatcher = null;
-          return;
-        }
-        
-        // Continue watching
-        toolOutputWatcher = setTimeout(watchToolOutput, 200);
-      }
-      
-      watchToolOutput();
-    }
-    
-    // Start watcher after a short delay
-    setTimeout(() => {
-      if (!dataRendered) {
-        startToolOutputWatcher();
-      }
-    }, 500);
 
     // According to Apps SDK docs, structuredContent is injected as window.openai.toolOutput
     console.log('🔍 Widget initialized. Checking for data...');
@@ -4535,12 +4485,6 @@
             console.log('🔍 toolOutput.hotels isArray:', Array.isArray(window.openai.toolOutput.hotels));
             console.log('🔍 toolOutput.hotels length:', window.openai.toolOutput.hotels?.length);
           }
-        }
-        
-        // Check for toolOutput changes during polling
-        if (checkToolOutputChange()) {
-          console.log('✅ Data found and rendered via polling (toolOutput change detected)!');
-          return;
         }
         
         if (checkAndRender()) {

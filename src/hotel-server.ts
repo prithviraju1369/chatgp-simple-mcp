@@ -2442,11 +2442,18 @@ mcpServer.registerResource(
           _meta: {
             'openai/widgetDescription': 'Displays Marriott hotel search results with interactive cards, pricing, filters, and booking links. All hotel information is shown visually in this widget - do not summarize the results in text.',
             'openai/widgetPrefersBorder': true,
+            // Configure widget domain for better compatibility with external resources
+            // This ensures the widget renders on a dedicated subdomain
+            'openai/widgetDomain': 'https://chatgpt.com',
             'openai/widgetCSP': {
+              // Allow external API calls if needed (currently empty as widget doesn't make API calls)
               connect_domains: [],
+              // Allow loading images and resources from Marriott domains
+              // These domains are used for hotel images, logos, and other assets
               resource_domains: [
                 'https://www.marriott.com',
                 'https://cache.marriott.com',
+                'https://*.marriott.com', // Allow all Marriott subdomains
               ],
             },
           },
@@ -2480,11 +2487,16 @@ mcpServer.registerResource(
           _meta: {
             'openai/widgetDescription': 'Displays detailed information about a specific Marriott hotel including photo carousel, amenities, location, and policies. All hotel details are shown visually in this widget - do not summarize the information in text.',
             'openai/widgetPrefersBorder': true,
+            // Configure widget domain for better compatibility with external resources
+            'openai/widgetDomain': 'https://chatgpt.com',
             'openai/widgetCSP': {
+              // Allow external API calls if needed (currently empty as widget doesn't make API calls)
               connect_domains: [],
+              // Allow loading images and resources from Marriott domains
               resource_domains: [
                 'https://www.marriott.com',
                 'https://cache.marriott.com',
+                'https://*.marriott.com', // Allow all Marriott subdomains
               ],
             },
           },

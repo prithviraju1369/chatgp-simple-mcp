@@ -2334,7 +2334,7 @@
             <!-- Hotel Image -->
             <div class="hotel-image">
               ${hotel.image ? `
-                <img src="${hotel.image}" alt="${hotel.name}" />
+                <img src="${hotel.image}" alt="${hotel.name}" crossorigin="anonymous" referrerpolicy="no-referrer" loading="lazy" />
               ` : `
                 <div class="hotel-image-placeholder">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3692,7 +3692,7 @@
                 <div class="almost-sold-out">ALMOST SOLD OUT</div>
               ` : ''}
               ${firstImage ? `
-                <img src="${firstImage}" alt="${roomGroup.name}" class="room-image" id="${carouselId}-image" />
+                <img src="${firstImage}" alt="${roomGroup.name}" class="room-image" id="${carouselId}-image" crossorigin="anonymous" referrerpolicy="no-referrer" loading="lazy" />
                 ${hasMultipleImages ? `
                   <button class="room-carousel-controls room-carousel-prev" onclick="roomCarouselPrev('${carouselId}', ${roomImages.length})">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3969,7 +3969,7 @@
               <div class="carousel-track" id="carouselTrack">
                 ${allPhotos.map((photo, index) => `
                   <div class="carousel-slide" data-index="${index}">
-                    <img src="${photo.url}" alt="${photo.alt}" loading="${index < 3 ? 'eager' : 'lazy'}" />
+                    <img src="${photo.url}" alt="${photo.alt}" loading="${index < 3 ? 'eager' : 'lazy'}" crossorigin="anonymous" referrerpolicy="no-referrer" />
                     <div class="carousel-label">${photo.category}</div>
                   </div>
                 `).join('')}
@@ -4009,7 +4009,7 @@
                 <div class="carousel-thumbnail ${index === 0 ? 'active' : ''}" 
                      onclick="goToSlide(${index})"
                      data-index="${index}">
-                  <img src="${photo.url}" alt="${photo.alt}" loading="lazy" />
+                  <img src="${photo.url}" alt="${photo.alt}" loading="lazy" crossorigin="anonymous" referrerpolicy="no-referrer" />
                   <div class="carousel-thumbnail-label">${photo.category}</div>
                 </div>
               `).join('')}

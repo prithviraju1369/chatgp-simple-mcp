@@ -9,7 +9,7 @@ import axios from 'axios';
 import cors from 'cors';
 import express from 'express';
 import { spawn } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -2743,10 +2743,20 @@ You tried to skip STEP 1! Please make the discovery call first.`
     }
     
     // Call the local Marriott MCP server via subprocess
-    // Use environment variable if set, otherwise use relative path from dist/
-    // In deployment, set MARRIOTT_MCP_SERVER_PATH or ensure mcp-local-main is bundled
-    const marriottPath = process.env.MARRIOTT_MCP_SERVER_PATH || 
-      path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
+    // Priority: 1) Environment variable, 2) Bundled MCP server (dist/mcp-server/index.js), 3) Relative path (dev only)
+    let marriottPath = process.env.MARRIOTT_MCP_SERVER_PATH;
+    
+    if (!marriottPath) {
+      // Try bundled path first (for deployment)
+      const bundledPath = path.resolve(__dirname, './mcp-server/index.js');
+      if (existsSync(bundledPath)) {
+        marriottPath = bundledPath;
+      } else {
+        // Fall back to relative path (for local development)
+        marriottPath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
+      }
+    }
+    
     console.log('🔧 Spawning subprocess:', marriottPath);
     
     const result = await new Promise<string>((resolve, reject) => {

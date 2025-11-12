@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: marriott-hotel-search
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:hotels
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /
+    # Render automatically sets PORT - don't set it manually
+    # Optional: Set if you need custom MCP server path
+    # - key: MARRIOTT_MCP_SERVER_PATH
+    #   value: /app/dist/mcp-server/index.js
+

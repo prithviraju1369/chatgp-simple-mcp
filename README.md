@@ -52,4 +52,32 @@ Copy the forwarded `https://<subdomain>.ngrok.app` URL. Use that base URL when r
 - Update the manifest (`/.well-known/apps.json`) metadata (name, description, instructions) as needed before production.
 - When deploying beyond ngrok, ensure the widget resource is cache-busted if the HTML changes to avoid stale embeds inside ChatGPT.
 
+## 🚀 Deployment
+
+### Free Deployment Platforms
+
+Deploy to free hosting platforms like Render, Railway, or Fly.io:
+
+**Quick Start:**
+1. See [DEPLOYMENT_QUICKSTART.md](./DEPLOYMENT_QUICKSTART.md) for 5-minute deployment
+2. See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive guide
+3. See [DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md) for overview
+
+**Supported Platforms:**
+- ✅ **Render** - Free tier, auto-deploy from Git
+- ✅ **Railway** - Free credits, auto-deploy from Git
+- ✅ **Fly.io** - Free tier, global edge deployment
+
+**Build Process:**
+The build script automatically:
+1. Builds the MCP server (`mcp-local-main`)
+2. Builds the main application
+3. Bundles MCP server to `dist/mcp-server/index.js`
+
+**Deployment Files:**
+- `render.yaml` - Render configuration
+- `railway.json` - Railway configuration
+- `fly.toml` - Fly.io configuration
+- `Dockerfile` - Docker container configuration
+
 ngrok config add-authtoken 34f26CZ6VlSwaPZSUSjUKipDOHO_6VpDVkmsTtsmgefKNvM3p

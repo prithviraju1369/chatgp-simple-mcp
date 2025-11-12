@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "npm run build:mcp && tsc --project tsconfig.json && npm run copy:mcp",
+    "build:mcp": "cd ../mcp-local-main && npm install && npm run build",
+    "copy:mcp": "node scripts/copy-mcp.js",
     "dev": "tsx watch src/server.ts",
     "dev:hotels": "tsx watch src/hotel-server.ts",
     "start": "node dist/server.js",

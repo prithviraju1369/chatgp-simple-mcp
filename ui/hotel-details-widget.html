@@ -1008,90 +1008,37 @@
     let dataRendered = false;
     let pollInterval = null;
     
-    // Listen for data from the MCP server
-    // According to Apps SDK docs and community posts:
-    // 1. window.openai.toolOutput is null on initial load
-    // 2. When SET_GLOBALS_EVENT fires, window.openai.toolOutput gets updated
-    // 3. We should read from window.openai.toolOutput as the source of truth
+    // Adapted from OpenAI community post: https://community.openai.com/t/when-or-how-to-enable-the-chatgpt-developer-mode-ui-components-for-apps-sdk/1362828/10
+    // Key pattern: Check if event.detail?.globals?.toolOutput !== undefined, then read from window.openai.toolOutput
     window.addEventListener(SET_GLOBALS_EVENT, (event) => {
       console.log('📨 Received SET_GLOBALS_EVENT:', event);
-      const globals = event?.detail?.globals;
-      console.log('📦 Event detail:', event?.detail);
-      console.log('📦 Globals:', globals);
       
-      // Check event detail structure (for debugging)
-      if (globals?.toolOutput) {
-        console.log('📦 Event globals.toolOutput:', globals.toolOutput);
-      }
-      if (event?.detail?.result?.structuredOutput) {
-        console.log('📦 Event result.structuredOutput:', event.detail.result.structuredOutput);
+      // Critical check from community post: Only process if toolOutput is being updated
+      const value = event?.detail?.globals?.toolOutput;
+      if (value === undefined) {
+        console.log('⚠️ Event received but toolOutput not in globals, ignoring');
+        return;
       }
       
-      // Primary approach: Read from window.openai.toolOutput after event fires
-      // Use requestAnimationFrame + setTimeout to ensure DOM and window.openai are synced
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          console.log('🔍 Checking window.openai.toolOutput after event...');
-          console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
-          console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
-          
-          // Try reading from window.openai.toolOutput first (primary path)
-          if (!dataRendered && checkAndRender()) {
-            if (pollInterval) {
-              clearTimeout(pollInterval);
-              pollInterval = null;
-              console.log('🛑 Stopped polling - data found via event (window.openai.toolOutput)');
-            }
-            return;
+      console.log('✅ toolOutput found in event globals, reading from window.openai.toolOutput');
+      
+      // Read from window.openai.toolOutput (the event updates this property)
+      // This matches the pattern: () => window.openai?.[key] ?? null
+      const toolOutput = window.openai?.toolOutput ?? null;
+      
+      if (toolOutput && !dataRendered) {
+        console.log('🔍 window.openai.toolOutput:', toolOutput);
+        if (checkAndRender()) {
+          if (pollInterval) {
+            clearTimeout(pollInterval);
+            pollInterval = null;
+            console.log('🛑 Stopped polling - data found via event');
           }
-          
-          // Fallback: Try reading from event payload if window.openai.toolOutput not ready
-          if (!dataRendered) {
-            let eventData = null;
-            
-            // Check different event structures (based on community forum posts)
-            if (globals?.toolOutput) {
-              eventData = globals.toolOutput;
-              console.log('📦 Trying to use event globals.toolOutput as fallback');
-            } else if (event?.detail?.result?.structuredOutput) {
-              eventData = event.detail.result.structuredOutput;
-              console.log('📦 Trying to use event result.structuredOutput as fallback');
-            } else if (event?.detail?.result?.structuredContent) {
-              eventData = event.detail.result.structuredContent;
-              console.log('📦 Trying to use event result.structuredContent as fallback');
-            }
-            
-            if (eventData && (eventData.propertyInfo || eventData.hotelDetails)) {
-              console.log('✅ Found hotel details in event payload, rendering...');
-              try {
-                renderHotelDetails(eventData);
-                dataRendered = true;
-                if (pollInterval) {
-                  clearTimeout(pollInterval);
-                  pollInterval = null;
-                  console.log('🛑 Stopped polling - data found via event payload fallback');
-                }
-                return;
-              } catch (error) {
-                console.error('❌ Error rendering from event payload:', error);
-              }
-            }
-            
-            console.log('⚠️ Event fired but data not ready yet, will retry...');
-            // Retry once more after a longer delay
-            setTimeout(() => {
-              if (!dataRendered && checkAndRender()) {
-                if (pollInterval) {
-                  clearTimeout(pollInterval);
-                  pollInterval = null;
-                  console.log('🛑 Stopped polling - data found on retry');
-                }
-              }
-            }, 200);
-          }
-        }, 100); // Increased delay to ensure sync
-      });
-    });
+        }
+      } else if (!toolOutput) {
+        console.log('⚠️ window.openai.toolOutput is null, will continue polling');
+      }
+    }, { passive: true });
 
     // Poll for data
     console.log('🏨 Hotel Details Widget initialized. Checking for data...');

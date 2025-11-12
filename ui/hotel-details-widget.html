@@ -671,7 +671,7 @@
   </div>
 
   <script>
-    const SET_GLOBALS_EVENT = 'openai:set-globals';
+    const SET_GLOBALS_EVENT = 'openai:set_globals';
 
     function renderHotelDetails(data) {
       console.log('🎨 Rendering hotel details:', data);
@@ -1005,15 +1005,27 @@
       }
     }
 
+    let dataRendered = false;
+    let pollInterval = null;
+    
     // Listen for data from the MCP server
+    // According to Apps SDK, when SET_GLOBALS_EVENT fires, window.openai.toolOutput is updated
     window.addEventListener(SET_GLOBALS_EVENT, (event) => {
       console.log('📨 Received SET_GLOBALS_EVENT:', event);
       const globals = event?.detail?.globals;
+      console.log('📦 Globals:', globals);
       
-      if (globals?.toolOutput) {
-        console.log('✅ Found toolOutput in event');
-        renderHotelDetails(globals.toolOutput);
-      }
+      // Read from window.openai.toolOutput (the event updates this property)
+      // Use a small delay to ensure window.openai.toolOutput is synced
+      setTimeout(() => {
+        if (!dataRendered && checkAndRender()) {
+          if (pollInterval) {
+            clearTimeout(pollInterval);
+            pollInterval = null;
+            console.log('🛑 Stopped polling - data found via event');
+          }
+        }
+      }, 50);
     });
 
     // Poll for data
@@ -1022,6 +1034,11 @@
     console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
     
     function checkAndRender() {
+      if (dataRendered) {
+        console.log('✅ Data already rendered, skipping');
+        return true;
+      }
+      
       if (window.openai?.toolOutput) {
         const data = window.openai.toolOutput;
         console.log('✅ Found toolOutput:', data);
@@ -1032,6 +1049,7 @@
         try {
           renderHotelDetails(data);
           console.log('✅ renderHotelDetails completed successfully');
+          dataRendered = true;
           return true;
         } catch (error) {
           console.error('❌ Error in renderHotelDetails:', error);
@@ -1041,6 +1059,7 @@
               <p>${error.message}</p>
             </div>
           `;
+          dataRendered = true;
           return true; // Stop polling even on error
         }
       }
@@ -1077,7 +1096,9 @@
           return;
         }
         
-        setTimeout(poll, pollDelay);
+        if (!dataRendered) {
+          pollInterval = setTimeout(poll, pollDelay);
+        }
       }
       
       poll();

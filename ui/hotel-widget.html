@@ -2236,7 +2236,7 @@
 
   <script>
     debugger
-    const SET_GLOBALS_EVENT = 'openai:set-globals';
+    const SET_GLOBALS_EVENT = 'openai:set_globals';
     
     // State for pagination
     let searchParams = null;
@@ -4305,45 +4305,27 @@
     let pollInterval = null;
     
     function handleGlobals(event) {
-      if (dataRendered) return; // Already rendered
-      
       console.log('📨 Received SET_GLOBALS_EVENT:', event);
       const globals = event?.detail?.globals;
       console.log('📦 Globals:', globals);
       
-      if (!globals) {
-        console.warn('⚠️ No globals in event');
-        return;
-      }
-
-      // Check for toolOutput (where structuredContent is injected)
-      if (globals.toolOutput) {
-        console.log('✅ Found toolOutput in event:', globals.toolOutput);
-        if (globals.toolOutput.hotels && Array.isArray(globals.toolOutput.hotels)) {
-          console.log('✅ Rendering hotels from event...');
-          renderHotels(globals.toolOutput);
-          dataRendered = true;
+      // According to Apps SDK, when SET_GLOBALS_EVENT fires, window.openai.toolOutput is updated
+      // So we should read directly from window.openai.toolOutput, not from the event payload
+      // Use a small delay to ensure window.openai.toolOutput is synced
+      setTimeout(() => {
+        if (!dataRendered && checkAndRender()) {
           if (pollInterval) {
-            clearInterval(pollInterval);
-            console.log('🛑 Stopped polling - data received via event');
+            clearTimeout(pollInterval);
+            pollInterval = null;
+            console.log('🛑 Stopped polling - data found via event');
           }
-        } else {
-          console.warn('⚠️ toolOutput exists but no hotels array:', globals.toolOutput);
         }
-      }
-      // Legacy fallback
-      else if (Object.prototype.hasOwnProperty.call(globals, 'hotelResults')) {
-        console.log('✅ Found hotelResults in event (legacy path)');
-        renderHotels(globals.hotelResults);
-        dataRendered = true;
-        if (pollInterval) clearInterval(pollInterval);
-      } else if (Object.prototype.hasOwnProperty.call(globals, 'structuredContent')) {
-        console.log('✅ Found structuredContent in event (legacy path)');
-        renderHotels(globals.structuredContent);
-        dataRendered = true;
-        if (pollInterval) clearInterval(pollInterval);
-      } else {
-        console.warn('⚠️ Event received but no recognized data keys:', Object.keys(globals));
+      }, 50);
+      
+      // Also check event payload as fallback (for legacy support)
+      if (globals?.toolOutput) {
+        console.log('📦 Event payload has toolOutput:', globals.toolOutput);
+        // The primary path is window.openai.toolOutput, but log this for debugging
       }
     }
 
@@ -4539,7 +4521,9 @@
           return;
         }
         
-        pollInterval = setTimeout(poll, pollDelay);
+        if (!dataRendered) {
+          pollInterval = setTimeout(poll, pollDelay);
+        }
       }
       
       poll();

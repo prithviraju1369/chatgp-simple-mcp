@@ -17,7 +17,7 @@
     "dev": "tsx watch src/server.ts",
     "dev:hotels": "tsx watch src/hotel-server.ts",
     "start": "node dist/server.js",
-    "start:hotels": "node scripts/runtime-restore-mcp.js && node scripts/verify-mcp.js && node dist/hotel-server.js"
+    "start:hotels": "node dist/hotel-server.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",

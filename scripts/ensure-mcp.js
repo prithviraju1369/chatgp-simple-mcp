@@ -140,8 +140,29 @@ try {
     console.log('⚠️  Could not restore from branch:', branchError.message.substring(0, 100));
   }
 
-  // Method 4: Try to copy from source (mcp-local-main) - for local development
-  console.log('📦 Method 4: Copying from source...');
+  // Method 4: Try to restore from backup (created by pre-build script)
+  console.log('📦 Method 4: Restoring from backup...');
+  const backupPath = join(projectRoot, '.mcp-server-backup', 'index.js');
+  if (existsSync(backupPath)) {
+    try {
+      const stats = statSync(backupPath);
+      if (stats.size > 0) {
+        copyFileSync(backupPath, mcpDest);
+        if (existsSync(mcpDest) && statSync(mcpDest).size > 0) {
+          console.log('✅ Restored MCP server from backup');
+          console.log('   File size:', statSync(mcpDest).size, 'bytes');
+          process.exit(0);
+        }
+      }
+    } catch (backupError) {
+      console.log('⚠️  Backup restore failed:', backupError.message);
+    }
+  } else {
+    console.log('⚠️  Backup not found:', backupPath);
+  }
+
+  // Method 5: Try to copy from source (mcp-local-main) - for local development
+  console.log('📦 Method 5: Copying from source...');
   if (existsSync(mcpSource)) {
     try {
       copyFileSync(mcpSource, mcpDest);
@@ -160,8 +181,8 @@ try {
     console.log('⚠️  Source not found:', mcpSource);
   }
 
-  // Method 5: Try to find file in any location
-  console.log('📦 Method 5: Searching for file in repository...');
+  // Method 6: Try to find file in any location
+  console.log('📦 Method 6: Searching for file in repository...');
   try {
     // List all files in git that match the pattern
     const gitFiles = execSync('git ls-files "**/mcp-server/index.js" "**/dist/mcp-server/index.js"', {

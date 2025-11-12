@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:ts && npm run ensure:mcp:server",
+    "build": "npm run pre:build:mcp && npm run build:ts && npm run ensure:mcp:server",
+    "pre:build:mcp": "node scripts/pre-build-mcp.js",
     "build:ts": "tsc --project tsconfig.json",
     "ensure:mcp:server": "node scripts/ensure-mcp.js",
     "build:mcp": "cd ../mcp-local-main && npm install && npm run build",

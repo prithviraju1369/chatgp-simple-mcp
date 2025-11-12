@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run build:mcp && tsc --project tsconfig.json && npm run copy:mcp",
+    "build": "npm run build:ts && npm run build:mcp:optional && npm run copy:mcp:optional",
+    "build:ts": "tsc --project tsconfig.json",
     "build:mcp": "cd ../mcp-local-main && npm install && npm run build",
+    "build:mcp:optional": "npm run build:mcp || echo '⚠️  MCP build skipped (mcp-local-main not found - will use bundled version if available)'",
     "copy:mcp": "node scripts/copy-mcp.js",
+    "copy:mcp:optional": "node scripts/copy-mcp.js || echo '⚠️  MCP copy skipped (will use bundled version if available)'",
     "dev": "tsx watch src/server.ts",
     "dev:hotels": "tsx watch src/hotel-server.ts",
     "start": "node dist/server.js",

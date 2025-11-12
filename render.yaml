@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run build:ts && (npm run build:mcp:optional || true) && (npm run copy:mcp:optional || true)
     startCommand: npm run start:hotels
     envVars:
       - key: NODE_ENV

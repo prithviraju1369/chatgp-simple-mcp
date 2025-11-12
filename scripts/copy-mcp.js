@@ -25,6 +25,7 @@ try {
   if (!existsSync(mcpSource)) {
     console.warn('⚠️  MCP server source not found:', mcpSource);
     console.warn('⚠️  Skipping copy. Make sure mcp-local-main is built first.');
+    console.warn('⚠️  The app will use bundled MCP server if available, or fall back to relative path.');
     process.exit(0);
   }
 

@@ -1006,168 +1006,159 @@
     }
 
     let dataRendered = false;
-    let pollInterval = null;
     
-    // Listen for data from the MCP server
-    // According to Apps SDK docs and community posts:
-    // 1. window.openai.toolOutput is null on initial load
-    // 2. When SET_GLOBALS_EVENT fires, window.openai.toolOutput gets updated
-    // 3. We should read from window.openai.toolOutput as the source of truth
-    window.addEventListener(SET_GLOBALS_EVENT, (event) => {
-      console.log('📨 Received SET_GLOBALS_EVENT:', event);
-      const globals = event?.detail?.globals;
-      console.log('📦 Event detail:', event?.detail);
-      console.log('📦 Globals:', globals);
-      
-      // Check event detail structure (for debugging)
-      if (globals?.toolOutput) {
-        console.log('📦 Event globals.toolOutput:', globals.toolOutput);
-      }
-      if (event?.detail?.result?.structuredOutput) {
-        console.log('📦 Event result.structuredOutput:', event.detail.result.structuredOutput);
-      }
-      
-      // Primary approach: Read from window.openai.toolOutput after event fires
-      // Use requestAnimationFrame + setTimeout to ensure DOM and window.openai are synced
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          console.log('🔍 Checking window.openai.toolOutput after event...');
-          console.log('🔍 window.openai exists:', typeof window.openai !== 'undefined');
-          console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
-          
-          // Try reading from window.openai.toolOutput first (primary path)
-          if (!dataRendered && checkAndRender()) {
-            if (pollInterval) {
-              clearTimeout(pollInterval);
-              pollInterval = null;
-              console.log('🛑 Stopped polling - data found via event (window.openai.toolOutput)');
-            }
-            return;
-          }
-          
-          // Fallback: Try reading from event payload if window.openai.toolOutput not ready
-          if (!dataRendered) {
-            let eventData = null;
-            
-            // Check different event structures (based on community forum posts)
-            if (globals?.toolOutput) {
-              eventData = globals.toolOutput;
-              console.log('📦 Trying to use event globals.toolOutput as fallback');
-            } else if (event?.detail?.result?.structuredOutput) {
-              eventData = event.detail.result.structuredOutput;
-              console.log('📦 Trying to use event result.structuredOutput as fallback');
-            } else if (event?.detail?.result?.structuredContent) {
-              eventData = event.detail.result.structuredContent;
-              console.log('📦 Trying to use event result.structuredContent as fallback');
-            }
-            
-            if (eventData && (eventData.propertyInfo || eventData.hotelDetails)) {
-              console.log('✅ Found hotel details in event payload, rendering...');
-              try {
-                renderHotelDetails(eventData);
-                dataRendered = true;
-                if (pollInterval) {
-                  clearTimeout(pollInterval);
-                  pollInterval = null;
-                  console.log('🛑 Stopped polling - data found via event payload fallback');
-                }
-                return;
-              } catch (error) {
-                console.error('❌ Error rendering from event payload:', error);
-              }
-            }
-            
-            console.log('⚠️ Event fired but data not ready yet, will retry...');
-            // Retry once more after a longer delay
-            setTimeout(() => {
-              if (!dataRendered && checkAndRender()) {
-                if (pollInterval) {
-                  clearTimeout(pollInterval);
-                  pollInterval = null;
-                  console.log('🛑 Stopped polling - data found on retry');
-                }
-              }
-            }, 200);
-          }
-        }, 100); // Increased delay to ensure sync
-      });
-    });
-
-    // Poll for data
-    console.log('🏨 Hotel Details Widget initialized. Checking for data...');
-    console.log('🔍 window.openai:', window.openai);
-    console.log('🔍 window.openai.toolOutput:', window.openai?.toolOutput);
-    
-    function checkAndRender() {
+    // Based on OpenAI Apps SDK examples - simplified approach
+    function initializeWidget() {
       if (dataRendered) {
         console.log('✅ Data already rendered, skipping');
-        return true;
+        return;
       }
       
-      if (window.openai?.toolOutput) {
-        const data = window.openai.toolOutput;
-        console.log('✅ Found toolOutput:', data);
-        console.log('🔍 Data keys:', Object.keys(data));
+      console.log('🚀 Initializing hotel details widget...');
+      console.log('🔍 window.openai exists:', !!window.openai);
+      console.log('🔍 window.openai keys:', window.openai ? Object.keys(window.openai) : 'N/A');
+      
+      // Try to get data from window.openai.toolOutput
+      let data = null;
+      
+      // Method 1: Direct property access (primary method per OpenAI SDK)
+      if (window.openai && 'toolOutput' in window.openai) {
+        try {
+          data = window.openai.toolOutput;
+          console.log('🔍 toolOutput exists in window.openai');
+          console.log('🔍 toolOutput value:', data);
+          console.log('🔍 toolOutput type:', typeof data);
+        } catch (e) {
+          console.warn('⚠️ Error accessing toolOutput:', e);
+        }
+      } else {
+        console.log('⚠️ toolOutput property not found in window.openai');
+      }
+      
+      // Method 2: Try as a function call if it's a function
+      if (!data && typeof window.openai?.toolOutput === 'function') {
+        try {
+          data = window.openai.toolOutput();
+          console.log('🔍 toolOutput (function call):', data);
+        } catch (e) {
+          console.warn('⚠️ Error calling toolOutput:', e);
+        }
+      }
+      
+      // Method 3: Try toolInput (some implementations use this)
+      if (!data && window.openai && 'toolInput' in window.openai) {
+        try {
+          const toolInput = window.openai.toolInput;
+          console.log('🔍 Checking toolInput:', toolInput);
+          if (toolInput && typeof toolInput === 'object') {
+            data = toolInput;
+            console.log('🔍 Using toolInput as data source');
+          }
+        } catch (e) {
+          console.warn('⚠️ Error accessing toolInput:', e);
+        }
+      }
+      
+      // Method 4: Check toolResponseMetadata
+      if (!data && window.openai && 'toolResponseMetadata' in window.openai) {
+        try {
+          const metadata = window.openai.toolResponseMetadata;
+          console.log('🔍 toolResponseMetadata:', metadata);
+          if (metadata && typeof metadata === 'object') {
+            if (metadata.structuredOutput) {
+              data = metadata.structuredOutput;
+              console.log('🔍 Found data in toolResponseMetadata.structuredOutput');
+            } else if (metadata.structuredContent) {
+              data = metadata.structuredContent;
+              console.log('🔍 Found data in toolResponseMetadata.structuredContent');
+            } else {
+              data = metadata;
+              console.log('🔍 Using toolResponseMetadata directly');
+            }
+          }
+        } catch (e) {
+          console.warn('⚠️ Error accessing toolResponseMetadata:', e);
+        }
+      }
+      
+      // If we have valid data, render it
+      if (data && typeof data === 'object') {
+        console.log('✅ Found data:', data);
+        console.log('🔍 Data type:', typeof data);
+        console.log('🔍 Data keys:', Object.keys(data || {}));
         console.log('🔍 Has propertyInfo?', !!data.propertyInfo);
         console.log('🔍 Has photoGallery?', !!data.photoGallery);
         
-        try {
-          renderHotelDetails(data);
-          console.log('✅ renderHotelDetails completed successfully');
-          dataRendered = true;
-          return true;
-        } catch (error) {
-          console.error('❌ Error in renderHotelDetails:', error);
-          document.getElementById('hotelDetailsWidget').innerHTML = `
-            <div class="loading">
-              <p>Error rendering hotel details:</p>
-              <p>${error.message}</p>
-            </div>
-          `;
-          dataRendered = true;
-          return true; // Stop polling even on error
+        if (data.propertyInfo || data.hotelDetails || data.photoGallery) {
+          console.log('✅ Valid hotel details data found, rendering...');
+          try {
+            renderHotelDetails(data);
+            dataRendered = true;
+            console.log('✅ Hotel details widget rendered successfully!');
+            return true;
+          } catch (error) {
+            console.error('❌ Error rendering hotel details:', error);
+            console.error('❌ Stack trace:', error.stack);
+            document.getElementById('hotelDetailsWidget').innerHTML = `
+              <div class="loading">
+                <p>Error rendering hotel details:</p>
+                <p>${error.message}</p>
+              </div>
+            `;
+            dataRendered = true;
+            return true;
+          }
+        } else {
+          console.warn('⚠️ Data exists but no hotel details found');
+          console.warn('⚠️ Data structure:', JSON.stringify(data).substring(0, 200));
         }
+      } else {
+        console.log('⚠️ No valid data found yet');
+        console.log('🔍 data value:', data);
+        console.log('🔍 data type:', typeof data);
       }
+      
       return false;
     }
-
-    if (!checkAndRender()) {
-      console.log('⚠️ No window.openai.toolOutput found initially. Starting polling...');
+    
+    // Handle SET_GLOBALS_EVENT - simpler approach based on OpenAI examples
+    function handleGlobals(event) {
+      console.log('📨 Received SET_GLOBALS_EVENT:', event);
       
-      let attempts = 0;
-      const pollDelay = 1000;
-      
-      function poll() {
-        attempts++;
-        
-        if (attempts % 5 === 0) {
-          console.log(`🔄 Hotel details polling attempt ${attempts} (${attempts * pollDelay / 1000}s)...`);
-          console.log('🔍 Current toolOutput:', window.openai?.toolOutput);
-        }
-        
-        if (checkAndRender()) {
-          console.log('✅ Hotel details data found and rendered via polling!');
-          return;
-        }
-        
-        if (attempts * pollDelay >= 60000) {
-          console.error('❌ Timeout: No hotel details data received after 60 seconds');
-          document.getElementById('hotelDetailsWidget').innerHTML = `
-            <div class="loading">
-              <p>⏱️ Widget loaded but no data received after 60 seconds</p>
-              <p>The server may still be processing your request.</p>
-            </div>
-          `;
-          return;
-        }
-        
-        if (!dataRendered) {
-          pollInterval = setTimeout(poll, pollDelay);
-        }
-      }
-      
-      poll();
+      // Wait a frame for window.openai to be updated
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          initializeWidget();
+        }, 50);
+      });
     }
+
+    window.addEventListener(SET_GLOBALS_EVENT, handleGlobals, { passive: true });
+    console.log('✅ Event listener registered for:', SET_GLOBALS_EVENT);
+
+    // Initialize widget based on OpenAI Apps SDK examples - simplified approach
+    console.log('🏨 Hotel Details Widget script loaded');
+    console.log('📍 Location:', window.location.href);
+    console.log('📍 Is in iframe:', window.self !== window.top);
+    
+    // Try to initialize immediately
+    console.log('🚀 Attempting immediate initialization...');
+    setTimeout(() => initializeWidget(), 0);
+    
+    // Also try after short delays (for async data loading)
+    setTimeout(() => {
+      if (!dataRendered) {
+        console.log('🔄 Retry after 100ms');
+        initializeWidget();
+      }
+    }, 100);
+    
+    setTimeout(() => {
+      if (!dataRendered) {
+        console.log('🔄 Retry after 500ms');
+        initializeWidget();
+      }
+    }, 500);
 
     // ========== CAROUSEL FUNCTIONS ==========
     

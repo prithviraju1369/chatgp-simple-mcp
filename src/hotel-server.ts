@@ -2636,20 +2636,246 @@ Location Details:\n${JSON.stringify(result, null, 2)}`
 );
 
 mcpServer.registerTool(
+  'marriott_get_available_filters',
+  {
+    title: '[STEP 3/4] Get Available Filters - MANDATORY',
+    description: `STEP 3: Get available filter codes for this search.
+
+**CALL THIS TOOL if user query describes the hotel (not just location and dates).**
+
+Skip ONLY if query = "find hotels in [location]" or "find hotels in [location] for [dates]" with no other descriptors.
+
+This returns the ONLY valid filter codes you can use. Filter codes that don't appear in this response cannot be used.`,
+    inputSchema: {
+      latitude: z.number().describe('Latitude from marriott_place_details'),
+      longitude: z.number().describe('Longitude from marriott_place_details'),
+      startDate: z.string().describe('Check-in date in YYYY-MM-DD format'),
+      endDate: z.string().describe('Check-out date in YYYY-MM-DD format'),
+      guests: z.number().optional().default(1).describe('Number of adult guests'),
+      rooms: z.number().optional().default(1).describe('Number of rooms'),
+      childAges: z.array(z.number()).optional().default([]).describe('Array of child ages, e.g. [2, 5] for 2 kids aged 2 and 5'),
+    },
+    annotations: {
+      readOnlyHint: true,
+    },
+  },
+  async (args: any) => {
+    console.log('\n🔵 [STEP 3] marriott_get_available_filters CALLED');
+    console.log('📥 Input arguments:', JSON.stringify(args, null, 2));
+    
+    // Call the Marriott API to get facets (same as search but we only return facets)
+    let marriottPath = process.env.MARRIOTT_MCP_SERVER_PATH;
+    
+    if (!marriottPath) {
+      const bundledPath = path.resolve(__dirname, './mcp-server/index.js');
+      const relativePath = path.resolve(__dirname, '../../mcp-local-main/dist/index.js');
+      
+      console.log('🔧 Attempting to ensure MCP server exists...');
+      ensureMcpServer(projectRoot, bundledPath);
+      
+      if (existsSync(bundledPath)) {
+        const stats = statSync(bundledPath);
+        if (stats.size > 0) {
+          marriottPath = bundledPath;
+        }
+      }
+      
+      if (!marriottPath && existsSync(relativePath)) {
+        marriottPath = relativePath;
+      }
+      
+      if (!marriottPath) {
+        throw new Error('MCP server not found');
+      }
+    }
+    
+    // Make API call to get search results (we only need facets)
+    const result = await new Promise<string>((resolve, reject) => {
+      let stdout = '';
+      let stderr = '';
+      let resolved = false;
+      let jsonrpcId = 1;
+      let proc: any;
+      
+      try {
+        proc = spawn('node', [marriottPath], {
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: { ...process.env, NODE_ENV: 'production' }
+        });
+        
+        const cleanup = () => {
+          if (proc && !proc.killed) {
+            proc.kill();
+          }
+        };
+        
+        proc.on('error', (error: Error) => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            reject(new Error(`Failed to spawn MCP server: ${error.message}`));
+          }
+        });
+        
+        if (proc.stdout) {
+          proc.stdout.on('data', (data: Buffer) => {
+            const chunk = data.toString();
+            stdout += chunk;
+            
+            const lines = stdout.split('\n');
+            for (const line of lines) {
+              if (line.trim()) {
+                try {
+                  const response = JSON.parse(line);
+                  if (response.result && response.id === jsonrpcId) {
+                    const text = response.result.content?.[0]?.text || JSON.stringify(response.result);
+                    if (!resolved) {
+                      resolved = true;
+                      cleanup();
+                      resolve(text);
+                    }
+                  }
+                } catch (e) {
+                  // Not JSON yet
+                }
+              }
+            }
+          });
+        }
+        
+        if (proc.stderr) {
+          proc.stderr.on('data', (data: Buffer) => {
+            stderr += data.toString();
+          });
+        }
+        
+        proc.on('close', (code: number) => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            if (code !== 0 || stderr) {
+              reject(new Error(`MCP server exited with code ${code}`));
+            } else {
+              reject(new Error('MCP server closed without sending result'));
+            }
+          }
+        });
+        
+        setTimeout(() => {
+          if (proc && !proc.killed && proc.stdin) {
+            const initMsg = {
+              jsonrpc: '2.0',
+              id: jsonrpcId++,
+              method: 'initialize',
+              params: {
+                protocolVersion: '2024-11-05',
+                capabilities: {},
+                clientInfo: { name: 'marriott-search-assistant', version: '1.0.0' }
+              }
+            };
+            proc.stdin.write(JSON.stringify(initMsg) + '\n');
+            
+            setTimeout(() => {
+              if (proc && !proc.killed && proc.stdin) {
+                const toolMsg = {
+                  jsonrpc: '2.0',
+                  id: jsonrpcId,
+                  method: 'tools/call',
+                  params: {
+                    name: 'marriott_search_hotels',
+                    arguments: {
+                      ...args,
+                      offset: 0,
+                      limit: 1, // We only need facets, not actual results
+                    }
+                  }
+                };
+                proc.stdin.write(JSON.stringify(toolMsg) + '\n');
+              }
+            }, 500);
+          }
+        }, 100);
+      } catch (error) {
+        if (!resolved) {
+          resolved = true;
+          reject(error);
+        }
+      }
+    });
+    
+    // Parse result and extract facets
+    let parsedData: any = null;
+    try {
+      parsedData = JSON.parse(result);
+    } catch (e) {
+      return {
+        content: [{ type: 'text' as const, text: 'Error: Could not parse facets from API' }],
+      };
+    }
+    
+    // Extract facets from the API response
+    const facetsData = parsedData.data?.data?.search?.lowestAvailableRates?.searchByGeolocation?.facets || [];
+    console.log(`📊 Facets extracted: ${facetsData.length}`);
+    
+    if (facetsData.length === 0) {
+      return {
+        content: [{ type: 'text' as const, text: 'No facets available for this location and dates.' }],
+      };
+    }
+    
+    // Format facets into a clean structure
+    const facetsForChatGPT: any = {};
+    
+    for (const facet of facetsData) {
+      const facetType = facet.type?.code;
+      const buckets = facet.buckets || [];
+      
+      if (facetType && buckets.length > 0) {
+        facetsForChatGPT[facetType] = buckets.map((bucket: any) => ({
+          code: bucket.code,
+          label: bucket.label || bucket.description || bucket.code,
+          count: bucket.count
+        }));
+      }
+    }
+    
+    const facetsResponse = `📊 AVAILABLE FILTERS
+
+${JSON.stringify(facetsForChatGPT, null, 2)}
+
+Use the EXACT codes from above in marriott_search_hotels. Match user's preferences to these codes.`;
+    
+    return {
+      content: [{ 
+        type: 'text' as const, 
+        text: facetsResponse
+      }],
+    };
+  }
+);
+
+mcpServer.registerTool(
   'marriott_search_hotels',
   {
-    title: '[STEP 3/3] Search Hotels - FINAL STEP',
-    description: `REQUIRED FINAL STEP: Search for actual Marriott hotels using coordinates from marriott_place_details.
+    title: '[STEP 4/4] Search Hotels - FINAL STEP',
+    description: `STEP 4: Search for Marriott hotels.
 
-🚨 CRITICAL 2-CALL WORKFLOW FOR FILTERS:
-If user mentions ANY filters (pool, spa, Sheraton, breakfast, etc.):
-1. CALL 1 (Discovery): Call this tool WITHOUT filter params → Get "=== AVAILABLE FACETS ===" in response
-2. CALL 2 (Filtered): Call this tool AGAIN with exact codes from CALL 1's facets
-Example: User wants "pool" → CALL 1 (no filters) → See "pool" in facets → CALL 2 with amenities=["pool"]
+🚨 FILTER PARAMETER RULES:
 
-⚠️ NEVER guess filter codes! Always get them from CALL 1's response first!
+1. Passing filter parameters? → MUST have called marriott_get_available_filters first
+2. Can ONLY use codes from marriott_get_available_filters response
+3. NEVER guess or assume filter codes
 
-This returns the actual hotel list with prices and booking links. This is the ONLY tool that returns hotel results.`,
+If user query described the hotel but you haven't called marriott_get_available_filters:
+→ STOP. Call marriott_get_available_filters first.
+
+If user query had ONLY location and dates:
+→ Call this tool without filter parameters.
+
+❌ FORBIDDEN: Guessed filter parameters
+✅ REQUIRED: Filter codes from marriott_get_available_filters
+
+Returns hotel list with prices, ratings, and booking links.`,
     inputSchema: {
       latitude: z.number().describe('Latitude from marriott_place_details'),
       longitude: z.number().describe('Longitude from marriott_place_details'),
@@ -2695,66 +2921,6 @@ This returns the actual hotel list with prices and booking links. This is the ON
     const limit = ITEMS_PER_PAGE; // Always fetch 4 results per API call
     
     console.log(`📄 Pagination: page=${page}, offset=${offset}, limit=${limit}`);
-    
-    // 🎯 AUTOMATIC FILTER DETECTION & ENFORCEMENT
-    // Track if this location has been searched before
-    const locationKey = `${args.latitude},${args.longitude}`;
-    const lastSearchKey = (global as any).__lastSearchLocation;
-    const isNewLocation = lastSearchKey !== locationKey;
-    
-    // Detect if user is trying to use filters
-    const hasFilters = (args.brands && args.brands.length > 0) ||
-                      (args.amenities && args.amenities.length > 0) ||
-                      (args.activities && args.activities.length > 0) ||
-                      (args.transportationTypes && args.transportationTypes.length > 0) ||
-                      (args.propertyTypes && args.propertyTypes.length > 0) ||
-                      (args.cities && args.cities.length > 0) ||
-                      (args.states && args.states.length > 0) ||
-                      (args.countries && args.countries.length > 0) ||
-                      (args.meetingsAndEvents && args.meetingsAndEvents.length > 0) ||
-                      (args.hotelServiceTypes && args.hotelServiceTypes.length > 0) ||
-                      (args.leisureRegion && args.leisureRegion.length > 0) ||
-                      (args.allInclusive && args.allInclusive.length > 0);
-    
-    if (hasFilters && isNewLocation) {
-      // FIRST SEARCH WITH FILTERS - FORCE DISCOVERY CALL FIRST!
-      console.error('🚨 FILTER ERROR: First search at this location MUST be without filters!');
-      console.error('⚠️ Filters requested:', {
-        brands: args.brands,
-        amenities: args.amenities,
-        activities: args.activities
-      });
-      console.error('⚠️ Location:', locationKey);
-      
-      return {
-        content: [{ 
-          type: 'text' as const, 
-          text: `🚨 ERROR: You MUST make a discovery call FIRST before using filters!
-
-STEP 1 (REQUIRED): Call marriott_search_hotels WITHOUT any filter parameters:
-- latitude: ${args.latitude}
-- longitude: ${args.longitude}
-- startDate: ${args.startDate}
-- endDate: ${args.endDate}
-- guests: ${args.guests}
-- DO NOT include: brands, amenities, activities
-
-STEP 2: Read the response which contains "=== AVAILABLE FACETS ===" section
-
-STEP 3: Call marriott_search_hotels AGAIN with exact filter codes from STEP 1's facets
-
-You tried to skip STEP 1! Please make the discovery call first.` 
-        }],
-      };
-    }
-    
-    // Track this location for next call
-    if (!hasFilters) {
-      (global as any).__lastSearchLocation = locationKey;
-      console.log('✅ Discovery call made for location:', locationKey);
-    } else {
-      console.log('✅ Filtered call made (after discovery) for location:', locationKey);
-    }
     
     // Call the local Marriott MCP server via subprocess
     // Priority: 1) Environment variable, 2) Bundled MCP server (dist/mcp-server/index.js), 3) Relative path (dev only)
@@ -3615,30 +3781,26 @@ When tools return widgets (interactive UI components), you MUST follow these rul
 
 Remember: The widget IS the response. Your text should be minimal and conversational, not a summary.
 
-🚨🚨🚨 CRITICAL FILTERING RULE - READ THIS FIRST! 🚨🚨🚨
+🚨 MANDATORY 4-STEP WORKFLOW 🚨
 
-**IF USER MENTIONS ANY FILTER (pool, spa, Sheraton, breakfast, parking, etc.) YOU MUST:**
+**STEP 1:** marriott_search_places → Get location
+**STEP 2:** marriott_place_details → Get coordinates
+**STEP 3:** marriott_get_available_filters → Get filter codes (if query describes hotel)
+**STEP 4:** marriott_search_hotels → Search (use codes from Step 3)
 
-STEP A) Make CALL 1 - Discovery (NO filter params):
-   marriott_search_hotels(latitude, longitude, startDate, endDate, guests)
-   
-STEP B) READ the response - it contains "=== AVAILABLE FACETS ===" section with codes
+**DECISION FOR STEP 3:**
+- Query describes ONLY location and dates → Skip Step 3
+- Query describes the hotel type/features → MUST call Step 3
 
-STEP C) Make CALL 2 - Filtered (WITH exact codes from CALL 1):
-   marriott_search_hotels(...same params..., amenities=["pool"], brands=["SI"])
-   
-STEP D) Return CALL 2 results to user (NOT Call 1!)
+🚨 CRITICAL RULES:
+- ❌ NEVER pass filter parameters to marriott_search_hotels unless they came from marriott_get_available_filters
+- ❌ NEVER guess or assume filter codes
+- ✅ ALL filter codes MUST come from marriott_get_available_filters response
+- ✅ If query describes hotel, call marriott_get_available_filters before marriott_search_hotels
 
-**EXAMPLE:**
-User: "find hotels with pool in New York"
-YOU MUST:
-1. Get coordinates for New York
-2. CALL 1: marriott_search_hotels(lat, lng, dates) → Get facets
-3. CALL 2: marriott_search_hotels(lat, lng, dates, amenities=["pool"]) → Get filtered results
-4. Show user the CALL 2 results
-
-⚠️ NEVER skip CALL 1! You need facets to know correct codes!
-⚠️ NEVER guess codes! "pool" might be "POOL", "pool", or "swimming-pool" - get it from facets!
+**WORKFLOW:**
+- Query describes hotel → Call marriott_get_available_filters → Get codes → Use in marriott_search_hotels
+- Query has ONLY location/dates → Call marriott_search_hotels without filters
 
 🚨 CONVERSATIONAL MEMORY - TRACK PARAMETERS ACROSS MESSAGES 🚨
 
@@ -3759,15 +3921,21 @@ For EVERY hotel search, you MUST complete ALL 3 steps before responding to the u
 - Returns: latitude, longitude, address
 - Action: Extract the coordinates for Step 3
 
-**Step 3: SEARCH HOTELS (MANDATORY)**
-- Call: marriott_search_hotels({latitude, longitude, startDate, endDate, guests, ...filters})
-- Returns: Hotel list with pricing and details
-- Action: Present results to user
+**Step 3: GET AVAILABLE FILTERS (if query has descriptors)**
+- Call: marriott_get_available_filters
+- Skip ONLY if query = "find hotels in X" with no descriptors
+- Returns: Valid filter codes
+- Action: Extract codes for Step 4
 
-⚠️ NEVER skip Step 2! Coordinates are REQUIRED for hotel search.
-⚠️ NEVER use web search for Marriott hotels - ONLY use these 3 tools.
+**Step 4: SEARCH HOTELS (MANDATORY)**
+- Call: marriott_search_hotels
+- Use filter codes from Step 3 (if Step 3 was called)
+- If Step 3 skipped, call with NO filter parameters
+- Returns: Hotel list
 
-🚨 GETTING HOTEL DETAILS (4TH TOOL) 🚨
+⚠️ NEVER use filter parameters unless they came from Step 3
+
+🚨 HOTEL DETAILS (OPTIONAL) 🚨
 
 When user asks for "more details", "tell me more about", or "details on [hotel name]":
 
@@ -3822,74 +3990,19 @@ BEFORE searching, extract ALL parameters from user query:
 - Ask if not provided (REQUIRED for pricing)
 - Convert relative dates: "next weekend", "this Friday", etc.
 
-**D) FILTERS (if mentioned):**
-- Pool → amenities=["POOL"]
-- WiFi → amenities=["WIFI"]
-- Breakfast → amenities=["BREAKFAST"]
-- Spa → activities=["SPA"]
-- Airport shuttle → transportationTypes=["AIRPORT_SHUTTLE"]
+**D) FILTERS:**
+- If query describes hotel → Call marriott_get_available_filters
+- Use ONLY codes from marriott_get_available_filters response
+- NEVER guess filter codes
 
-🚨 MANDATORY 2-CALL WORKFLOW FOR FILTERED SEARCHES 🚨
+🚨 WORKFLOW 🚨
 
-**When user requests filters (pool, spa, car rental, brands, etc.), you MUST make 2 calls:**
+1. marriott_search_places
+2. marriott_place_details  
+3. IF query describes hotel → marriott_get_available_filters
+4. marriott_search_hotels (use codes from step 3, or no filters)
 
-**CALL 1 - Discovery (NO filters):**
-marriott_search_hotels(coords, dates, guests)  // NO filter parameters!
-
-Response includes: === AVAILABLE FACETS === with codes
-
-**CALL 2 - Filtered (MANDATORY if user requested filters):**
-marriott_search_hotels(coords, dates, guests,
-    amenities=["pool"],               // ← EXACT codes from facets
-    transportationTypes=["car-rental-desk"])  // ← EXACT codes from facets
-
-**⚠️ CRITICAL: You MUST make both calls! Don't stop after call 1!**
-
-**COMPLETE EXAMPLE - WITH FILTERS:**
-
-User: "find hotels with pool and car rental"
-
-Agent thinks: User wants filters → I need 2 calls
-
-CALL 1 (discovery):
-marriott_search_hotels(coords, dates, guests)  // NO filter params
-
-CALL 1 RESPONSE (I receive):
-=== AVAILABLE FACETS ===
-amenities: pool, breakfast, fitness-center, ...
-transportation-types: car-rental-desk, airport-shuttle, parking
-
-Agent reads response: 
-- User wants "pool" → I see "pool" in amenities ✓
-- User wants "car rental" → I see "car-rental-desk" in transportation-types ✓
-
-CALL 2 (filtered with codes from Call 1):
-marriott_search_hotels(coords, dates, guests,
-    amenities=["pool"],
-    transportationTypes=["car-rental-desk"])
-
-Agent returns: Call 2 results to user
-
-**DECISION LOGIC:**
-
-Does user request filters? (pool, Sheraton, spa, car rental, etc.)
-- **YES** → Make 2 calls (discovery + filtered)
-- **NO** → Make 1 call only
-
-**⚠️ CRITICAL: You MUST read Call 1's response BEFORE making Call 2!**
-**⚠️ CRITICAL: Call 2 parameters come from Call 1's facets, NOT from your guesses!**
-
-**🚨 BRAND CODES - NEVER GUESS:**
-
-❌ WRONG:
-User: "find Sheraton" → You guess brands=["SH"]
-User: "find Courtyard" → You guess brands=["CY"]
-
-✅ CORRECT:
-User: "find Sheraton"
-1. CALL 1: Get facets → See brands: SI, CY, RI, MC, ...
-2. Match: "Sheraton" → "SI" (from facets!)
-3. CALL 2: brands=["SI"]
+⚠️ Filter codes can ONLY come from marriott_get_available_filters
 
 💡 CONVERSATION MEMORY
 
@@ -3923,18 +4036,20 @@ You:
 4. marriott_place_details({"placeId": "..."})
 5. marriott_search_hotels({"latitude": 12.971, "longitude": 77.594, "startDate": "2025-11-01", "endDate": "2025-11-03", "guests": 1, "childAges": [2]})
 
-**Example 3: With Filters (2 calls)**
-User: "Show me hotels with pool and spa in Goa"
+**Example 3: Query Describes Hotel**
+User: "Show me hotels which allows [activity] in [location]"
+→ Query describes hotel feature
+→ MUST call marriott_get_available_filters
 You:
-1. Ask: "When are your travel dates?"
-User: "July 1-5"
-You:
-2. marriott_search_places({"query": "Goa"})
-3. marriott_place_details({"placeId": "..."})
-4. marriott_search_hotels({coords, dates, guests}) // CALL 1: Discovery
-   → See facets: POOL, SPA, WIFI, BREAKFAST, etc.
-5. marriott_search_hotels({coords, dates, guests, amenities: ["POOL"], activities: ["SPA"]}) // CALL 2: Filtered
-   → Present results: "Found 8 hotels with pool and spa..."
+1. marriott_search_places({"query": "[location]"})
+2. marriott_place_details({"placeId": "..."})
+3. marriott_get_available_filters({coords, dates, guests})
+   → Response shows available codes
+4. Extract matching code from response
+5. marriott_search_hotels({coords, dates, guests, [filter]: ["code"]})
+
+❌ WRONG: Calling marriott_search_hotels with guessed filter codes
+✅ CORRECT: Get codes from marriott_get_available_filters, then use in marriott_search_hotels
 
 🎨 RESULT PRESENTATION
 
@@ -4006,4 +4121,3 @@ app.listen(port, () => {
 
 // Export app for Vercel serverless functions
 export default app;
-

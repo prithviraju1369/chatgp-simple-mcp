@@ -16,7 +16,7 @@
     "verify:mcp": "test -f dist/mcp-server/index.js && echo '✅ MCP server found' || (echo '❌ MCP server not found!' && exit 1)",
     "dev": "tsx watch src/server.ts",
     "dev:hotels": "tsx watch src/hotel-server.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/hotel-server.js",
     "start:hotels": "node dist/hotel-server.js"
   },
   "dependencies": {
